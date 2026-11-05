@@ -719,12 +719,58 @@ def script_text(art):
     return "\n".join(textwrap.fill(p, 80) for p in parts) + "\n"
 
 
+# ---------------------------------------------------------------- YouTube のタイトル・説明文
+
+
+def _yt_text(s):
+    """YouTube はタイトル・説明文の < > を受け付けないので置き換える。"""
+    return str(s).replace("<", "‹").replace(">", "›")
+
+
+def youtube_meta(art, number):
+    """クイズ動画のタイトル・説明文・タグ。答えは説明文の下の方にだけ書く(タイトルには書かない)。"""
+    qz = art["quiz"]
+    answer = qz["choices"][qz["answer"]]
+    artist = art.get("artist") or "Unknown artist"
+    work = f"\"{art['title']}\" by {artist}" if artist.lower() not in (
+        "unknown artist", "unidentified artist", "anonymous") else f"\"{art['title']}\" (artist unknown)"
+    lines = [
+        "Can you guess the year? Comment your answer before the reveal! 🎨",
+        "",
+        "Choices: " + " / ".join(qz["choices"]),
+        "",
+        "⬇️ Answer below ⬇️",
+        ".", ".", ".",
+        f"Answer: {answer}",
+        work,
+        " · ".join(x for x in (art.get("date"), art.get("medium")) if x),
+        art["museum"],
+        art["url"],
+        "",
+        f"Image: {art['museum']}, Public Domain (CC0). This channel is not affiliated with the museum.",
+        "",
+        "#arthistory #artquiz #painting #shorts",
+    ]
+    tags = ["art quiz", "art history", "painting", "guess the year", "museum", "fine art", "art", "quiz"]
+    if artist.lower() not in ("unknown artist", "unidentified artist", "anonymous"):
+        tags.append(artist)
+    return {
+        "title": _yt_text(f"When was this painted? 🎨 Daily Art Quiz #{number}")[:100],
+        "description": _yt_text("\n".join(lines))[:4900],
+        "tags": tags,
+        "answer": answer,
+    }
+
+
 # ---------------------------------------------------------------- main
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--source", choices=sorted(SOURCES), default="met")
+    ap.add_argument("--source", choices=sorted(SOURCES) + ["auto"], default="met",
+                    help="auto: 投稿記録(--history)の最後の回と違う美術館(Met とシカゴ美術館を交互に)")
+    ap.add_argument("--history", help="投稿記録 upload_history.json。ここにある作品は選ばない。"
+                                      "指定すると、投稿用の out/meta.json(タイトル・説明文など)も書き出す")
     ap.add_argument("--format", choices=sorted(FORMATS), default="shorts")
     ap.add_argument("--style", choices=["quiz", "classic"],
                     help="quiz: 「いつ描かれた？」の3択(縦型のみ。縦型の既定)/ classic: 作品紹介(横型の既定)")
@@ -756,6 +802,10 @@ def main():
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     today = args.date or datetime.now(TZ).strftime("%Y-%m-%d")
+    history = json.loads(Path(args.history).read_text()) if args.history and Path(args.history).exists() else []
+    if args.source == "auto":
+        last = history[-1]["source"] if history else "aic"
+        args.source = "aic" if last == "met" else "met"
     seed = args.seed or f"{today}:{args.source}"
     rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
     used_path = out / "used.json"
@@ -773,7 +823,8 @@ def main():
             if accept and not accept(art):
                 sys.exit(f"{args.id} は制作年の幅が広い(または不明な)ので、クイズに使えません。--style classic なら使えます")
         else:
-            used = load_used(used_path)
+            used = load_used(used_path) + [{"source": h["source"], "id": h["id"], "date": h.get("date")}
+                                           for h in history]
             art = choose_artwork(src, rng, used, today, accept)
             record = not args.seed and not args.still and not any(
                 u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
@@ -818,6 +869,13 @@ def main():
             duration = q.tl.end
         print(f"動画を書き出しています({duration:.1f}秒)")
         render_video(size, frame_at, duration, out / f"{stem}.mp4", args.audio)
+    if args.history and style == "quiz" and not args.still:
+        number = len(history) + 1
+        meta = youtube_meta(art, number)
+        meta.update({"key": f"{art['source']}:{art['id']}", "number": number, "source": art["source"],
+                     "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
+        (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
+        print(f"投稿用: {meta['title']}")
     if record:
         used = load_used(used_path)
         used.append({"source": art["source"], "id": art["id"], "date": today, "title": art["title"]})

@@ -3,6 +3,52 @@
 YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) の動画を作る。
 美術館のオープンデータから、パブリックドメインの絵画を1日1点選び、「When was this painted?」の3択クイズの縦型動画にする。
 
+## 自動投稿(GitHub Actions)
+
+`.github/workflows/post.yml` が毎日 07:17 JST(予備 10:17 JST)に動き、1本作って @painted-when に投稿する。
+
+1. **check**: 最後の投稿から12時間以内なら止まる(`posted_today.py`)。定期実行はリポジトリ変数 `AUTO_POST` が `true` のときだけ動く
+2. **generate**: `art_shorts.py --source auto --history upload_history.json --tts google` で動画と `out/meta.json`
+   (タイトル・説明文・タグ)を作る。美術館は Met とシカゴ美術館を1日ごとに交互にし、投稿済みの作品は選ばない
+3. **upload**: `youtube_upload.py` でアップロード(カテゴリは Education、言語は英語)し、`upload_history.json` に記録してコミットする
+4. 失敗したら Issue を立てる(トークン失効は `token-invalid`、それ以外は `post-failure` ラベル)
+
+タイトルは「When was this painted? 🎨 Daily Art Quiz #連番」。答えはタイトルに書かず、説明文の下の方に、
+作品名・作者・美術館のページへのリンク・出典(CC0)と一緒に書く。
+
+### セットアップ
+
+1. **Google Cloud**: ねこピアノと同じプロジェクト `moyou-gakufu` の OAuth クライアントを使える(本番環境に公開済みなので、
+   トークンが7日で切れる制限はない)。YouTube Data API v3 と Cloud Text-to-Speech API が有効になっていること
+2. **リフレッシュトークン**(ローカル PC で一度だけ):
+   ```sh
+   pip install google-auth-oauthlib
+   python3 get_youtube_refresh_token.py client_secret_xxx.json
+   ```
+   ブラウザのアカウント選択で **Painted When?(@painted-when)のチャンネルを選ぶ**。表示されたチャンネル名を必ず確認する
+3. **GitHub**: Settings → Secrets and variables → Actions に登録する
+
+   | 種類 | 名前 | 値 |
+   |---|---|---|
+   | Secret | `YT_CLIENT_ID` | 手順2の出力 |
+   | Secret | `YT_CLIENT_SECRET` | 手順2の出力 |
+   | Secret | `YT_REFRESH_TOKEN` | 手順2の出力 |
+   | Secret | `YT_CHANNEL_ID` | 手順2の出力。別チャンネルへの誤投稿を防ぐ |
+   | Secret | `GOOGLE_TTS_API_KEY` | Text-to-Speech の API キー |
+   | Variable | `AUTO_POST` | `true` で定期投稿を有効にする。手順4のテスト投稿が成功してから設定する |
+
+4. **動作確認**: Actions → post → Run workflow で、まず `dry_run` にチェックを入れて実行し、artifact の動画を確認する。
+   次に `privacy: private` で1本投稿してみる。問題なければ変数 `AUTO_POST` を `true` にする
+
+### 注意
+
+- **未審査の API プロジェクトからアップロードした動画は、YouTube 側で非公開に固定される。** `public` を指定したのに
+  非公開になったら、`youtube_upload.py` が警告を出し、履歴の `privacy` にも実際の公開設定が残る。
+  ねこピアノは同じプロジェクトから公開で投稿できているので、問題ないはず
+- YouTube Data API の割り当て(1日あたり)はプロジェクト単位なので、ねこピアノ(1日2本)と共有になる
+- **`post.yml` を Claude(GitHub App 経由の push)が変更した後は、GitHub の Web 画面で `post.yml` を1文字でも編集してコミットし直すこと。**
+  App 経由の push では定期実行(schedule)が登録されない(ねこピアノで確認済み)
+
 ## チャンネルの素材(`branding/`)
 
 | ファイル | 内容 |
