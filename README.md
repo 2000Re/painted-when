@@ -80,7 +80,7 @@ python art_shorts.py --still                     # 動画を作らず、サム�
 
 クイズは英語で読み上げる。台本は作品データだけから作り、声の長さに合わせて画面の場面の時刻を決める
 (選択肢は読み上げに合わせて1つずつ出て、「It's 1889!」と同時に正解が光る)。長さは17〜19秒ほど
-(2026-11-05、`en-US-Neural2-J`・1.1倍速で確認)。60文字を超える題名は読まず、作者だけ読む(題名は画面に出る)。
+(2026-11-05、`en-US-Chirp3-HD-Charon`・1.1倍速で確認)。60文字を超える題名は読まず、作者だけ読む(題名は画面に出る)。
 
 ```
 When was this painted?
@@ -97,7 +97,7 @@ python art_shorts.py --tts dummy               # 通信なしの仮の音で、�
 python art_shorts.py --tts none                # 読み上げなし(13秒・無音)
 ```
 
-- 声は `ART_SHORTS_TTS_VOICE`(既定 `en-US-Neural2-J`)、速さは `ART_SHORTS_TTS_RATE`(既定 1.1)で変えられる。
+- 声は `ART_SHORTS_TTS_VOICE`(既定 `en-US-Chirp3-HD-Charon`。9種類を聞き比べて選んだ)、速さは `ART_SHORTS_TTS_RATE`(既定 1.1)で変えられる。
   `en-US-Neural2-J/D/F`、`en-US-Studio-Q/O`、`en-US-Chirp3-HD-Charon/Aoede`、`en-GB-Neural2-B/C` は使えることを確認済み
 - キーは `X-Goog-Api-Key` ヘッダーで送る(URL に載せない)。Claude Code のクラウド環境では、環境変数ではなく
   「Network secrets」に登録する(許可ウェブサイト `texttospeech.googleapis.com`、ヘッダー名 `X-Goog-Api-Key`、

@@ -12,7 +12,7 @@
   google … Google Cloud Text-to-Speech。API キーは環境変数 GOOGLE_TTS_API_KEY(GitHub Actions など)か、
            Claude Code のクラウド環境の「Network secrets」(texttospeech.googleapis.com への通信に
            X-Goog-Api-Key ヘッダーを自動で付ける。この場合キーはプログラムからは見えない)で渡す。
-           声は ART_SHORTS_TTS_VOICE(既定 en-US-Neural2-J)で変えられる
+           声は ART_SHORTS_TTS_VOICE(既定 en-US-Chirp3-HD-Charon)で変えられる
   dummy  … 通信なし。文の長さから見積もった長さの仮の音(タイミング確認用)
 """
 import base64
@@ -30,7 +30,7 @@ import art_shorts as A
 import quiz
 
 SR = 48000
-DEFAULT_VOICE = "en-US-Neural2-J"
+DEFAULT_VOICE = "en-US-Chirp3-HD-Charon"
 DEFAULT_RATE = 1.1          # 少し速めに読ませる(Shorts のテンポ)
 LONG_TITLE = 60             # これより長い題名は読み上げない(画面には出る)
 TTS_URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
