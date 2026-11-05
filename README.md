@@ -18,8 +18,23 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 ### セットアップ
 
-1. **Google Cloud**: ねこピアノと同じプロジェクト `moyou-gakufu` の OAuth クライアントを使える(本番環境に公開済みなので、
-   トークンが7日で切れる制限はない)。YouTube Data API v3 と Cloud Text-to-Speech API が有効になっていること
+0. **ホームページとプライバシーポリシー**: `docs/` を GitHub Pages で公開する
+   (Settings → Pages → Source「Deploy from a branch」→ Branch `main`、フォルダ `/docs`)。
+   公開先は https://2000re.github.io/painted-when/ (ホーム)、`privacy.html`(プライバシーポリシー)、`terms.html`(利用規約)
+1. **Google Cloud**(Text-to-Speech の API キーを作ったプロジェクトで):
+   1. 「API とサービス」→「ライブラリ」で **YouTube Data API v3** を有効にする
+   2. 「OAuth 同意画面」(Google Auth Platform)を作る
+      - アプリ名 `Painted When? Uploader`、ユーザーサポートメール・デベロッパーの連絡先は自分のメール
+      - 対象(User type)は「外部」
+      - アプリのホームページ `https://2000re.github.io/painted-when/`、
+        プライバシーポリシー `https://2000re.github.io/painted-when/privacy.html`、
+        利用規約 `https://2000re.github.io/painted-when/terms.html`
+      - 承認済みドメイン `2000re.github.io`
+      - スコープ(データアクセス)に `.../auth/youtube.upload` と `.../auth/youtube.readonly` を追加
+      - ロゴは設定しない(設定すると Google の確認が必要になる)
+   3. 公開ステータスを「本番環境」にする(「テスト」のままだとリフレッシュトークンが7日で切れる)。
+      確認(verification)は申請しなくてよい。自分しか使わないので、ログイン時の「確認されていません」の警告を進めばよい
+   4. 「認証情報」→「OAuth クライアント ID を作成」→ 種類「デスクトップアプリ」。JSON をダウンロードする
 2. **リフレッシュトークン**(ローカル PC で一度だけ):
    ```sh
    pip install google-auth-oauthlib
@@ -42,10 +57,11 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 ### 注意
 
-- **未審査の API プロジェクトからアップロードした動画は、YouTube 側で非公開に固定される。** `public` を指定したのに
-  非公開になったら、`youtube_upload.py` が警告を出し、履歴の `privacy` にも実際の公開設定が残る。
-  ねこピアノは同じプロジェクトから公開で投稿できているので、問題ないはず
-- YouTube Data API の割り当て(1日あたり)はプロジェクト単位なので、ねこピアノ(1日2本)と共有になる
+- **新しい API プロジェクトからアップロードした動画は、YouTube の監査(audit)を通るまで非公開に固定される。**
+  公開で投稿するには「YouTube API Services - Audit and Quota Extension Form」で監査を申請する
+  (審査ではホームページ・プライバシーポリシー・利用規約と、アプリの使い方を聞かれる)。
+  `public` を指定したのに非公開になったら、`youtube_upload.py` が警告を出し、履歴の `privacy` にも実際の公開設定が残る
+- YouTube Data API の割り当て(1日あたり)はプロジェクト単位。新しいプロジェクトなので、ねこピアノとは共有しない
 - **`post.yml` を Claude(GitHub App 経由の push)が変更した後は、GitHub の Web 画面で `post.yml` を1文字でも編集してコミットし直すこと。**
   App 経由の push では定期実行(schedule)が登録されない(ねこピアノで確認済み)
 

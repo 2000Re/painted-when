@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Painted When?</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="bar">
+  <img src="icon.png" alt="">
+  <a class="name" href="./">Painted When?</a>
+  <nav><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="muted">Effective date: November 5, 2026</p>
+
+  <p>
+    This Privacy Policy explains how <strong>Painted When? Uploader</strong> (“the app”) handles information.
+    The app is a small open-source program
+    (<a href="https://github.com/2000Re/painted-when">github.com/2000Re/painted-when</a>)
+    that generates a daily art-quiz video and uploads it to the YouTube channel
+    <a href="https://www.youtube.com/@painted-when">@painted-when</a>.
+    It is operated by the owner of that channel for their own use only.
+  </p>
+
+  <h2>YouTube API Services</h2>
+  <p>
+    The app uses YouTube API Services. By using the app, you agree to be bound by the
+    <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a>.
+    Information accessed through YouTube API Services is also subject to the
+    <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.
+  </p>
+
+  <h2>Who uses the app</h2>
+  <p>
+    The app is used only by the channel owner to post to their own channel. It is not offered to the public,
+    and no other person signs in to it.
+  </p>
+
+  <h2>Information the app accesses</h2>
+  <p>When the channel owner authorizes the app with their Google account, it requests these permissions:</p>
+  <ul>
+    <li><code>youtube.upload</code> — to upload the daily video to the owner's channel.</li>
+    <li><code>youtube.readonly</code> — to read the ID and name of the authorized channel, so that the app can
+      stop if it is about to upload to the wrong channel.</li>
+  </ul>
+  <p>
+    The app does not access comments, subscribers, viewing history, analytics, or any other YouTube data,
+    and it does not access any data of viewers or other YouTube users.
+  </p>
+
+  <h2>Information the app stores</h2>
+  <ul>
+    <li>
+      <strong>Authorization credentials.</strong> The OAuth client ID, client secret, and refresh token are stored
+      as encrypted GitHub Actions secrets in the channel owner's repository, and are used only to obtain
+      access tokens for the uploads described above. Access tokens are kept in memory only while an upload runs.
+    </li>
+    <li>
+      <strong>Upload history.</strong> For each upload, the app records the episode number, the artwork it used,
+      the video title, the video ID, the privacy status, and the upload time in a public file
+      (<code>upload_history.json</code>) in the repository, so that it does not reuse an artwork.
+      This contains no personal information.
+    </li>
+  </ul>
+  <p>The app does not collect personal information from viewers, does not use cookies, and does not run analytics.</p>
+
+  <h2>How the information is used and shared</h2>
+  <p>
+    The information above is used only to upload videos to the owner's channel. It is not sold, shared with
+    third parties, or used for advertising. The app sends data only to Google (YouTube Data API and Google
+    Cloud Text-to-Speech, which receives only the quiz narration text) and to the museums' public APIs
+    (which receive only requests for public artwork data).
+  </p>
+
+  <h2>Revoking access and deleting data</h2>
+  <p>
+    The channel owner can revoke the app's access to their Google account at any time from the
+    <a href="https://security.google.com/settings/security/permissions">Google security settings page</a>
+    (Third-party apps with account access). Deleting the GitHub Actions secrets removes the stored
+    credentials. Uploaded videos can be deleted in YouTube Studio.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>
+    If this policy changes, the updated version will be posted on this page with a new effective date.
+    The full history of changes is available in the repository.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about this policy can be sent by opening an issue at
+    <a href="https://github.com/2000Re/painted-when/issues">github.com/2000Re/painted-when/issues</a>.
+  </p>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a></div></footer>
+</body>
+</html>
