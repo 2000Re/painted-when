@@ -35,7 +35,7 @@ python art_shorts.py --still                     # 動画を作らず、サム�
 
 | ファイル | 内容 |
 |---|---|
-| `{日付}_{source}_{id}_quiz.mp4` | クイズの動画(縦型の既定)。読み上げありで17〜20秒、なしで13秒 |
+| `{日付}_{source}_{id}_quiz.mp4` | クイズの動画(縦型の既定)。読み上げありで17〜19秒、なしで13秒 |
 | `..._quiz_voice.wav` | クイズの読み上げと効果音 |
 | `{日付}_{source}_{id}.mp4` | 作品紹介の動画(`--style classic`。横型は `_wide.mp4`)。15秒 |
 | `{日付}_{source}_{id}.jpg` | 作品画像(長辺2400pxまで) |
@@ -79,7 +79,8 @@ python art_shorts.py --still                     # 動画を作らず、サム�
 ## 読み上げ(`narration.py`)
 
 クイズは英語で読み上げる。台本は作品データだけから作り、声の長さに合わせて画面の場面の時刻を決める
-(選択肢は読み上げに合わせて1つずつ出て、「It's 1889!」と同時に正解が光る)。長さは声しだいで17〜20秒ほど。
+(選択肢は読み上げに合わせて1つずつ出て、「It's 1889!」と同時に正解が光る)。長さは17〜19秒ほど
+(2026-11-05、`en-US-Neural2-J`・1.1倍速で確認)。60文字を超える題名は読まず、作者だけ読む(題名は画面に出る)。
 
 ```
 When was this painted?
@@ -96,7 +97,8 @@ python art_shorts.py --tts dummy               # 通信なしの仮の音で、�
 python art_shorts.py --tts none                # 読み上げなし(13秒・無音)
 ```
 
-- 声は `ART_SHORTS_TTS_VOICE`(既定 `en-US-Neural2-J`)で変えられる。実際の声ではまだ試していない
+- 声は `ART_SHORTS_TTS_VOICE`(既定 `en-US-Neural2-J`)、速さは `ART_SHORTS_TTS_RATE`(既定 1.1)で変えられる。
+  `en-US-Neural2-J/D/F`、`en-US-Studio-Q/O`、`en-US-Chirp3-HD-Charon/Aoede`、`en-GB-Neural2-B/C` は使えることを確認済み
 - キーは `X-Goog-Api-Key` ヘッダーで送る(URL に載せない)。Claude Code のクラウド環境では、環境変数ではなく
   「Network secrets」に登録する(許可ウェブサイト `texttospeech.googleapis.com`、ヘッダー名 `X-Goog-Api-Key`、
   プレフィックスは空欄)。この場合は `--tts google` を明示して実行する。キーは Google Cloud のコンソールで作り、

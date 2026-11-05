@@ -31,6 +31,8 @@ import quiz
 
 SR = 48000
 DEFAULT_VOICE = "en-US-Neural2-J"
+DEFAULT_RATE = 1.1          # 少し速めに読ませる(Shorts のテンポ)
+LONG_TITLE = 60             # これより長い題名は読み上げない(画面には出る)
 TTS_URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
 
 
@@ -60,7 +62,8 @@ def script(art, labels, correct):
         "c2": f"Or {ys[2]}?",
         "lock": "Lock in your answer!",
         "ans": f"It's {ys[correct]}!",
-        "info": f"{art['title'].rstrip('.')}, {by}.",
+        "info": (f"{art['title'].rstrip('.')}, {by}." if len(art["title"]) <= LONG_TITLE
+                 else f"{by[0].upper()}{by[1:]}."),
         "outro": "How did you do? Tell me in the comments.",
     }
 
@@ -94,11 +97,11 @@ def trim(x, thresh=0.01):
 class GoogleTTS:
     name = "google"
 
-    def __init__(self, api_key=None, voice=None, rate=1.0):
+    def __init__(self, api_key=None, voice=None, rate=None):
         # キーがなければヘッダーを付けずに送る(途中の proxy がキーを付ける環境のため)
         self.key = api_key or os.environ.get("GOOGLE_TTS_API_KEY")
         self.voice = voice or os.environ.get("ART_SHORTS_TTS_VOICE") or DEFAULT_VOICE
-        self.rate = rate
+        self.rate = rate or float(os.environ.get("ART_SHORTS_TTS_RATE") or DEFAULT_RATE)
 
     def __call__(self, text):
         body = {
@@ -189,13 +192,16 @@ def build(art, q, tts):
     at["c1"] = at["c0"] + dur["c0"] + 0.3
     at["c2"] = at["c1"] + dur["c1"] + 0.3
     at["lock"] = at["c2"] + dur["c2"] + 0.35
-    timer = (at["lock"], at["lock"] + dur["lock"] + 2.4)
+    timer = (at["lock"], at["lock"] + dur["lock"] + 2.0)
     reveal = timer[1] + 0.1
     at["ans"] = reveal + 0.15
     at["info"] = at["ans"] + dur["ans"] + 0.4
     # 題名を読み始めたら題名、"by" のあたりで作者、読み終わりで年と技法を出す
-    title_chars = len(lines["info"].split(", by ")[0])
-    by_t = at["info"] + dur["info"] * title_chars / max(1, len(lines["info"]))
+    if ", by " in lines["info"]:
+        title_chars = len(lines["info"].split(", by ")[0])
+        by_t = at["info"] + dur["info"] * title_chars / max(1, len(lines["info"]))
+    else:                       # 題名を読まないときは、題名と作者を続けて出す
+        by_t = at["info"] + 0.4
     info = (at["info"], by_t, at["info"] + dur["info"])
     at["outro"] = at["info"] + dur["info"] + 0.7
     end = at["outro"] + dur["outro"] + 1.0
