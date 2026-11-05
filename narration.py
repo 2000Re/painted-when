@@ -9,7 +9,9 @@
   outro  How did you do? Tell me in the comments.
 
 音声合成:
-  google … Google Cloud Text-to-Speech。環境変数 GOOGLE_TTS_API_KEY(API キー)が必要。
+  google … Google Cloud Text-to-Speech。API キーは環境変数 GOOGLE_TTS_API_KEY(GitHub Actions など)か、
+           Claude Code のクラウド環境の「Network secrets」(texttospeech.googleapis.com への通信に
+           X-Goog-Api-Key ヘッダーを自動で付ける。この場合キーはプログラムからは見えない)で渡す。
            声は ART_SHORTS_TTS_VOICE(既定 en-US-Neural2-J)で変えられる
   dummy  … 通信なし。文の長さから見積もった長さの仮の音(タイミング確認用)
 """
@@ -93,9 +95,8 @@ class GoogleTTS:
     name = "google"
 
     def __init__(self, api_key=None, voice=None, rate=1.0):
+        # キーがなければヘッダーを付けずに送る(途中の proxy がキーを付ける環境のため)
         self.key = api_key or os.environ.get("GOOGLE_TTS_API_KEY")
-        if not self.key:
-            raise RuntimeError("GOOGLE_TTS_API_KEY が設定されていません")
         self.voice = voice or os.environ.get("ART_SHORTS_TTS_VOICE") or DEFAULT_VOICE
         self.rate = rate
 
@@ -106,14 +107,17 @@ class GoogleTTS:
             "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": SR, "speakingRate": self.rate},
         }
         # キーは URL ではなくヘッダーで渡す(ログに残りにくい)
-        req = urllib.request.Request(TTS_URL, data=json.dumps(body).encode(), method="POST",
-                                     headers={"Content-Type": "application/json", "X-Goog-Api-Key": self.key})
+        headers = {"Content-Type": "application/json"}
+        if self.key:
+            headers["X-Goog-Api-Key"] = self.key
+        req = urllib.request.Request(TTS_URL, data=json.dumps(body).encode(), method="POST", headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
                 data = json.loads(r.read())
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", "replace")[:500]
-            raise RuntimeError(f"Text-to-Speech が {e.code} を返しました: {detail}") from None
+            hint = "" if self.key else "(GOOGLE_TTS_API_KEY がなく、キーを付けずに送りました)"
+            raise RuntimeError(f"Text-to-Speech が {e.code} を返しました{hint}: {detail}") from None
         return trim(read_wav(base64.b64decode(data["audioContent"])))
 
 

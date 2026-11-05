@@ -97,7 +97,9 @@ python art_shorts.py --tts none                # 読み上げなし(13秒・無�
 ```
 
 - 声は `ART_SHORTS_TTS_VOICE`(既定 `en-US-Neural2-J`)で変えられる。実際の声ではまだ試していない
-- キーは `X-Goog-Api-Key` ヘッダーで送る(URL に載せない)。キーは Google Cloud のコンソールで作り、
+- キーは `X-Goog-Api-Key` ヘッダーで送る(URL に載せない)。Claude Code のクラウド環境では、環境変数ではなく
+  「Network secrets」に登録する(許可ウェブサイト `texttospeech.googleapis.com`、ヘッダー名 `X-Goog-Api-Key`、
+  プレフィックスは空欄)。この場合は `--tts google` を明示して実行する。キーは Google Cloud のコンソールで作り、
   使える API を Cloud Text-to-Speech API だけに制限しておく。GitHub Actions では Secret に入れる
 - 合成した音声は `..._quiz_voice.wav`、台本と各行の開始時刻は作品情報 json の `quiz.narration` に残る
 - 効果音(選択肢のポン、残り時間のコチコチ、正解のチャイム)は numpy で合成している

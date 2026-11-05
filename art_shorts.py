@@ -730,7 +730,7 @@ def main():
                     help="quiz: 「いつ描かれた？」の3択(縦型のみ。縦型の既定)/ classic: 作品紹介(横型の既定)")
     ap.add_argument("--audio", help="classic のナレーション音声。動画の長さは音声+1秒になる")
     ap.add_argument("--tts", choices=["google", "dummy", "none"],
-                    help="quiz の読み上げ。google は環境変数 GOOGLE_TTS_API_KEY が必要。"
+                    help="quiz の読み上げ。google は API キー(環境変数 GOOGLE_TTS_API_KEY か Network secrets)が必要。"
                          "dummy は仮の音(タイミング確認用)。既定: キーがあれば google、なければ none")
     ap.add_argument("--seconds", type=float, help="音声なしのときの長さ(既定: quiz 13秒 / classic 15秒)")
     ap.add_argument("--seed", help="作品選びのシード(既定は日付+source)")
