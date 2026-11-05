@@ -1,7 +1,7 @@
 name: post
 
 on:
-  # 本命は毎日 07:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
+  ## 本命は毎日 07:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
   # GitHub の定期実行は遅延・スキップがあるので、予備としてだけ残す(UTC で記述)
   schedule:
     - cron: "17 0 * * *"   # 予備: 毎日 09:17 JST(その日すでに投稿済みなら check ジョブで止まる)
