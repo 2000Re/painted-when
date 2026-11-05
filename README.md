@@ -5,9 +5,12 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 ## 自動投稿(GitHub Actions)
 
-`.github/workflows/post.yml` が毎日 07:17 JST(予備 10:17 JST)に動き、1本作って @painted-when に投稿する。
+`.github/workflows/post.yml` が毎日 07:17 JST に動き、1本作って @painted-when に投稿する。
+本命は cron-job.org から `workflow_dispatch`(`scheduled=true`)で起動する。GitHub 自身の定期実行は遅延・スキップがあるので、
+09:17 JST の予備としてだけ残している(その日すでに投稿済みなら何もしない)。
 
-1. **check**: 最後の投稿から12時間以内なら止まる(`posted_today.py`)。定期実行はリポジトリ変数 `AUTO_POST` が `true` のときだけ動く
+1. **check**: 最後の投稿から12時間以内なら止まる(`posted_today.py`)。定期実行(GitHub の schedule と cron-job.org)は
+   リポジトリ変数 `AUTO_POST` が `true` のときだけ動く。手動の Run workflow はいつでも動き、このチェックもしない
 2. **generate**: `art_shorts.py --source auto --history upload_history.json --tts google` で動画と `out/meta.json`
    (タイトル・説明文・タグ)を作る。美術館は Met とシカゴ美術館を1日ごとに交互にし、投稿済みの作品は選ばない
 3. **upload**: `youtube_upload.py` でアップロード(カテゴリは Education、言語は英語)し、`upload_history.json` に記録してコミットする
@@ -54,6 +57,22 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 4. **動作確認**: Actions → post → Run workflow で、まず `dry_run` にチェックを入れて実行し、artifact の動画を確認する。
    次に `privacy: private` で1本投稿してみる。問題なければ変数 `AUTO_POST` を `true` にする
+
+5. **cron-job.org**(毎日の本命の起動)
+   1. GitHub で fine-grained personal access token を作る(Settings → Developer settings → Personal access tokens →
+      Fine-grained tokens)。Repository access は `2000Re/painted-when` だけ、Permissions は **Actions: Read and write** だけ。
+      有効期限が切れたら作り直して、cron-job.org のヘッダーを差し替える
+   2. cron-job.org でジョブを作る
+
+      | 項目 | 値 |
+      |---|---|
+      | URL | `https://api.github.com/repos/2000Re/painted-when/actions/workflows/post.yml/dispatches` |
+      | 実行スケジュール | 毎日 07:17、タイムゾーン Asia/Tokyo |
+      | Request method | `POST` |
+      | Headers | `Accept: application/vnd.github+json`<br>`Authorization: Bearer <トークン>`<br>`X-GitHub-Api-Version: 2022-11-28`<br>`Content-Type: application/json` |
+      | Request body | `{"ref":"main","inputs":{"scheduled":"true"}}` |
+
+      成功すると HTTP 204 が返る。`X-GitHub-Api-Version: 2022-11-28` は **2028-03-10 に提供終了**なので、それまでに書き換えること
 
 ### 注意
 

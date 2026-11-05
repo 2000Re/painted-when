@@ -1,13 +1,16 @@
 name: post
 
 on:
-  ## GitHub の定期実行は遅延・スキップがあるので、本命と予備の2回起動する(UTC で記述)。
-  # 予備は、最後の投稿から12時間以内なら check ジョブで止まる
+  # 本命は毎日 07:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
+  # GitHub の定期実行は遅延・スキップがあるので、予備としてだけ残す(UTC で記述)
   schedule:
-    - cron: "17 22 * * *"  # 本命: 毎日 07:17 JST(米国東部 17:17 / 西部 14:17、冬時間)
-    - cron: "17 1 * * *"   # 予備: 毎日 10:17 JST
+    - cron: "17 0 * * *"   # 予備: 毎日 09:17 JST(その日すでに投稿済みなら check ジョブで止まる)
   workflow_dispatch:
     inputs:
+      scheduled:
+        description: "定期実行として扱う(cron-job.org 用。手動では通常オフ)"
+        type: boolean
+        default: false
       dry_run:
         description: "動画の生成だけ行い、投稿しない"
         type: boolean
@@ -29,9 +32,10 @@ permissions:
 
 jobs:
   check:
-    # 定期実行は、リポジトリ変数 AUTO_POST が true のときだけ動き、直近に投稿済みなら止まる。
+    # 定期実行(GitHub の schedule と、cron-job.org からの scheduled=true)は、
+    # リポジトリ変数 AUTO_POST が true のときだけ動き、直近に投稿済みなら止まる。
     # 手動実行(Run workflow)はいつでも動き、「投稿済み」のチェックもしない
-    if: ${{ github.event_name != 'schedule' || vars.AUTO_POST == 'true' }}
+    if: ${{ (github.event_name != 'schedule' && github.event.inputs.scheduled != 'true') || vars.AUTO_POST == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
@@ -42,8 +46,9 @@ jobs:
         id: check
         env:
           EVENT: ${{ github.event_name }}
+          SCHEDULED: ${{ github.event.inputs.scheduled }}
         run: |
-          if [ "$EVENT" = "schedule" ]; then
+          if [ "$EVENT" = "schedule" ] || [ "$SCHEDULED" = "true" ]; then
             python3 posted_today.py
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
