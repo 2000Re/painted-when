@@ -823,7 +823,7 @@ def main():
             if accept and not accept(art):
                 sys.exit(f"{args.id} は制作年の幅が広い(または不明な)ので、クイズに使えません。--style classic なら使えます")
         else:
-            used = load_used(used_path) + [{"source": h["source"], "id": h["id"], "date": h.get("date")}
+            used = load_used(used_path) + [{"source": h["source"], "id": h["id"]}
                                            for h in history]
             art = choose_artwork(src, rng, used, today, accept)
             record = not args.seed and not args.still and not any(

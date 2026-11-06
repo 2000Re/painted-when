@@ -5,11 +5,11 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 ## 自動投稿(GitHub Actions)
 
-`.github/workflows/post.yml` が毎日 07:17 JST に動き、1本作って @painted-when に投稿する。
-本命は cron-job.org から `workflow_dispatch`(`scheduled=true`)で起動する。GitHub 自身の定期実行は遅延・スキップがあるので、
-09:17 JST の予備としてだけ残している(その日すでに投稿済みなら何もしない)。
+`.github/workflows/post.yml` が1日2本、@painted-when に投稿する。
+本命は cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17 と 10:17 JST に起動する。
+GitHub 自身の定期実行は遅延・スキップがある(2026-11-06 は 09:17 の予定が 15:52 に動いた)ので、09:17 JST の予備としてだけ残している。
 
-1. **check**: 最後の投稿から12時間以内なら止まる(`posted_today.py`)。定期実行(GitHub の schedule と cron-job.org)は
+1. **check**: 今日(日本時間)すでに2本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。定期実行(GitHub の schedule と cron-job.org)は
    リポジトリ変数 `AUTO_POST` が `true` のときだけ動く。手動の Run workflow はいつでも動き、このチェックもしない
 2. **generate**: `art_shorts.py --source auto --history upload_history.json --tts google` で動画と `out/meta.json`
    (タイトル・説明文・タグ)を作る。美術館は Met とシカゴ美術館を1日ごとに交互にし、投稿済みの作品は選ばない
@@ -67,7 +67,7 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
       | 項目 | 値 |
       |---|---|
       | URL | `https://api.github.com/repos/2000Re/painted-when/actions/workflows/post.yml/dispatches` |
-      | 実行スケジュール | 毎日 07:17、タイムゾーン Asia/Tokyo |
+      | 実行スケジュール | 毎日 07:17 と 10:17、タイムゾーン Asia/Tokyo |
       | Request method | `POST` |
       | Headers | `Accept: application/vnd.github+json`<br>`Authorization: Bearer <トークン>`<br>`X-GitHub-Api-Version: 2022-11-28`<br>`Content-Type: application/json` |
       | Request body | `{"ref":"main","inputs":{"scheduled":"true"}}` |
