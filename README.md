@@ -21,12 +21,25 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10
 タイトルは「When was this painted? 🎨 Daily Art Quiz #連番」。答えはタイトルに書かず、説明文の下の方に、
 作品名・作者・美術館のページへのリンク・出典(CC0)と一緒に書く。
 
+### 使っている Google Cloud プロジェクト
+
+**Painted When? 専用の Google アカウント**の、プロジェクト **`painted-when`** にまとめてある
+(ねこピアノ・Can You Say This? とは別のアカウント・別のプロジェクト)。
+
+| 中身 | 用途 | GitHub Secrets |
+|---|---|---|
+| API キー `painted-when`(Cloud Text-to-Speech API だけに制限) | 読み上げ | `GOOGLE_TTS_API_KEY` |
+| OAuth クライアント(デスクトップアプリ)・OAuth 同意画面「Painted When? Uploader」(本番環境) | YouTube への投稿 | `YT_CLIENT_ID` など |
+| YouTube Data API v3・Cloud Text-to-Speech API の有効化 | | |
+
+**このプロジェクトを削除すると、読み上げと投稿の両方が止まる。** 別のアカウントのプロジェクトを整理するときに間違えないこと。
+
 ### セットアップ
 
 0. **ホームページとプライバシーポリシー**: `docs/` を GitHub Pages で公開する
    (Settings → Pages → Source「Deploy from a branch」→ Branch `main`、フォルダ `/docs`)。
    公開先は https://2000re.github.io/painted-when/ (ホーム)、`privacy.html`(プライバシーポリシー)、`terms.html`(利用規約)
-1. **Google Cloud**(Text-to-Speech の API キーを作ったプロジェクトで):
+1. **Google Cloud**(Text-to-Speech の API キーを作ったプロジェクト `painted-when` で):
    1. 「API とサービス」→「ライブラリ」で **YouTube Data API v3** を有効にする
    2. 「OAuth 同意画面」(Google Auth Platform)を作る
       - アプリ名 `Painted When? Uploader`、ユーザーサポートメール・デベロッパーの連絡先は自分のメール
