@@ -5,11 +5,13 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 ## 自動投稿(GitHub Actions)
 
-`.github/workflows/post.yml` が1日2本、@painted-when に投稿する。
-本命は cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17 と 10:17 JST に起動する。
+`.github/workflows/post.yml` が1日3本、@painted-when に投稿する。
+本命は cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10:17・22:17 JST に起動する
+(米国東部の夕方・夜・朝)。
 GitHub 自身の定期実行は遅延・スキップがある(2026-11-06 は 09:17 の予定が 15:52 に動いた)ので、09:17 JST の予備としてだけ残している。
 
-1. **check**: 今日(日本時間)すでに2本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。定期実行(GitHub の schedule と cron-job.org)は
+1. **check**: 今日(日本時間)すでに3本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。
+   GitHub の予備の起動は、今日まだ1本も投稿していないときだけ投稿する(本命の時間帯を先取りしない)。定期実行(GitHub の schedule と cron-job.org)は
    リポジトリ変数 `AUTO_POST` が `true` のときだけ動く。手動の Run workflow はいつでも動き、このチェックもしない
 2. **generate**: `art_shorts.py --source auto --history upload_history.json --tts google` で動画と `out/meta.json`
    (タイトル・説明文・タグ)を作る。美術館は Met とシカゴ美術館を1日ごとに交互にし、投稿済みの作品は選ばない
@@ -67,7 +69,7 @@ GitHub 自身の定期実行は遅延・スキップがある(2026-11-06 は 09:
       | 項目 | 値 |
       |---|---|
       | URL | `https://api.github.com/repos/2000Re/painted-when/actions/workflows/post.yml/dispatches` |
-      | 実行スケジュール | 毎日 07:17 と 10:17、タイムゾーン Asia/Tokyo |
+      | 実行スケジュール | 毎日 07:17・10:17・22:17、タイムゾーン Asia/Tokyo(時刻ごとにジョブを分けてもよい) |
       | Request method | `POST` |
       | Headers | `Accept: application/vnd.github+json`<br>`Authorization: Bearer <トークン>`<br>`X-GitHub-Api-Version: 2022-11-28`<br>`Content-Type: application/json` |
       | Request body | `{"ref":"main","inputs":{"scheduled":"true"}}` |
@@ -129,7 +131,7 @@ python art_shorts.py --still                     # 動画を作らず、サム�
 
 - **有名な画家だけ**(`artists.py` の約90人)。毎回、画家をランダムに選び(直近10本の画家は後回し)、その画家の
   本人の作品から未使用のものを選ぶ。「工房」「追随者」「〜風」「〜の模写」などは使わない(Met の `artistPrefix`、
-  作者名の書き方で判定)。2026-11 の集計では、クイズに使える作品は64人で約740点(1日2本で約1年分)
+  作者名の書き方で判定)。2026-11 の集計では、クイズに使える作品は64人で約740点(1日3本で約8か月分)
 - **Met**: `v1.1/search?q=画家名&artistOrCulture=true&hasImages=true&limit=500` で候補を取り、ランダムな順に
   `v1/objects/{id}` を見て、`isPublicDomain` が true・`primaryImage` あり・分類が絵画のものを選ぶ(1人あたり最大30件)。
   旧 `v1/search` は廃止済み(410)
