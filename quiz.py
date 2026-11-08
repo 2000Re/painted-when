@@ -26,7 +26,7 @@ class Timeline:
     """各場面の始まる時刻(秒)。ナレーションがあるときは、声の長さから narration.py が決める。"""
 
     def __init__(self, pull=(0.5, 3.2), choices=(3.0, 3.35, 3.7), timer=(4.0, 8.0), reveal=8.2,
-                 info=(8.8, 9.3, 9.8), outro=None, end=DEFAULT_SECONDS):
+                 info=(8.8, 9.3, 9.8), outro=None, end=DEFAULT_SECONDS, hook=False):
         self.pull = pull          # 引いていく区間
         self.choices = choices    # 選択肢が1つずつ出る時刻
         self.timer = timer        # 残り時間のバー
@@ -34,6 +34,8 @@ class Timeline:
         self.info = info          # 題名・作者・年と技法
         self.outro = outro        # 上の問いが「How did you do?」に変わる(None なら変えない)
         self.end = end            # 動画の長さ
+        # フック版: 選択肢と残り時間のバーを最初のコマから出し、choices の時刻には選択肢を軽く弾ませる
+        self.hook = hook
 
     def as_dict(self):
         r = lambda v: [round(x, 2) for x in v] if isinstance(v, (tuple, list)) else (None if v is None else round(v, 2))
@@ -419,12 +421,18 @@ class Quiz:
         n = len(self.choices)
         total = n * CHOICE_W + (n - 1) * CHOICE_GAP
         for i, p in enumerate(self.pills):
-            a = A.ease((t - tl.choices[i]) / 0.3)
+            a = 1.0 if tl.hook else A.ease((t - tl.choices[i]) / 0.3)
             if a <= 0:
                 continue
             px = int(CHOICE_CX - total / 2 + i * (CHOICE_W + CHOICE_GAP)) - 10
             py = CHOICE_Y - CHOICE_H // 2 - 10 + int((1 - a) * 30)
             r = A.ease((t - tl.reveal) / 0.3)
+            if tl.hook and 0 <= t - tl.choices[i] < 0.4 and r <= 0:
+                # 読み上げに合わせて弾ませる
+                k = 1 + 0.1 * math.sin(math.pi * (t - tl.choices[i]) / 0.4)
+                p = p.resize((int(p.width * k), int(p.height * k)), Image.BICUBIC)
+                px -= (p.width - self.pills[i].width) // 2
+                py -= (p.height - self.pills[i].height) // 2
             if i == self.correct and r > 0:
                 frame.alpha_composite(with_alpha(p, a * (1 - r)), (px, py))
                 pop = 1 + 0.08 * math.sin(math.pi * min(1.0, (t - tl.reveal) / 0.5))

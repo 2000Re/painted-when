@@ -48,7 +48,7 @@ def spoken_year(label):
     return label
 
 
-def script(art, labels, correct):
+def script(art, labels, correct, hook=False):
     artist = art.get("artist") or ""
     if artist.lower() in ("", "unknown artist", "unidentified artist", "anonymous"):
         by = "by an unknown artist"
@@ -56,7 +56,7 @@ def script(art, labels, correct):
         by = f"by {artist}"
     ys = [spoken_year(lb) for lb in labels]
     return {
-        "q": "When was this painted?",
+        "q": "Quick, guess the year!" if hook else "When was this painted?",
         "c0": f"Was it {ys[0]}?",
         "c1": f"{ys[1]}?",
         "c2": f"Or {ys[2]}?",
@@ -178,14 +178,31 @@ def sfx_ding():
 # ---------------------------------------------------------------- 組み立て
 
 
-def build(art, q, tts):
-    """声を合成して並べ、quiz.Timeline と、ミックスした音声(48kHz ステレオ float32)を返す。"""
-    lines = script(art, q.labels, q.correct)
+def sfx_whoosh():
+    """冒頭の「シュッ」。高い方へ抜けるノイズ。"""
+    n = int(0.35 * SR)
+    t = np.arange(n) / SR
+    noise = np.random.default_rng(1).standard_normal(n)
+    # 時間とともに明るくなるよう、なめらかにする幅を狭めていく
+    out = np.empty(n)
+    acc, alpha0 = 0.0, 0.02
+    for i in range(n):
+        a = alpha0 + 0.5 * (t[i] / t[-1]) ** 2
+        acc += a * (noise[i] - acc)
+        out[i] = noise[i] - acc
+    env = np.sin(np.pi * np.clip(t / 0.35, 0, 1)) ** 1.5
+    return (out * env * 0.35).astype(np.float32)
+
+
+def build(art, q, tts, hook=False):
+    """声を合成して並べ、quiz.Timeline と、ミックスした音声(48kHz ステレオ float32)を返す。
+    hook=True はフック版: 0秒に効果音、第一声は短く、選択肢と残り時間のバーは最初から出す。"""
+    lines = script(art, q.labels, q.correct, hook)
     clips = {k: tts(text) for k, text in lines.items()}
     dur = {k: len(v) / SR for k, v in clips.items()}
     at = {}
 
-    at["q"] = 0.15
+    at["q"] = 0.08 if hook else 0.15
     q_end = at["q"] + dur["q"]
     pull = (0.5, max(3.0, q_end + 1.0))
     at["c0"] = max(pull[1] - 0.3, q_end + 0.4)
@@ -206,8 +223,10 @@ def build(art, q, tts):
     at["outro"] = at["info"] + dur["info"] + 0.7
     end = at["outro"] + dur["outro"] + 1.0
 
+    if hook:
+        timer = (0.0, timer[1])     # 残り時間のバーは最初のコマから、答えの直前まで
     tl = quiz.Timeline(pull=pull, choices=tuple(at[f"c{i}"] for i in range(3)), timer=timer,
-                       reveal=reveal, info=info, outro=at["outro"], end=end)
+                       reveal=reveal, info=info, outro=at["outro"], end=end, hook=hook)
 
     n = int(math.ceil(end * SR))
     voice = np.zeros(n, np.float32)
@@ -223,7 +242,9 @@ def build(art, q, tts):
     for i in range(3):
         put(fx, sfx_pop(), at[f"c{i}"])
     tick = sfx_tick()
-    t = timer[0]
+    t = max(timer[0], timer[1] - 3.0) if hook else timer[0]    # フック版は最後の3秒だけ鳴らす
+    if hook:
+        put(fx, sfx_whoosh(), 0.0)
     while t < timer[1] - 0.05:
         put(fx, tick, t)
         t += 0.5

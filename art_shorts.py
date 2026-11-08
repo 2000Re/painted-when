@@ -825,6 +825,8 @@ def main():
                     help="quiz の読み上げ。google は API キー(環境変数 GOOGLE_TTS_API_KEY か Network secrets)が必要。"
                          "dummy は仮の音(タイミング確認用)。既定: キーがあれば google、なければ none")
     ap.add_argument("--seconds", type=float, help="音声なしのときの長さ(既定: quiz 13秒 / classic 15秒)")
+    ap.add_argument("--hook", action="store_true",
+                    help="quiz のフック版: 選択肢と残り時間のバーを最初から出し、0秒に効果音、第一声は「Quick, guess the year!」")
     ap.add_argument("--any-artist", action="store_true",
                     help="有名な画家(artists.py)に絞らず、以前の選び方(Met はハイライト、AIC は検索結果)で選ぶ")
     ap.add_argument("--seed", help="作品選びのシード(既定は日付+source)")
@@ -885,7 +887,8 @@ def main():
     art["date_selected"] = today
 
     base = f"{today}_{art['source']}_{art['id']}"
-    stem = base + {"quiz": "_quiz", "classic": ""}[style] + ("" if args.format == "shorts" else "_wide")
+    stem = base + {"quiz": "_quiz", "classic": ""}[style] + ("_hook" if args.hook else "") + \
+        ("" if args.format == "shorts" else "_wide")
     if style == "quiz":
         # 選択肢は作品ごとに決める(同じ作品なら何度作っても同じ選択肢)
         q = quiz.Quiz(art, img, random.Random(f"{art['source']}:{art['id']}"), max_year=int(today[:4]))
@@ -894,7 +897,7 @@ def main():
         if tts != "none":
             import narration
             print(f"読み上げを作っています({tts})")
-            q.tl, mix, lines, at = narration.build(art, q, narration.make_tts(tts))
+            q.tl, mix, lines, at = narration.build(art, q, narration.make_tts(tts), hook=args.hook)
             args.audio = out / f"{stem}_voice.wav"
             narration.write_wav(args.audio, mix)
             art["quiz"]["narration"] = {k: {"text": lines[k], "start": round(at[k], 2)} for k in lines}
@@ -926,6 +929,7 @@ def main():
         meta = youtube_meta(art, number)
         meta.update({"key": f"{art['source']}:{art['id']}", "number": number, "source": art["source"],
                      "artist": art.get("famous_artist") or art.get("artist"),
+                     "variant": "hook" if args.hook else "base",
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
         print(f"投稿用: {meta['title']}")
