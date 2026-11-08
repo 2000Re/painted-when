@@ -1,7 +1,7 @@
 """「When was this painted?」の3択クイズ形式の縦型動画(Shorts)。
 
 流れ(秒は既定の13秒の場合):
-  0.0〜  絵の一部(細かい模様の多いところ)を画面いっぱいに映し、問いを出す
+  0.0〜  絵の一部(顔があれば顔、なければ目立つところ)を画面いっぱいに映し、問いを出す
   0.5〜3.2  引いていき、額縁に収まった全体を見せる
   3.0〜  3択が出る。4.0〜8.0 は残り時間のバーが減っていく
   8.2   正解の選択肢が光る
@@ -9,6 +9,8 @@
 冒頭はフェードインせず、いきなり絵から始める(Shorts はループ再生されるため最後もフェードしない)。
 """
 import math
+import os
+from pathlib import Path
 import random
 
 import numpy as np
@@ -115,38 +117,116 @@ def make_choices(answer, rng, max_year):
 # ---------------------------------------------------------------- 冒頭で拡大する場所
 
 
-def pick_detail(img, crop_frac_w, rng):
-    """細かい模様の多い場所を選ぶ。返り値は (中心u, 中心v, 幅の割合, 高さの割合)。いずれも 0〜1。
-    幅:高さ = 9:16 の範囲(画面と同じ形)を、作品の縁(額や撮影時の余白が写りやすい)を避けて探す。"""
-    small = img.convert("L")
-    small.thumbnail((480, 480))
-    g = np.asarray(small, dtype=np.float32)
-    h, w = g.shape
-    gy, gx = np.gradient(g)
-    energy = np.hypot(gx, gy)
-    # 局所的な細かさ(色の変化の量)。暗すぎる・明るすぎる場所は少し下げる
-    lum = g / 255.0
-    energy *= 0.4 + 0.6 * (1 - np.abs(lum - 0.5) * 2) ** 0.5
-    cw = max(4, int(round(crop_frac_w * w)))
-    ch = max(4, int(round(cw * 16 / 9 * 1.0)))
-    margin_x, margin_y = int(w * 0.07), int(h * 0.07)
+FACE_MODEL = Path(__file__).resolve().parent / "models" / "face_detection_yunet_2023mar.onnx"
+FACE_SHARE = 0.38       # 顔が、拡大範囲の幅のこのくらいを占めるように映す
+MAX_CROP_FRAC = 0.6     # 顔が大きい肖像画でも、作品の幅のこれ以下に拡大する
+
+
+def detect_faces(img, score_threshold=0.7):
+    """作品の中の顔(OpenCV の YuNet)。返り値は [(左, 上, 幅, 高さ, 確からしさ)](0〜1 の割合)。
+    OpenCV やモデルがなければ空(そのときは目立つ部分で選ぶ)。"""
+    os.environ.setdefault("OPENCV_LOG_LEVEL", "ERROR")   # 実害のない警告を出さない
+    try:
+        import cv2
+    except ImportError:
+        return []
+    if not FACE_MODEL.exists():
+        return []
+    small = img.convert("RGB")
+    small.thumbnail((1024, 1024))
+    arr = np.ascontiguousarray(np.asarray(small)[:, :, ::-1])
+    h, w = arr.shape[:2]
+    det = cv2.FaceDetectorYN.create(str(FACE_MODEL), "", (w, h), score_threshold, 0.3, 50)
+    _, faces = det.detect(arr)
+    if faces is None:
+        return []
+    return [(f[0] / w, f[1] / h, f[2] / w, f[3] / h, float(f[14])) for f in faces]
+
+
+def _norm(a):
+    a = a - a.min()
+    m = a.max()
+    return a / m if m > 0 else a
+
+
+def _blur(a, r):
+    """0〜1 に正規化してぼかす(Pillow のぼかしは 8bit 画像だけなので、一度 0〜255 にする)。"""
+    im = Image.fromarray((_norm(np.asarray(a, np.float64)) * 255).astype(np.uint8))
+    return np.asarray(im.filter(ImageFilter.GaussianBlur(r)), np.float32) / 255
+
+
+def saliency(img, size):
+    """目立つ部分の地図(size=(幅, 高さ)、0〜1)。周りと違うところ(spectral residual)・色の鮮やかさ・模様の細かさを合わせる。"""
+    w, h = size
+    g = np.asarray(img.convert("L").resize((128, max(8, int(128 * h / w))), Image.BILINEAR), dtype=np.float64)
+    f = np.fft.fft2(g)
+    log_amp = np.log(np.abs(f) + 1e-9)
+    k = np.ones((3, 3)) / 9
+    avg = np.real(np.fft.ifft2(np.fft.fft2(log_amp) * np.fft.fft2(k, log_amp.shape)))
+    sr = np.abs(np.fft.ifft2(np.exp(log_amp - avg + 1j * np.angle(f)))) ** 2
+    sr = _blur(sr, 2.5)
+    sr = np.asarray(Image.fromarray((sr * 255).astype(np.uint8)).resize((w, h), Image.BILINEAR), np.float32) / 255
+    hsv = np.asarray(img.convert("HSV").resize((w, h), Image.BILINEAR), dtype=np.float32) / 255
+    sat = _blur(hsv[:, :, 1] * (0.3 + 0.7 * hsv[:, :, 2]), 3)
+    lum = np.asarray(img.convert("L").resize((w, h), Image.BILINEAR), dtype=np.float32)
+    gy, gx = np.gradient(lum)
+    edge = _blur(np.hypot(gx, gy), 2)
+    return 0.5 * _norm(sr) + 0.3 * _norm(sat) + 0.2 * _norm(edge)
+
+
+def _crop_size(w, h, cw, margin_x, margin_y):
+    """幅 cw(画素)・縦横 9:16 の範囲を、作品の縁を除いた中に収まるよう縮める。"""
+    ch = cw * 16 / 9
     if ch > h - 2 * margin_y:
         ch = h - 2 * margin_y
-        cw = max(4, int(ch * 9 / 16))
+        cw = ch * 9 / 16
     if cw > w - 2 * margin_x:
         cw = w - 2 * margin_x
-        ch = int(cw * 16 / 9)
-    ii = np.pad(energy.cumsum(0).cumsum(1), ((1, 0), (1, 0)))
-    best, best_xy = -1, (w // 2 - cw // 2, h // 2 - ch // 2)
-    for y0 in range(margin_y, max(margin_y + 1, h - margin_y - ch + 1), 3):
-        for x0 in range(margin_x, max(margin_x + 1, w - margin_x - cw + 1), 3):
+        ch = cw * 16 / 9
+    return max(4.0, cw), max(4.0, ch)
+
+
+def pick_detail(img, crop_frac_w, rng, faces=None):
+    """冒頭で拡大する場所を選ぶ。返り値は (中心u, 中心v, 幅の割合, 高さの割合, 種類)。u〜高さは 0〜1。
+    範囲は画面と同じ 9:16 で、作品の縁(額や撮影時の余白が写りやすい)を避ける。
+    1. 顔があれば、いちばん目立つ顔(大きさ・確からしさ・中央寄り)を、範囲の上寄りに大きく映す
+    2. なければ、目立つ部分(saliency)がいちばん多く入る範囲"""
+    W, H = img.size
+    margin_x, margin_y = W * 0.07, H * 0.07
+    faces = detect_faces(img) if faces is None else faces
+    # 小さすぎる顔(群衆の中の顔など)は使わない
+    faces = [f for f in faces if f[2] * W >= 0.05 * min(W, H)]
+    if faces:
+        def face_score(f):
+            x, y, fw, fh, sc = f
+            cx, cy = x + fw / 2 - 0.5, y + fh / 2 - 0.5
+            return sc * math.sqrt(fw * fh) * (1 - 0.5 * math.hypot(cx, cy))
+        x, y, fw, fh, _ = max(faces, key=face_score)
+        frac = min(max(fw / FACE_SHARE, crop_frac_w), MAX_CROP_FRAC)
+        cw, ch = _crop_size(W, H, frac * W, margin_x, margin_y)
+        cx = (x + fw / 2) * W
+        cy = (y + fh / 2) * H + ch * 0.12      # 顔が範囲の上寄り(目の高さが上から3分の1あたり)に来るように
+        cx = min(max(cx, margin_x + cw / 2), W - margin_x - cw / 2)
+        cy = min(max(cy, margin_y + ch / 2), H - margin_y - ch / 2)
+        return float(cx / W), float(cy / H), float(cw / W), float(ch / H), "face"
+
+    sw, sh = (480, max(8, int(480 * H / W))) if W >= H else (max(8, int(480 * W / H)), 480)
+    sal = saliency(img, (sw, sh))
+    k = sw / W
+    cw, ch = _crop_size(sw, sh, crop_frac_w * sw, margin_x * k, margin_y * k)
+    cw, ch = int(round(cw)), int(round(ch))
+    mx, my = int(margin_x * k), int(margin_y * k)
+    ii = np.pad(sal.cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+    best, best_xy = -1, (sw // 2 - cw // 2, sh // 2 - ch // 2)
+    for y0 in range(my, max(my + 1, sh - my - ch + 1), 3):
+        for x0 in range(mx, max(mx + 1, sw - mx - cw + 1), 3):
             s = ii[y0 + ch, x0 + cw] - ii[y0, x0 + cw] - ii[y0 + ch, x0] + ii[y0, x0]
-            cx, cy = (x0 + cw / 2) / w - 0.5, (y0 + ch / 2) / h - 0.5
-            s *= 1 - 0.6 * math.hypot(cx, cy)   # 中央寄りを少し優先
+            cx, cy = (x0 + cw / 2) / sw - 0.5, (y0 + ch / 2) / sh - 0.5
+            s *= 1 - 0.4 * math.hypot(cx, cy)   # 中央寄りを少し優先
             if s > best:
                 best, best_xy = s, (x0, y0)
     x0, y0 = best_xy
-    return (x0 + cw / 2) / w, (y0 + ch / 2) / h, cw / w, ch / h
+    return (x0 + cw / 2) / sw, (y0 + ch / 2) / sh, cw / sw, ch / sh, "salient"
 
 
 # ---------------------------------------------------------------- 部品
@@ -229,7 +309,7 @@ class Quiz:
         # 冒頭の拡大:画像の画素が足りる範囲で、作品の幅の 22% 前後を画面いっぱいに
         sw, shh = img.size
         crop_frac = max(0.22, (W / 2.4) / sw)
-        self.detail = pick_detail(img, min(crop_frac, 0.9), rng)
+        *self.detail, self.detail_kind = pick_detail(img, min(crop_frac, 0.9), rng)
         # 縮小した画像を何段か用意し、表示の大きさに近いものから切り出す(毎フレームの処理を軽くする)
         self.pyramid = [img]
         while max(self.pyramid[-1].size) > 900:
