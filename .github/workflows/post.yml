@@ -1,10 +1,8 @@
 name: post
 
 on:
-  ## 本命は毎日 07:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
-  # GitHub の定期実行は遅延・スキップがあるので、予備としてだけ残す(UTC で記述)
-  schedule:
-    - cron: "17 0 * * *"   # 予備: 毎日 09:17 JST(その日すでに投稿済みなら check ジョブで止まる)
+  # 毎日 07:17・10:17・22:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
+  # GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めないので使わない
   workflow_dispatch:
     inputs:
       scheduled:
@@ -32,10 +30,9 @@ permissions:
 
 jobs:
   check:
-    # 定期実行(GitHub の schedule と、cron-job.org からの scheduled=true)は、
-    # リポジトリ変数 AUTO_POST が true のときだけ動き、直近に投稿済みなら止まる。
-    # 手動実行(Run workflow)はいつでも動き、「投稿済み」のチェックもしない
-    if: ${{ (github.event_name != 'schedule' && github.event.inputs.scheduled != 'true') || vars.AUTO_POST == 'true' }}
+    # cron-job.org からの起動(scheduled=true)は、リポジトリ変数 AUTO_POST が true のときだけ動き、
+    # 今日の本数が上限なら止まる。手動実行(Run workflow)はいつでも動き、このチェックもしない
+    if: ${{ github.event.inputs.scheduled != 'true' || vars.AUTO_POST == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
@@ -45,10 +42,9 @@ jobs:
       - name: Check if already posted
         id: check
         env:
-          EVENT: ${{ github.event_name }}
           SCHEDULED: ${{ github.event.inputs.scheduled }}
         run: |
-          if [ "$EVENT" = "schedule" ] || [ "$SCHEDULED" = "true" ]; then
+          if [ "$SCHEDULED" = "true" ]; then
             python3 posted_today.py
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"

@@ -6,13 +6,13 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 ## 自動投稿(GitHub Actions)
 
 `.github/workflows/post.yml` が1日3本、@painted-when に投稿する。
-本命は cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10:17・22:17 JST に起動する
-(米国東部の夕方・夜・朝)。
-GitHub 自身の定期実行は遅延・スキップがある(2026-11-06 は 09:17 の予定が 15:52 に動いた)ので、09:17 JST の予備としてだけ残している。
+cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10:17・22:17 JST に起動する
+(米国東部の夕方・夜・朝)。GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めない
+(2026-11-06 は 09:17 の予定が 15:52 に動いた)ので使わない。
 
-1. **check**: 今日(日本時間)すでに3本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。
-   GitHub の予備の起動は、今日まだ1本も投稿していないときだけ投稿する(本命の時間帯を先取りしない)。定期実行(GitHub の schedule と cron-job.org)は
-   リポジトリ変数 `AUTO_POST` が `true` のときだけ動く。手動の Run workflow はいつでも動き、このチェックもしない
+1. **check**: cron-job.org からの起動は、リポジトリ変数 `AUTO_POST` が `true` のときだけ動き、今日(日本時間)
+   すでに3本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。
+   手動の Run workflow はいつでも動き、このチェックもしない
 2. **generate**: `art_shorts.py --source auto --history upload_history.json --tts google` で動画と `out/meta.json`
    (タイトル・説明文・タグ)を作る。美術館は Met とシカゴ美術館を1日ごとに交互にし、投稿済みの作品は選ばない
 3. **upload**: `youtube_upload.py` でアップロード(カテゴリは Education、言語は英語)し、`upload_history.json` に記録してコミットする
@@ -83,8 +83,7 @@ GitHub 自身の定期実行は遅延・スキップがある(2026-11-06 は 09:
   (審査ではホームページ・プライバシーポリシー・利用規約と、アプリの使い方を聞かれる)。
   `public` を指定したのに非公開になったら、`youtube_upload.py` が警告を出し、履歴の `privacy` にも実際の公開設定が残る
 - YouTube Data API の割り当て(1日あたり)はプロジェクト単位。新しいプロジェクトなので、ねこピアノとは共有しない
-- **`post.yml` を Claude(GitHub App 経由の push)が変更した後は、GitHub の Web 画面で `post.yml` を1文字でも編集してコミットし直すこと。**
-  App 経由の push では定期実行(schedule)が登録されない(ねこピアノで確認済み)
+- 定期実行は cron-job.org だけなので、`post.yml` を変更しても GitHub の画面でコミットし直す必要はない
 
 ## チャンネルの素材(`branding/`)
 
