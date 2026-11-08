@@ -96,7 +96,8 @@ def http_get(url, limiter, headers=None, tries=4):
             with urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=60) as r:
                 return r.read()
         except urllib.error.HTTPError as e:
-            retryable = e.code == 429 or e.code >= 500
+            # Met の配信網はときどき一時的に 403 を返す(2026-11 に確認)ので、Met だけ 403 も再試行する
+            retryable = e.code == 429 or e.code >= 500 or (e.code == 403 and "metmuseum" in url)
             if not retryable or attempt == tries - 1:
                 raise HTTPStatusError(e.code, url) from e
             wait = float(e.headers.get("Retry-After") or 0) or 2 ** (attempt + 1)
@@ -130,19 +131,18 @@ class Met:
         """ハイライト作品のうち画像のあるものの objectID 一覧。"""
         params = urllib.parse.urlencode(
             {"q": self.QUERY, "isHighlight": "true", "hasImages": "true", "limit": 500})
-        try:
-            data = http_json(f"{self.BASE}/v1.1/search?{params}", MET_LIMIT)
-        except HTTPStatusError as e:
-            if e.status not in (400, 404, 410):
-                raise
-            # v1.1 が使えないとき(仕様が変わった等)。旧 v1 は 2026-10-01 廃止予定なので、通っても長くは使えない
-            print(f"  警告: v1.1/search が {e.status}。旧 v1/search を試します", file=sys.stderr)
-            params = urllib.parse.urlencode({"q": self.QUERY, "isHighlight": "true", "hasImages": "true"})
-            data = http_json(f"{self.BASE}/v1/search?{params}", MET_LIMIT)
+        # 旧 v1/search は廃止済み(2026-11 に 410 Gone を確認)
+        data = http_json(f"{self.BASE}/v1.1/search?{params}", MET_LIMIT)
         ids = extract_ids(data)
         if not ids:
             raise RuntimeError(f"Met の検索結果から objectID を読み取れません: {str(data)[:300]}")
         return ids
+
+    def search_artist(self, name):
+        """作者名で検索した、画像のある作品の objectID 一覧。"""
+        params = urllib.parse.urlencode(
+            {"q": name, "artistOrCulture": "true", "hasImages": "true", "limit": 500})
+        return extract_ids(http_json(f"{self.BASE}/v1.1/search?{params}", MET_LIMIT))
 
     def fetch(self, object_id):
         """1作品の情報。使える作品(PD・画像あり・絵画)なら dict、そうでなければ None。"""
@@ -161,6 +161,7 @@ class Met:
             "id": str(o.get("objectID", object_id)),
             "title": clean(o.get("title")) or "Untitled",
             "artist": clean(o.get("artistDisplayName")) or "Unknown artist",
+            "artist_prefix": clean(o.get("artistPrefix")),
             "artist_bio": clean(o.get("artistDisplayBio")),
             "date": clean(o.get("objectDate")),
             "year_start": to_int(o.get("objectBeginDate")),
@@ -230,6 +231,15 @@ class AIC:
                 self.iiif_url = iiif.rstrip("/")
             self._pages[page] = data
         return self._pages[page]
+
+    def search_artist(self, name, page=1):
+        """作者名で検索した作品の記録(fields 付き)。"""
+        params = urllib.parse.urlencode({"q": name, "fields": self.FIELDS, "limit": 100, "page": page})
+        data = http_json(f"{self.BASE}/artworks/search?{params}", AIC_LIMIT, self.headers)
+        iiif = (data.get("config") or {}).get("iiif_url")
+        if iiif:
+            self.iiif_url = iiif.rstrip("/")
+        return data.get("data") or [], int((data.get("pagination") or {}).get("total_pages") or 1)
 
     def pick_pages(self, rng):
         """調べるページの順番。1ページ目でページ数を知ってから、ランダムな順に並べる。"""
@@ -348,6 +358,42 @@ def choose_artwork(src, rng, used, today, accept=None):
             if lookups > 5:   # 5ページ見て無ければ諦める(1ページ1リクエスト)
                 break
     raise RuntimeError(f"{src.name}: 条件に合う未使用の作品が見つかりません")
+
+
+def choose_famous(src, rng, used, accept=None, avoid_artists=()):
+    """有名な画家(artists.FAMOUS)の本人の作品から、未使用のものを1点選ぶ。
+    画家を(直近に使った画家を避けて)ランダムな順に試し、その画家の作品から探す。"""
+    import artists
+    ok = lambda a: a is not None and (accept is None or accept(a))
+    used_ids = {u["id"] for u in used if u.get("source") == src.name}
+    names = [n for n, _ in artists.FAMOUS]
+    rng.shuffle(names)
+    names.sort(key=lambda n: n in avoid_artists)   # 直近の画家は後回し(順番は保つ)
+    for name in names[:12]:
+        if isinstance(src, Met):
+            ids = [i for i in src.search_artist(name) if i not in used_ids]
+            rng.shuffle(ids)
+            for oid in ids[:30]:
+                art = src.fetch(oid)
+                if ok(art) and artists.find(art["artist"], art.get("artist_prefix", "")) == name:
+                    art["famous_artist"] = name
+                    return art
+        else:
+            records, pages = src.search_artist(name)
+            for page in range(2, min(pages, 3) + 1):
+                records += src.search_artist(name, page)[0]
+            rng.shuffle(records)
+            for r in records:
+                if str(r.get("id")) in used_ids:
+                    continue
+                if artists.find(r.get("artist_display") or r.get("artist_title"), "") != name:
+                    continue
+                art = src.from_record(r)
+                if ok(art):
+                    art["famous_artist"] = name
+                    return art
+        print(f"  {name}: {src.name} に未使用の作品なし", file=sys.stderr)
+    raise RuntimeError(f"{src.name}: 有名な画家の未使用の作品が見つかりません")
 
 
 def download_image(art):
@@ -779,6 +825,8 @@ def main():
                     help="quiz の読み上げ。google は API キー(環境変数 GOOGLE_TTS_API_KEY か Network secrets)が必要。"
                          "dummy は仮の音(タイミング確認用)。既定: キーがあれば google、なければ none")
     ap.add_argument("--seconds", type=float, help="音声なしのときの長さ(既定: quiz 13秒 / classic 15秒)")
+    ap.add_argument("--any-artist", action="store_true",
+                    help="有名な画家(artists.py)に絞らず、以前の選び方(Met はハイライト、AIC は検索結果)で選ぶ")
     ap.add_argument("--seed", help="作品選びのシード(既定は日付+source)")
     ap.add_argument("--id", help="作品IDを指定(試作用。used.json に記録しない)")
     ap.add_argument("--date", help="日付 YYYY-MM-DD(既定は日本時間の今日)")
@@ -825,7 +873,11 @@ def main():
         else:
             used = load_used(used_path) + [{"source": h["source"], "id": h["id"]}
                                            for h in history]
-            art = choose_artwork(src, rng, used, today, accept)
+            if args.any_artist:
+                art = choose_artwork(src, rng, used, today, accept)
+            else:
+                recent = [h.get("artist") for h in history[-10:] if h.get("artist")]
+                art = choose_famous(src, rng, used, accept, avoid_artists=recent)
             record = not args.seed and not args.still and not any(
                 u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
         print(f"  → {art['title']} / {art['artist']} / {art['date']}  {art['url']}")
@@ -873,6 +925,7 @@ def main():
         number = len(history) + 1
         meta = youtube_meta(art, number)
         meta.update({"key": f"{art['source']}:{art['id']}", "number": number, "source": art["source"],
+                     "artist": art.get("famous_artist") or art.get("artist"),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
         print(f"投稿用: {meta['title']}")

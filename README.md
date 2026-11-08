@@ -127,14 +127,18 @@ python art_shorts.py --still                     # 動画を作らず、サム�
 
 ## 作品の選び方
 
-- 日付(日本時間)+ source をシードにするので、同じ日は同じ作品になる。その日すでに `used.json` に記録があれば、その作品を使う
-- **Met**: `v1.1/search?q=painting&isHighlight=true&hasImages=true&limit=500` で候補を取り、ランダムな順に
-  `v1/objects/{id}` を見て、`isPublicDomain` が true・`primaryImage` あり・分類が絵画のものを選ぶ(最大60件まで調べる)
-- **AIC**: `artworks/search?q=painting&limit=100` の1ページ目でページ数を知り、ランダムなページから、
-  `is_public_domain` が true・`image_id` あり・`artwork_type_title` が Painting のものを選ぶ。
-  画像は `{config.iiif_url}/{image_id}/full/843,/0/default.jpg`
+- **有名な画家だけ**(`artists.py` の約90人)。毎回、画家をランダムに選び(直近10本の画家は後回し)、その画家の
+  本人の作品から未使用のものを選ぶ。「工房」「追随者」「〜風」「〜の模写」などは使わない(Met の `artistPrefix`、
+  作者名の書き方で判定)。2026-11 の集計では、クイズに使える作品は64人で約740点(1日2本で約1年分)
+- **Met**: `v1.1/search?q=画家名&artistOrCulture=true&hasImages=true&limit=500` で候補を取り、ランダムな順に
+  `v1/objects/{id}` を見て、`isPublicDomain` が true・`primaryImage` あり・分類が絵画のものを選ぶ(1人あたり最大30件)。
+  旧 `v1/search` は廃止済み(410)
+- **AIC**: `artworks/search?q=画家名&limit=100`(最大3ページ)から、`is_public_domain` が true・`image_id` あり・
+  `artwork_type_title` が Painting のものを選ぶ。画像は `{config.iiif_url}/{image_id}/full/1686,/0/default.jpg`
+- `--any-artist` を付けると、以前の選び方(Met はハイライト、AIC は検索結果のランダムなページ)に戻る
+- 日付(日本時間)+ source をシードにする。投稿済みの作品(`upload_history.json`)は選ばない
 - パブリックドメイン(CC0)以外の画像は使わない。AIC の `description`(CC-BY)は取得しない
-- レート制限: Met は1秒5回まで、AIC は1.1秒に1回まで。429・5xx は待って再試行する
+- レート制限: Met は1秒5回まで、AIC は1.1秒に1回まで。429・5xx(Met は一時的な 403 も)は待って再試行する
 - `User-Agent` / `AIC-User-Agent` は環境変数 `ART_SHORTS_USER_AGENT` で変えられる(連絡先を入れておくとよい)
 
 ## クイズ(縦型の既定、`quiz.py`)
