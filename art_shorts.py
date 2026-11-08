@@ -827,6 +827,8 @@ def main():
     ap.add_argument("--seconds", type=float, help="音声なしのときの長さ(既定: quiz 13秒 / classic 15秒)")
     ap.add_argument("--hook", action="store_true",
                     help="quiz のフック版: 選択肢と残り時間のバーを最初から出し、0秒に効果音、第一声は「Quick, guess the year!」")
+    ap.add_argument("--variant", choices=["base", "hook", "auto"],
+                    help="冒頭の版。auto は投稿記録(--history)の直前の1本と逆の版(比較のため1本ごとに交互にする)")
     ap.add_argument("--any-artist", action="store_true",
                     help="有名な画家(artists.py)に絞らず、以前の選び方(Met はハイライト、AIC は検索結果)で選ぶ")
     ap.add_argument("--seed", help="作品選びのシード(既定は日付+source)")
@@ -853,6 +855,17 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     today = args.date or datetime.now(TZ).strftime("%Y-%m-%d")
     history = json.loads(Path(args.history).read_text()) if args.history and Path(args.history).exists() else []
+    if args.variant == "auto":
+        # 2本ずつ交互(hook, hook, base, base, ...)。美術館は1本ごとに交互なので、版と美術館の組み合わせが
+        # 4通りとも均等に出る(1本ごとに交互にすると、版と美術館が常に同じ組み合わせになり比べられない)
+        recent = [(h.get("variant") or "base") for h in history[-2:]]
+        if len(recent) < 2 or recent[0] == recent[1]:
+            args.variant = "hook" if (recent[-1] if recent else "base") == "base" else "base"
+        else:
+            args.variant = recent[-1]
+    if args.variant:
+        args.hook = args.variant == "hook"
+        print(f"冒頭の版: {args.variant}")
     if args.source == "auto":
         last = history[-1]["source"] if history else "aic"
         args.source = "aic" if last == "met" else "met"
