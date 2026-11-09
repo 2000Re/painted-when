@@ -1,6 +1,6 @@
 """定期実行で、今回投稿してよいかを調べ、GitHub Actions のステップ出力 skip=true/false を書く。
 
-1日(日本時間)に MAX_PER_DAY 本まで投稿する。起動は cron-job.org の 07:17・10:17・22:17。
+1日(日本時間)に MAX_PER_DAY 本まで投稿する。起動は cron-job.org の 02:17・07:17・10:17・22:17。
 次のどちらかに当たればスキップする:
   - 今日(日本時間)すでに MAX_PER_DAY 本投稿している
   - 最後の投稿から MIN_GAP_HOURS 時間たっていない(起動が重なったときの二重投稿を防ぐ)
@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-MAX_PER_DAY = 3
+MAX_PER_DAY = 4
 MIN_GAP_HOURS = 1.5
 TZ = ZoneInfo("Asia/Tokyo")
 HISTORY = Path(__file__).parent / "upload_history.json"

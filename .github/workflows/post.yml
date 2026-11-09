@@ -1,7 +1,7 @@
 name: post
 
 on:
-  # 毎日 07:17・10:17・22:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
+  # 毎日 02:17・07:17・10:17・22:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
   # GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めないので使わない
   workflow_dispatch:
     inputs:
@@ -67,7 +67,7 @@ jobs:
         env:
           GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
           ART_SHORTS_USER_AGENT: "painted-when/1.0 (+https://github.com/${{ github.repository }})"
-        # --variant auto: 冒頭の版(今の版 base / フック版 hook)を2本ずつ交互にして、反応を比べる
+        # --variant auto: 冒頭の版(今の版 base / フック版 hook)を8本周期で出して、反応を比べる
         run: python art_shorts.py --source auto --variant auto --history upload_history.json --tts google --out out
       - uses: actions/upload-artifact@v4
         with:

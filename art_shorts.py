@@ -856,13 +856,12 @@ def main():
     today = args.date or datetime.now(TZ).strftime("%Y-%m-%d")
     history = json.loads(Path(args.history).read_text()) if args.history and Path(args.history).exists() else []
     if args.variant == "auto":
-        # 2本ずつ交互(hook, hook, base, base, ...)。美術館は1本ごとに交互なので、版と美術館の組み合わせが
-        # 4通りとも均等に出る(1本ごとに交互にすると、版と美術館が常に同じ組み合わせになり比べられない)
-        recent = [(h.get("variant") or "base") for h in history[-2:]]
-        if len(recent) < 2 or recent[0] == recent[1]:
-            args.variant = "hook" if (recent[-1] if recent else "base") == "base" else "base"
-        else:
-            args.variant = recent[-1]
+        # 比較を始めてからの本数で、8本周期の並び(hook, hook, base, base, base, base, hook, hook)から選ぶ。
+        # - 美術館は1本ごとに交互なので、2本ずつ並べると版と美術館の組み合わせが4通りとも均等に出る
+        #   (1本ごとに交互だと、版と美術館が常に同じ組み合わせになり比べられない)
+        # - 1日4本なので、4本周期だと毎日同じ時間帯に同じ版が来る。8本周期にして、日ごとに入れ替える
+        pattern = ["hook", "hook", "base", "base", "base", "base", "hook", "hook"]
+        args.variant = pattern[sum(1 for h in history if h.get("variant")) % len(pattern)]
     if args.variant:
         args.hook = args.variant == "hook"
         print(f"冒頭の版: {args.variant}")
