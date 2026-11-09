@@ -127,5 +127,19 @@
     "video_id": "j0zQ3_rltKE",
     "privacy": "public",
     "uploaded_at": "2026-11-09T13:18:48+00:00"
+  },
+  {
+    "number": 11,
+    "key": "met:436839",
+    "source": "met",
+    "id": "436839",
+    "date": "2026-11-10",
+    "title": "When was this painted? 🎨 Daily Art Quiz #11",
+    "answer": "1635",
+    "artist": "Georges de La Tour",
+    "variant": "base",
+    "video_id": "IFtUe8qe7Ac",
+    "privacy": "public",
+    "uploaded_at": "2026-11-09T17:19:18+00:00"
   }
 ]
