@@ -141,5 +141,19 @@
     "video_id": "IFtUe8qe7Ac",
     "privacy": "public",
     "uploaded_at": "2026-11-09T17:19:18+00:00"
+  },
+  {
+    "number": 12,
+    "key": "aic:27281",
+    "source": "aic",
+    "id": "27281",
+    "date": "2026-11-10",
+    "title": "When was this painted? 🎨 Daily Art Quiz #12",
+    "answer": "1915",
+    "artist": "Amedeo Modigliani",
+    "variant": "base",
+    "video_id": "jfsUjzH8s9c",
+    "privacy": "public",
+    "uploaded_at": "2026-11-09T22:18:48+00:00"
   }
 ]
