@@ -183,5 +183,19 @@
     "video_id": "Rfee7rN-e0g",
     "privacy": "public",
     "uploaded_at": "2026-11-10T13:27:06+00:00"
+  },
+  {
+    "number": 15,
+    "key": "met:437174",
+    "source": "met",
+    "id": "437174",
+    "date": "2026-11-11",
+    "title": "When was this painted? 🎨 Daily Art Quiz #15",
+    "answer": "1650",
+    "artist": "Bartolomé Esteban Murillo",
+    "variant": "hook",
+    "video_id": "Eg9JuuST6y0",
+    "privacy": "public",
+    "uploaded_at": "2026-11-10T17:18:34+00:00"
   }
 ]
