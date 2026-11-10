@@ -18,7 +18,7 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07
 3. **upload**: `youtube_upload.py` でアップロード(カテゴリは Education、言語は英語)し、`upload_history.json` に記録してコミットする
 4. 失敗したら Issue を立てる(トークン失効は `token-invalid`、それ以外は `post-failure` ラベル)
 
-タイトルは「When was this painted? 🎨 Daily Art Quiz #連番」。答えはタイトルに書かず、説明文の下の方に、
+タイトルは「[連番] When was this painted? 🎨 Daily Art Quiz」(#15 までは「When was this painted? 🎨 Daily Art Quiz #連番」)。答えはタイトルに書かず、説明文の下の方に、
 作品名・作者・美術館のページへのリンク・出典(CC0)と一緒に書く。
 
 ### 使っている Google Cloud プロジェクト

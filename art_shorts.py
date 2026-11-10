@@ -801,7 +801,9 @@ def youtube_meta(art, number):
     if artist.lower() not in ("unknown artist", "unidentified artist", "anonymous"):
         tags.append(artist)
     return {
-        "title": _yt_text(f"When was this painted? 🎨 Daily Art Quiz #{number}")[:100],
+        # 番号を先頭に置く(スマホの YouTube Studio の一覧でタイトルが切れても番号が見えるように)。
+        # 「#15」だとハッシュタグ扱いされることがあるので「[15]」にする
+        "title": _yt_text(f"[{number}] When was this painted? 🎨 Daily Art Quiz")[:100],
         "description": _yt_text("\n".join(lines))[:4900],
         "tags": tags,
         "answer": answer,
