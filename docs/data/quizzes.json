@@ -412,5 +412,28 @@
    "1577"
   ],
   "answer": 2
+ },
+ {
+  "number": 19,
+  "slug": "19-francesco-d-este-born-ca-1429-died-after-1486",
+  "video_id": "cIPiAAIwGgY",
+  "uploaded_at": "2026-11-11T17:18:49+00:00",
+  "title": "Francesco d'Este (born ca. 1429, died after 1486)",
+  "artist": "Rogier van der Weyden",
+  "artist_bio": "Netherlandish, Tournai ca. 1399–1464 Brussels",
+  "artist_unknown": false,
+  "date": "ca. 1460",
+  "medium": "Oil on wood",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/437487",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-26278-001.jpg",
+  "source": "met",
+  "id": "437487",
+  "choices": [
+   "1680",
+   "1333",
+   "1455"
+  ],
+  "answer": 2
  }
 ]
