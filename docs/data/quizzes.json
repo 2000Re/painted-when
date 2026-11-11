@@ -435,5 +435,28 @@
    "1455"
   ],
   "answer": 2
+ },
+ {
+  "number": 20,
+  "slug": "20-madame-de-pastoret-and-her-son",
+  "video_id": "_Kh_hSKOt1I",
+  "uploaded_at": "2026-11-11T22:19:52+00:00",
+  "title": "Madame de Pastoret and Her Son",
+  "artist": "Jacques Louis David",
+  "artist_bio": "French, 1748–1825",
+  "artist_unknown": false,
+  "date": "1791–92",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/27307",
+  "image": "https://www.artic.edu/iiif/2/72227c9e-413c-8930-477d-5a90e0a2123c/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "27307",
+  "choices": [
+   "1791",
+   "1970",
+   "1857"
+  ],
+  "answer": 0
  }
 ]
