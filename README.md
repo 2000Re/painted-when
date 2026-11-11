@@ -24,7 +24,7 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07
 ### 使っている Google Cloud プロジェクト
 
 **Painted When? 専用の Google アカウント**の、プロジェクト **`painted-when`** にまとめてある
-(ねこピアノ・Can You Say This? とは別のアカウント・別のプロジェクト)。
+(Can You Say This? など、ほかのチャンネルとは別のアカウント・別のプロジェクト)。
 
 | 中身 | 用途 | GitHub Secrets |
 |---|---|---|
@@ -95,7 +95,7 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07
   公開で投稿するには「YouTube API Services - Audit and Quota Extension Form」で監査を申請する
   (審査ではホームページ・プライバシーポリシー・利用規約と、アプリの使い方を聞かれる)。
   `public` を指定したのに非公開になったら、`youtube_upload.py` が警告を出し、履歴の `privacy` にも実際の公開設定が残る
-- YouTube Data API の割り当て(1日あたり)はプロジェクト単位。新しいプロジェクトなので、ねこピアノとは共有しない
+- YouTube Data API の割り当て(1日あたり)はプロジェクト単位。Painted When? 専用のプロジェクトなので、ほかのチャンネルとは共有しない
 - 定期実行は cron-job.org だけなので、`post.yml` を変更しても GitHub の画面でコミットし直す必要はない
 
 ## 冒頭の版の比較(2026-11-08〜)
