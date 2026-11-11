@@ -162,6 +162,9 @@ python art_shorts.py --still                     # 動画を作らず、サム�
   旧 `v1/search` は廃止済み(410)
 - **AIC**: `artworks/search?q=画家名&limit=100`(最大3ページ)から、`is_public_domain` が true・`image_id` あり・
   `artwork_type_title` が Painting のものを選ぶ。画像は `{config.iiif_url}/{image_id}/full/1686,/0/default.jpg`
+- **人物の絵を優先する**(2026-11-11〜)。最初の数日の数字で、上位はすべて人物・肖像、人物のいない風景は再生が少なかった
+  ため。候補を最大8点(1人の画家から2点まで)、小さい画像(Met は `primaryImageSmall`、AIC は 843px 幅)で顔の検出にかけ、
+  顔のある作品を選ぶ。8点とも顔がなければ最初の候補を使う(風景も出る)。顔の有無は `upload_history.json` の `has_face` に残る
 - `--any-artist` を付けると、以前の選び方(Met はハイライト、AIC は検索結果のランダムなページ)に戻る
 - 日付(日本時間)+ source をシードにする。投稿済みの作品(`upload_history.json`)は選ばない
 - パブリックドメイン(CC0)以外の画像は使わない。AIC の `description`(CC-BY)は取得しない

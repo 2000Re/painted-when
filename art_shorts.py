@@ -170,6 +170,7 @@ class Met:
             "classification": clean(o.get("classification")) or clean(o.get("objectName")),
             "url": o.get("objectURL") or f"https://www.metmuseum.org/art/collection/search/{object_id}",
             "image_url": o["primaryImage"],
+            "image_url_small": o.get("primaryImageSmall") or o["primaryImage"],
             "museum": self.museum,
             "credit": "Image: The Metropolitan Museum of Art, Public Domain (CC0)",
             "license": "CC0",
@@ -274,6 +275,7 @@ class AIC:
             # 取れなければ 843px に戻す(download_image)。1686px は 2026-11 に取得できることを確認
             "image_url": f"{self.iiif_url}/{a['image_id']}/full/1686,/0/default.jpg",
             "image_url_fallback": f"{self.iiif_url}/{a['image_id']}/full/843,/0/default.jpg",
+            "image_url_small": f"{self.iiif_url}/{a['image_id']}/full/843,/0/default.jpg",
             "museum": self.museum,
             "credit": "Image: Art Institute of Chicago, CC0",
             "license": "CC0",
@@ -360,9 +362,12 @@ def choose_artwork(src, rng, used, today, accept=None):
     raise RuntimeError(f"{src.name}: 条件に合う未使用の作品が見つかりません")
 
 
-def choose_famous(src, rng, used, accept=None, avoid_artists=()):
-    """有名な画家(artists.FAMOUS)の本人の作品から、未使用のものを1点選ぶ。
-    画家を(直近に使った画家を避けて)ランダムな順に試し、その画家の作品から探す。"""
+FACE_TRIES = 8          # 顔のある作品を探す候補の数。見つからなければ最初の候補を使う
+PER_ARTIST = 2          # 1人の画家から出す候補の数(画家がかたよらないように)
+
+
+def _famous_candidates(src, rng, used, accept, avoid_artists):
+    """有名な画家の本人の作品で、未使用・クイズに使えるものを、画家ごとに順に出す。"""
     import artists
     ok = lambda a: a is not None and (accept is None or accept(a))
     used_ids = {u["id"] for u in used if u.get("source") == src.name}
@@ -370,6 +375,7 @@ def choose_famous(src, rng, used, accept=None, avoid_artists=()):
     rng.shuffle(names)
     names.sort(key=lambda n: n in avoid_artists)   # 直近の画家は後回し(順番は保つ)
     for name in names[:12]:
+        found = 0
         if isinstance(src, Met):
             ids = [i for i in src.search_artist(name) if i not in used_ids]
             rng.shuffle(ids)
@@ -377,7 +383,10 @@ def choose_famous(src, rng, used, accept=None, avoid_artists=()):
                 art = src.fetch(oid)
                 if ok(art) and artists.find(art["artist"], art.get("artist_prefix", "")) == name:
                     art["famous_artist"] = name
-                    return art
+                    yield art
+                    found += 1
+                    if found >= PER_ARTIST:
+                        break
         else:
             records, pages = src.search_artist(name)
             for page in range(2, min(pages, 3) + 1):
@@ -388,19 +397,62 @@ def choose_famous(src, rng, used, accept=None, avoid_artists=()):
                     continue
                 if artists.find(r.get("artist_display") or r.get("artist_title"), "") != name:
                     continue
+                # 「and workshop」などは artist_title にだけ書かれていることがある(例: El Greco and workshop)
+                if artists.is_attributed_only(r.get("artist_title") or ""):
+                    continue
                 art = src.from_record(r)
                 if ok(art):
                     art["famous_artist"] = name
-                    return art
-        print(f"  {name}: {src.name} に未使用の作品なし", file=sys.stderr)
+                    yield art
+                    found += 1
+                    if found >= PER_ARTIST:
+                        break
+        if not found:
+            print(f"  {name}: {src.name} に未使用の作品なし", file=sys.stderr)
+
+
+def has_face(art):
+    """作品の小さい画像に、はっきりした顔(人物)が描かれているか。調べられなければ None。"""
+    import quiz
+    try:
+        img = download_image(art, small=True)
+    except Exception as e:
+        print(f"  画像を確かめられません({e})", file=sys.stderr)
+        return None
+    W, H = img.size
+    faces = [f for f in quiz.detect_faces(img) if f[2] * W >= 0.05 * min(W, H)]
+    return bool(faces)
+
+
+def choose_famous(src, rng, used, accept=None, avoid_artists=(), prefer_faces=True):
+    """有名な画家(artists.FAMOUS)の本人の作品から、未使用のものを1点選ぶ。
+    人物の絵のほうが見てもらえる傾向があった(2026-11 の数字)ので、候補を FACE_TRIES 点まで見て、
+    顔が描かれた作品を優先する。見つからなければ最初の候補を使う(風景も出る)。"""
+    first = None
+    for i, art in enumerate(_famous_candidates(src, rng, used, accept, avoid_artists)):
+        if not prefer_faces:
+            return art
+        face = has_face(art)
+        art["has_face"] = face
+        print(f"  候補: {art['famous_artist']} 「{art['title'][:40]}」 顔{'あり' if face else 'なし'}")
+        if face:
+            return art
+        first = first or art
+        if i + 1 >= FACE_TRIES:
+            break
+    if first:
+        print("  顔のある作品が見つからなかったので、最初の候補を使います")
+        return first
     raise RuntimeError(f"{src.name}: 有名な画家の未使用の作品が見つかりません")
 
 
-def download_image(art):
+def download_image(art, small=False):
+    """作品の画像。small=True は顔の有無を調べるための小さい画像(Met は primaryImageSmall、AIC は 843px 幅)。"""
     limiter = MET_LIMIT if art["source"] == "met" else AIC_LIMIT
     headers = AIC.headers if art["source"] == "aic" else None
+    url = art.get("image_url_small") if small else None
     try:
-        raw = http_get(art["image_url"], limiter, headers)
+        raw = http_get(url or art["image_url"], limiter, headers)
     except HTTPStatusError:
         if not art.get("image_url_fallback"):
             raise
@@ -408,7 +460,7 @@ def download_image(art):
     img = Image.open(io.BytesIO(raw))
     img = ImageOps.exif_transpose(img).convert("RGB")
     # 巨大な原画像(Met は数千px)は扱いやすい大きさに縮める。クイズの冒頭の拡大に使うので大きめに残す
-    img.thumbnail((4000, 4000), Image.LANCZOS)
+    img.thumbnail((1024, 1024) if small else (4000, 4000), Image.LANCZOS)
     return img
 
 
@@ -944,6 +996,7 @@ def main():
         meta.update({"key": f"{art['source']}:{art['id']}", "number": number, "source": art["source"],
                      "artist": art.get("famous_artist") or art.get("artist"),
                      "variant": "hook" if args.hook else "base",
+                     "has_face": art.get("has_face"),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
         print(f"投稿用: {meta['title']}")
