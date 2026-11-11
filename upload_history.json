@@ -211,5 +211,19 @@
     "video_id": "GqJbHjQl5Sg",
     "privacy": "public",
     "uploaded_at": "2026-11-10T22:18:28+00:00"
+  },
+  {
+    "number": 17,
+    "key": "met:438001",
+    "source": "met",
+    "id": "438001",
+    "date": "2026-11-11",
+    "title": "[17] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1901",
+    "artist": "Paul Gauguin",
+    "variant": "base",
+    "video_id": "LBimzn6Y-y0",
+    "privacy": "public",
+    "uploaded_at": "2026-11-11T01:18:46+00:00"
   }
 ]
