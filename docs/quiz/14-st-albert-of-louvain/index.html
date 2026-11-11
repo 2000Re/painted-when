@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When was “St. Albert of Louvain” by Peter Paul Rubens painted? — Painted When? Quiz #14</title>
+<meta name="description" content="Art quiz #14: guess the year Peter Paul Rubens painted “St. Albert of Louvain”. Choices: 1620 / 1427 / 1475. Answer, artwork details and the museum link inside.">
+<link rel="canonical" href="https://2000re.github.io/painted-when/quiz/14-st-albert-of-louvain/">
+<link rel="icon" href="../../icon.png">
+<link rel="stylesheet" href="../../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VisualArtwork", "name": "St. Albert of Louvain", "image": "https://www.artic.edu/iiif/2/58f58363-f567-0e49-7956-d49400721b1c/full/843,/0/default.jpg", "url": "https://www.artic.edu/artworks/28874", "creator": {"@type": "Person", "name": "Peter Paul Rubens"}, "dateCreated": "1620", "artMedium": "Oil on panel", "license": "https://creativecommons.org/publicdomain/zero/1.0/"}</script>
+</head>
+<body>
+<header><div class="bar">
+  <img src="../../icon.png" alt="">
+  <a class="name" href="../../">Painted When?</a>
+  <nav><a href="../../quiz/">All quizzes</a><a href="../../privacy.html">Privacy</a><a href="../../terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <p class="muted">Quiz #14 · Art Institute of Chicago</p>
+  <h1>When was this painted?</h1>
+  <div class="quiz-layout">
+    <div class="short">
+      <iframe src="https://www.youtube-nocookie.com/embed/Rfee7rN-e0g" title="Painted When? Quiz #14"
+        loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div class="quiz">
+      <p>Pick a year, then check the answer.</p>
+      <div class="choices" data-answer="0">
+    <button type="button" class="choice" data-i="0">1620</button>
+    <button type="button" class="choice" data-i="1">1427</button>
+    <button type="button" class="choice" data-i="2">1475</button>
+      </div>
+      <button type="button" class="reveal">Show the answer</button>
+      <div class="answer" hidden>
+        <p class="answer-year">Answer: <strong>1620</strong></p>
+        <img class="artwork" src="https://www.artic.edu/iiif/2/58f58363-f567-0e49-7956-d49400721b1c/full/843,/0/default.jpg" alt="St. Albert of Louvain by Peter Paul Rubens" loading="lazy">
+        <h2>St. Albert of Louvain</h2>
+        <p><strong>Peter Paul Rubens</strong> — Flemish, 1577-1640</p>
+        <p class="muted">1620 · Oil on panel</p>
+        <p><a href="https://www.artic.edu/artworks/28874">See it at Art Institute of Chicago</a></p>
+        <p class="muted">Image: Art Institute of Chicago, Public Domain (CC0). This site is not affiliated with the museum.</p>
+      </div>
+    </div>
+  </div>
+  <p class="pager"><a href="../13-mezzetin/">← Quiz #13</a> · <a href="../">All quizzes</a> · <a href="../15-a-knight-of-alcantara-or-calatrava/">Quiz #15 →</a></p>
+  <p><a href="https://www.youtube.com/@painted-when">More quizzes every day on YouTube: @painted-when</a></p>
+  <script>
+  (function () {
+    var box = document.querySelector(".choices"), ans = +box.dataset.answer;
+    var panel = document.querySelector(".answer"), btn = document.querySelector(".reveal");
+    function reveal(picked) {
+      box.querySelectorAll(".choice").forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === ans) b.classList.add("right");
+        else if (i === picked) b.classList.add("wrong");
+      });
+      panel.hidden = false; btn.hidden = true;
+    }
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".choice"); if (b) reveal(+b.dataset.i);
+    });
+    btn.addEventListener("click", function () { reveal(-1); });
+  })();
+  </script>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="../../privacy.html">Privacy Policy</a> · <a href="../../terms.html">Terms of Service</a></div></footer>
+</body>
+</html>

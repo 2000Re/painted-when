@@ -111,6 +111,22 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07
 `python tools/variants.py` で一覧にできる(`upload_history.json` の `variant`)。1〜2週間たったら、YouTube Studio の
 「スワイプされずに視聴された割合」と「平均視聴率」を版ごとに比べ、良い方に揃える。
 
+## サイト(`docs/`、GitHub Pages)
+
+https://2000re.github.io/painted-when/ に、クイズの一覧と作品ごとのページを載せている(`site_gen.py`)。
+
+| URL | 中身 |
+|---|---|
+| `/painted-when/` | チャンネルの紹介と、最新12問(`<!-- LATEST:START -->` 〜 `END` の間を自動で書き換える) |
+| `/painted-when/quiz/` | 全問の一覧(新しい順) |
+| `/painted-when/quiz/<番号>-<作品名>/` | 作品ごと: 埋め込んだ Shorts(youtube-nocookie)、3択(押すと正解と作品の情報が出る)、作品の画像・作品名・画家・制作年・技法・美術館へのリンク、前後の問題 |
+| `/painted-when/sitemap.xml` | 検索エンジン向けのページ一覧(Search Console に登録する) |
+
+- データは `docs/data/quizzes.json`。投稿のたびに `youtube_upload.py` が1件足してページを作り直し、upload ジョブが `docs/` もコミットする
+- 画像はリポジトリに保存せず、美術館の画像配信(Met の `primaryImageSmall`、シカゴ美術館の IIIF 843px 幅)から表示する
+- シカゴ美術館の画像配信は自動操作のブラウザ(HeadlessChrome)を弾くので、Playwright のスクリーンショットでは AIC の画像が空欄になる(ふつうのブラウザでは表示される)
+- サイトのデータが始まる前の投稿(#1〜#17)は `python tools/backfill_site.py` で美術館の API から取り直した。選択肢は作品ごとに同じものが作られるので、動画と同じ3択になる(投稿の記録の正解とも照合)
+
 ## チャンネルの素材(`branding/`)
 
 | ファイル | 内容 |

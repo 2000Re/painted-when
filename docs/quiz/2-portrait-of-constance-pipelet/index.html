@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When was “Portrait of Constance Pipelet” by Jean Baptiste François Désoria painted? — Painted When? Quiz #2</title>
+<meta name="description" content="Art quiz #2: guess the year Jean Baptiste François Désoria painted “Portrait of Constance Pipelet”. Choices: 1797 / 1595 / 1714. Answer, artwork details and the museum link inside.">
+<link rel="canonical" href="https://2000re.github.io/painted-when/quiz/2-portrait-of-constance-pipelet/">
+<link rel="icon" href="../../icon.png">
+<link rel="stylesheet" href="../../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VisualArtwork", "name": "Portrait of Constance Pipelet", "image": "https://www.artic.edu/iiif/2/9ca3be44-a673-2ad9-f0d8-a8e28ee8d397/full/843,/0/default.jpg", "url": "https://www.artic.edu/artworks/31233", "creator": {"@type": "Person", "name": "Jean Baptiste François Désoria"}, "dateCreated": "1797", "artMedium": "Oil on canvas", "license": "https://creativecommons.org/publicdomain/zero/1.0/"}</script>
+</head>
+<body>
+<header><div class="bar">
+  <img src="../../icon.png" alt="">
+  <a class="name" href="../../">Painted When?</a>
+  <nav><a href="../../quiz/">All quizzes</a><a href="../../privacy.html">Privacy</a><a href="../../terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <p class="muted">Quiz #2 · Art Institute of Chicago</p>
+  <h1>When was this painted?</h1>
+  <div class="quiz-layout">
+    <div class="short">
+      <iframe src="https://www.youtube-nocookie.com/embed/wRHEC9Mbxf8" title="Painted When? Quiz #2"
+        loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div class="quiz">
+      <p>Pick a year, then check the answer.</p>
+      <div class="choices" data-answer="0">
+    <button type="button" class="choice" data-i="0">1797</button>
+    <button type="button" class="choice" data-i="1">1595</button>
+    <button type="button" class="choice" data-i="2">1714</button>
+      </div>
+      <button type="button" class="reveal">Show the answer</button>
+      <div class="answer" hidden>
+        <p class="answer-year">Answer: <strong>1797</strong></p>
+        <img class="artwork" src="https://www.artic.edu/iiif/2/9ca3be44-a673-2ad9-f0d8-a8e28ee8d397/full/843,/0/default.jpg" alt="Portrait of Constance Pipelet by Jean Baptiste François Désoria" loading="lazy">
+        <h2>Portrait of Constance Pipelet</h2>
+        <p><strong>Jean Baptiste François Désoria</strong> — French, 1758–1832</p>
+        <p class="muted">1797 · Oil on canvas</p>
+        <p><a href="https://www.artic.edu/artworks/31233">See it at Art Institute of Chicago</a></p>
+        <p class="muted">Image: Art Institute of Chicago, Public Domain (CC0). This site is not affiliated with the museum.</p>
+      </div>
+    </div>
+  </div>
+  <p class="pager"><a href="../1-wheat-field-with-cypresses/">← Quiz #1</a> · <a href="../">All quizzes</a> · <a href="../3-aristotle-with-a-bust-of-homer/">Quiz #3 →</a></p>
+  <p><a href="https://www.youtube.com/@painted-when">More quizzes every day on YouTube: @painted-when</a></p>
+  <script>
+  (function () {
+    var box = document.querySelector(".choices"), ans = +box.dataset.answer;
+    var panel = document.querySelector(".answer"), btn = document.querySelector(".reveal");
+    function reveal(picked) {
+      box.querySelectorAll(".choice").forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === ans) b.classList.add("right");
+        else if (i === picked) b.classList.add("wrong");
+      });
+      panel.hidden = false; btn.hidden = true;
+    }
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".choice"); if (b) reveal(+b.dataset.i);
+    });
+    btn.addEventListener("click", function () { reveal(-1); });
+  })();
+  </script>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="../../privacy.html">Privacy Policy</a> · <a href="../../terms.html">Terms of Service</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When was “Madam Pompadour” by Amedeo Modigliani painted? — Painted When? Quiz #12</title>
+<meta name="description" content="Art quiz #12: guess the year Amedeo Modigliani painted “Madam Pompadour”. Choices: 1915 / 2007 / 1744. Answer, artwork details and the museum link inside.">
+<link rel="canonical" href="https://2000re.github.io/painted-when/quiz/12-madam-pompadour/">
+<link rel="icon" href="../../icon.png">
+<link rel="stylesheet" href="../../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VisualArtwork", "name": "Madam Pompadour", "image": "https://www.artic.edu/iiif/2/fdc1a755-ff86-487d-f16b-f03c40a30bee/full/843,/0/default.jpg", "url": "https://www.artic.edu/artworks/27281", "creator": {"@type": "Person", "name": "Amedeo Modigliani"}, "dateCreated": "1915", "artMedium": "Oil on canvas", "license": "https://creativecommons.org/publicdomain/zero/1.0/"}</script>
+</head>
+<body>
+<header><div class="bar">
+  <img src="../../icon.png" alt="">
+  <a class="name" href="../../">Painted When?</a>
+  <nav><a href="../../quiz/">All quizzes</a><a href="../../privacy.html">Privacy</a><a href="../../terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <p class="muted">Quiz #12 · Art Institute of Chicago</p>
+  <h1>When was this painted?</h1>
+  <div class="quiz-layout">
+    <div class="short">
+      <iframe src="https://www.youtube-nocookie.com/embed/jfsUjzH8s9c" title="Painted When? Quiz #12"
+        loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div class="quiz">
+      <p>Pick a year, then check the answer.</p>
+      <div class="choices" data-answer="0">
+    <button type="button" class="choice" data-i="0">1915</button>
+    <button type="button" class="choice" data-i="1">2007</button>
+    <button type="button" class="choice" data-i="2">1744</button>
+      </div>
+      <button type="button" class="reveal">Show the answer</button>
+      <div class="answer" hidden>
+        <p class="answer-year">Answer: <strong>1915</strong></p>
+        <img class="artwork" src="https://www.artic.edu/iiif/2/fdc1a755-ff86-487d-f16b-f03c40a30bee/full/843,/0/default.jpg" alt="Madam Pompadour by Amedeo Modigliani" loading="lazy">
+        <h2>Madam Pompadour</h2>
+        <p><strong>Amedeo Modigliani</strong> — Italian, 1884–1920</p>
+        <p class="muted">1915 · Oil on canvas</p>
+        <p><a href="https://www.artic.edu/artworks/27281">See it at Art Institute of Chicago</a></p>
+        <p class="muted">Image: Art Institute of Chicago, Public Domain (CC0). This site is not affiliated with the museum.</p>
+      </div>
+    </div>
+  </div>
+  <p class="pager"><a href="../11-the-penitent-magdalen/">← Quiz #11</a> · <a href="../">All quizzes</a> · <a href="../13-mezzetin/">Quiz #13 →</a></p>
+  <p><a href="https://www.youtube.com/@painted-when">More quizzes every day on YouTube: @painted-when</a></p>
+  <script>
+  (function () {
+    var box = document.querySelector(".choices"), ans = +box.dataset.answer;
+    var panel = document.querySelector(".answer"), btn = document.querySelector(".reveal");
+    function reveal(picked) {
+      box.querySelectorAll(".choice").forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === ans) b.classList.add("right");
+        else if (i === picked) b.classList.add("wrong");
+      });
+      panel.hidden = false; btn.hidden = true;
+    }
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".choice"); if (b) reveal(+b.dataset.i);
+    });
+    btn.addEventListener("click", function () { reveal(-1); });
+  })();
+  </script>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="../../privacy.html">Privacy Policy</a> · <a href="../../terms.html">Terms of Service</a></div></footer>
+</body>
+</html>

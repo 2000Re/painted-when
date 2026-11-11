@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When was “The Jabach Family” by Charles Le Brun painted? — Painted When? Quiz #5</title>
+<meta name="description" content="Art quiz #5: guess the year Charles Le Brun painted “The Jabach Family”. Choices: 1655 / 1468 / 1566. Answer, artwork details and the museum link inside.">
+<link rel="canonical" href="https://2000re.github.io/painted-when/quiz/5-the-jabach-family/">
+<link rel="icon" href="../../icon.png">
+<link rel="stylesheet" href="../../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VisualArtwork", "name": "The Jabach Family", "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP352819.jpg", "url": "https://www.metmuseum.org/art/collection/search/626692", "creator": {"@type": "Person", "name": "Charles Le Brun"}, "dateCreated": "ca. 1660", "artMedium": "Oil on canvas", "license": "https://creativecommons.org/publicdomain/zero/1.0/"}</script>
+</head>
+<body>
+<header><div class="bar">
+  <img src="../../icon.png" alt="">
+  <a class="name" href="../../">Painted When?</a>
+  <nav><a href="../../quiz/">All quizzes</a><a href="../../privacy.html">Privacy</a><a href="../../terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <p class="muted">Quiz #5 · The Metropolitan Museum of Art</p>
+  <h1>When was this painted?</h1>
+  <div class="quiz-layout">
+    <div class="short">
+      <iframe src="https://www.youtube-nocookie.com/embed/NaAQddhUZ1I" title="Painted When? Quiz #5"
+        loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div class="quiz">
+      <p>Pick a year, then check the answer.</p>
+      <div class="choices" data-answer="0">
+    <button type="button" class="choice" data-i="0">1655</button>
+    <button type="button" class="choice" data-i="1">1468</button>
+    <button type="button" class="choice" data-i="2">1566</button>
+      </div>
+      <button type="button" class="reveal">Show the answer</button>
+      <div class="answer" hidden>
+        <p class="answer-year">Answer: <strong>1655</strong></p>
+        <img class="artwork" src="https://images.metmuseum.org/CRDImages/ep/web-large/DP352819.jpg" alt="The Jabach Family by Charles Le Brun" loading="lazy">
+        <h2>The Jabach Family</h2>
+        <p><strong>Charles Le Brun</strong> — French, Paris 1619–1690 Paris</p>
+        <p class="muted">ca. 1660 · Oil on canvas</p>
+        <p><a href="https://www.metmuseum.org/art/collection/search/626692">See it at The Metropolitan Museum of Art</a></p>
+        <p class="muted">Image: The Metropolitan Museum of Art, Public Domain (CC0). This site is not affiliated with the museum.</p>
+      </div>
+    </div>
+  </div>
+  <p class="pager"><a href="../4-at-the-circus-the-bareback-rider-au-cirque-ecuyere/">← Quiz #4</a> · <a href="../">All quizzes</a> · <a href="../6-arlesiennes-mistral/">Quiz #6 →</a></p>
+  <p><a href="https://www.youtube.com/@painted-when">More quizzes every day on YouTube: @painted-when</a></p>
+  <script>
+  (function () {
+    var box = document.querySelector(".choices"), ans = +box.dataset.answer;
+    var panel = document.querySelector(".answer"), btn = document.querySelector(".reveal");
+    function reveal(picked) {
+      box.querySelectorAll(".choice").forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === ans) b.classList.add("right");
+        else if (i === picked) b.classList.add("wrong");
+      });
+      panel.hidden = false; btn.hidden = true;
+    }
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".choice"); if (b) reveal(+b.dataset.i);
+    });
+    btn.addEventListener("click", function () { reveal(-1); });
+  })();
+  </script>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="../../privacy.html">Privacy Policy</a> · <a href="../../terms.html">Terms of Service</a></div></footer>
+</body>
+</html>

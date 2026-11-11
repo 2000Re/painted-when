@@ -825,6 +825,32 @@ def _yt_text(s):
     return str(s).replace("<", "‹").replace(">", "›")
 
 
+UNKNOWN_ARTISTS = ("unknown artist", "unidentified artist", "anonymous")
+
+
+def site_fields(art):
+    """サイト(site_gen.py)の作品ページに載せる情報。"""
+    qz = art["quiz"]
+    import artists
+    artist = (art.get("famous_artist") or artists.find(art.get("artist") or "", art.get("artist_prefix", ""))
+              or art.get("artist") or "Unknown artist")
+    return {
+        "title": art["title"],
+        "artist": artist,
+        "artist_bio": art.get("artist_bio") or "",
+        "artist_unknown": artist.lower() in UNKNOWN_ARTISTS,
+        "date": art.get("date") or "",
+        "medium": art.get("medium") or "",
+        "museum": art["museum"],
+        "museum_url": art["url"],
+        "image": art.get("image_url_small") or art["image_url"],
+        "source": art["source"],
+        "id": art["id"],
+        "choices": qz["choices"],
+        "answer": qz["answer"],
+    }
+
+
 def youtube_meta(art, number):
     """クイズ動画のタイトル・説明文・タグ。答えは説明文の下の方にだけ書く(タイトルには書かない)。"""
     qz = art["quiz"]
@@ -997,6 +1023,7 @@ def main():
                      "artist": art.get("famous_artist") or art.get("artist"),
                      "variant": "hook" if args.hook else "base",
                      "has_face": art.get("has_face"),
+                     "site": site_fields(art),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
         print(f"投稿用: {meta['title']}")
