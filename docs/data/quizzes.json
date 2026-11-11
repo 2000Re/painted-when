@@ -389,5 +389,28 @@
    "1804"
   ],
   "answer": 0
+ },
+ {
+  "number": 18,
+  "slug": "18-the-assumption-of-the-virgin",
+  "video_id": "clLvbNXdHs4",
+  "uploaded_at": "2026-11-11T13:19:24+00:00",
+  "title": "The Assumption of the Virgin",
+  "artist": "El Greco",
+  "artist_bio": "Doménikos Theotokópoulos; Greek, active in Spain, 1541–1614",
+  "artist_unknown": false,
+  "date": "1577–79",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/87479",
+  "image": "https://www.artic.edu/iiif/2/47fd1564-93f5-f30b-7786-013421133b4a/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "87479",
+  "choices": [
+   "1446",
+   "1695",
+   "1577"
+  ],
+  "answer": 2
  }
 ]

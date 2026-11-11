@@ -225,5 +225,20 @@
     "video_id": "LBimzn6Y-y0",
     "privacy": "public",
     "uploaded_at": "2026-11-11T01:18:46+00:00"
+  },
+  {
+    "number": 18,
+    "key": "aic:87479",
+    "source": "aic",
+    "id": "87479",
+    "date": "2026-11-11",
+    "title": "[18] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1577",
+    "artist": "El Greco",
+    "variant": "base",
+    "has_face": true,
+    "video_id": "clLvbNXdHs4",
+    "privacy": "public",
+    "uploaded_at": "2026-11-11T13:19:24+00:00"
   }
 ]
