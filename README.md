@@ -7,7 +7,9 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 `.github/workflows/post.yml` が1日2本、@painted-when に投稿する。
 cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10:17 JST に起動する
-(米国東部の夕方・夜。cron 式は `17 7,10 * * *`、タイムゾーン Asia/Tokyo)。
+(米国東部の夕方・夜)。GitHub の API が一時的にエラー(502 など)を返すと起動されないので、30分後の 07:47・10:47 にも
+起動して取りこぼしを補う(cron 式は `17,47 7,10 * * *`、タイムゾーン Asia/Tokyo)。前の投稿から1.5時間たっていなければ
+何もしないので、二重投稿にはならない。
 2026-11-10〜11 は1日4本にしていたが、11/12 の投稿から再生がほぼ0になった(配信が絞られた可能性)ため、2本に戻した。GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めない
 (2026-11-06 は 09:17 の予定が 15:52 に動いた)ので使わない。
 
@@ -83,7 +85,7 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10
       | 項目 | 値 |
       |---|---|
       | URL | `https://api.github.com/repos/2000Re/painted-when/actions/workflows/post.yml/dispatches` |
-      | 実行スケジュール | 毎日 07:17・10:17(`17 7,10 * * *`)、タイムゾーン Asia/Tokyo |
+      | 実行スケジュール | 毎日 07:17・07:47・10:17・10:47(`17,47 7,10 * * *`)、タイムゾーン Asia/Tokyo |
       | Request method | `POST` |
       | Headers | `Accept: application/vnd.github+json`<br>`Authorization: Bearer <トークン>`<br>`X-GitHub-Api-Version: 2022-11-28`<br>`Content-Type: application/json` |
       | Request body | `{"ref":"main","inputs":{"scheduled":"true"}}` |
