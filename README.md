@@ -5,13 +5,14 @@ YouTube チャンネル [@painted-when](https://www.youtube.com/@painted-when) �
 
 ## 自動投稿(GitHub Actions)
 
-`.github/workflows/post.yml` が1日4本、@painted-when に投稿する。
-cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07:17・10:17・22:17 JST に起動する
-(米国東部の昼・夕方・夜・朝。cron 式は `17 2,7,10,22 * * *`、タイムゾーン Asia/Tokyo)。GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めない
+`.github/workflows/post.yml` が1日2本、@painted-when に投稿する。
+cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10:17 JST に起動する
+(米国東部の夕方・夜。cron 式は `17 7,10 * * *`、タイムゾーン Asia/Tokyo)。
+2026-11-10〜11 は1日4本にしていたが、11/12 の投稿から再生がほぼ0になった(配信が絞られた可能性)ため、2本に戻した。GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めない
 (2026-11-06 は 09:17 の予定が 15:52 に動いた)ので使わない。
 
 1. **check**: cron-job.org からの起動は、リポジトリ変数 `AUTO_POST` が `true` のときだけ動き、今日(日本時間)
-   すでに4本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。
+   すでに2本投稿済みか、最後の投稿から1.5時間たっていなければ止まる(`posted_today.py`)。
    手動の Run workflow はいつでも動き、このチェックもしない
 2. **generate**: `art_shorts.py --source auto --history upload_history.json --tts google` で動画と `out/meta.json`
    (タイトル・説明文・タグ)を作る。美術館は Met とシカゴ美術館を1日ごとに交互にし、投稿済みの作品は選ばない
@@ -82,7 +83,7 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07
       | 項目 | 値 |
       |---|---|
       | URL | `https://api.github.com/repos/2000Re/painted-when/actions/workflows/post.yml/dispatches` |
-      | 実行スケジュール | 毎日 02:17・07:17・10:17・22:17(`17 2,7,10,22 * * *`)、タイムゾーン Asia/Tokyo |
+      | 実行スケジュール | 毎日 07:17・10:17(`17 7,10 * * *`)、タイムゾーン Asia/Tokyo |
       | Request method | `POST` |
       | Headers | `Accept: application/vnd.github+json`<br>`Authorization: Bearer <トークン>`<br>`X-GitHub-Api-Version: 2022-11-28`<br>`Content-Type: application/json` |
       | Request body | `{"ref":"main","inputs":{"scheduled":"true"}}` |
@@ -107,7 +108,7 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 02:17・07
 | `base`(今の版) | 拡大した絵と問いから始まり、選択肢は3秒あたりから順に出る。声は0.15秒から「When was this painted?」 |
 | `hook`(フック版) | 最初のコマから3択と残り時間のバーを出す(読み上げに合わせて選択肢が弾む)。0秒に効果音、声は「Quick, guess the year!」 |
 
-美術館は1本ごとに交互なので、版と美術館の組み合わせは4通りとも均等に出る。1日4本なので、日ごとに並びが入れ替わり、どの時間帯にも両方の版が来る。どの動画がどちらの版かは
+美術館は1本ごとに交互なので、版と美術館の組み合わせは4通りとも均等に出る。1日2本でも、8本周期なので、どちらの時間帯にも両方の版が来る。どの動画がどちらの版かは
 `python tools/variants.py` で一覧にできる(`upload_history.json` の `variant`)。1〜2週間たったら、YouTube Studio の
 「スワイプされずに視聴された割合」と「平均視聴率」を版ごとに比べ、良い方に揃える。
 
@@ -172,7 +173,7 @@ python art_shorts.py --still                     # 動画を作らず、サム�
 
 - **有名な画家だけ**(`artists.py` の約90人)。毎回、画家をランダムに選び(直近10本の画家は後回し)、その画家の
   本人の作品から未使用のものを選ぶ。「工房」「追随者」「〜風」「〜の模写」などは使わない(Met の `artistPrefix`、
-  作者名の書き方で判定)。2026-11 の集計では、クイズに使える作品は64人で約740点(1日4本で約6か月分)
+  作者名の書き方で判定)。2026-11 の集計では、クイズに使える作品は64人で約740点(1日2本で約1年分)
 - **Met**: `v1.1/search?q=画家名&artistOrCulture=true&hasImages=true&limit=500` で候補を取り、ランダムな順に
   `v1/objects/{id}` を見て、`isPublicDomain` が true・`primaryImage` あり・分類が絵画のものを選ぶ(1人あたり最大30件)。
   旧 `v1/search` は廃止済み(410)

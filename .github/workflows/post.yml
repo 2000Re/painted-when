@@ -1,7 +1,7 @@
 name: post
 
 on:
-  # 毎日 02:17・07:17・10:17・22:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
+  # 毎日 07:17・10:17 JST に cron-job.org から workflow_dispatch(scheduled=true)で起動する。
   # GitHub 自身の定期実行(schedule)は、数時間遅れるのが常で時刻が読めないので使わない
   workflow_dispatch:
     inputs:
