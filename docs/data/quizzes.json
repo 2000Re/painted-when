@@ -481,5 +481,28 @@
    "1616"
   ],
   "answer": 0
+ },
+ {
+  "number": 22,
+  "slug": "22-mrs-charles-gifford-dyer-mary-anthony",
+  "video_id": "jsO0DVrY8Qg",
+  "uploaded_at": "2026-11-12T22:23:55+00:00",
+  "title": "Mrs. Charles Gifford Dyer (Mary Anthony)",
+  "artist": "John Singer Sargent",
+  "artist_bio": "American, 1856–1925",
+  "artist_unknown": false,
+  "date": "1880",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/110879",
+  "image": "https://www.artic.edu/iiif/2/59221fa2-45f9-5674-4fbd-9da3eb648d68/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "110879",
+  "choices": [
+   "1943",
+   "1693",
+   "1880"
+  ],
+  "answer": 2
  }
 ]

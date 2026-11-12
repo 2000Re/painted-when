@@ -285,5 +285,20 @@
     "video_id": "8m8gCcQTfZg",
     "privacy": "public",
     "uploaded_at": "2026-11-12T01:18:44+00:00"
+  },
+  {
+    "number": 22,
+    "key": "aic:110879",
+    "source": "aic",
+    "id": "110879",
+    "date": "2026-11-13",
+    "title": "[22] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1880",
+    "artist": "John Singer Sargent",
+    "variant": "hook",
+    "has_face": true,
+    "video_id": "jsO0DVrY8Qg",
+    "privacy": "public",
+    "uploaded_at": "2026-11-12T22:23:55+00:00"
   }
 ]
