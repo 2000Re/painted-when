@@ -270,5 +270,20 @@
     "video_id": "_Kh_hSKOt1I",
     "privacy": "public",
     "uploaded_at": "2026-11-11T22:19:52+00:00"
+  },
+  {
+    "number": 21,
+    "key": "met:12666",
+    "source": "met",
+    "id": "12666",
+    "date": "2026-11-12",
+    "title": "[21] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1812",
+    "artist": "Gilbert Stuart",
+    "variant": "hook",
+    "has_face": true,
+    "video_id": "8m8gCcQTfZg",
+    "privacy": "public",
+    "uploaded_at": "2026-11-12T01:18:44+00:00"
   }
 ]

@@ -458,5 +458,28 @@
    "1857"
   ],
   "answer": 0
+ },
+ {
+  "number": 21,
+  "slug": "21-henry-rice",
+  "video_id": "8m8gCcQTfZg",
+  "uploaded_at": "2026-11-12T01:18:44+00:00",
+  "title": "Henry Rice",
+  "artist": "Gilbert Stuart",
+  "artist_bio": "American, North Kingston, Rhode Island 1755–1828 Boston, Massachusetts",
+  "artist_unknown": false,
+  "date": "ca. 1815",
+  "medium": "Oil on wood",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/12666",
+  "image": "https://images.metmuseum.org/CRDImages/ad/web-large/DP208350.jpg",
+  "source": "met",
+  "id": "12666",
+  "choices": [
+   "1812",
+   "1761",
+   "1616"
+  ],
+  "answer": 0
  }
 ]
