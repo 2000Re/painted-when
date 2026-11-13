@@ -90,6 +90,8 @@ def http_get(url, limiter, headers=None, tries=4):
     """GET してバイト列を返す。429・5xx・通信エラーは間隔をあけて再試行する。"""
     h = {"User-Agent": USER_AGENT, "Accept": "*/*"}
     h.update(headers or {})
+    # Met の画像の URL には空白が含まれることがある(例: ".../C5802 89.4.538.jpg")ので、URL として正しい形に直す
+    url = urllib.parse.quote(url, safe=":/?&=%#+,;@~!$'()*")
     for attempt in range(tries):
         limiter.wait()
         try:
