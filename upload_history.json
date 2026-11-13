@@ -315,5 +315,20 @@
     "video_id": "aMcb_HXaENQ",
     "privacy": "public",
     "uploaded_at": "2026-11-13T01:18:32+00:00"
+  },
+  {
+    "number": 24,
+    "key": "aic:93900",
+    "source": "aic",
+    "id": "93900",
+    "date": "2026-11-14",
+    "title": "[24] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1767",
+    "artist": "Jean-Honoré Fragonard",
+    "variant": "hook",
+    "has_face": true,
+    "video_id": "u1MLNAM8QaA",
+    "privacy": "public",
+    "uploaded_at": "2026-11-13T22:19:25+00:00"
   }
 ]

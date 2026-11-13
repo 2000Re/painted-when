@@ -527,5 +527,28 @@
    "1585"
   ],
   "answer": 0
+ },
+ {
+  "number": 24,
+  "slug": "24-portrait-of-a-man-in-costume",
+  "video_id": "u1MLNAM8QaA",
+  "uploaded_at": "2026-11-13T22:19:25+00:00",
+  "title": "Portrait of a Man in Costume",
+  "artist": "Jean-Honoré Fragonard",
+  "artist_bio": "French, 1732–1806",
+  "artist_unknown": false,
+  "date": "c. 1767–68",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/93900",
+  "image": "https://www.artic.edu/iiif/2/9b1c3d61-5f9b-c7a2-a5ea-f48248836160/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "93900",
+  "choices": [
+   "1607",
+   "1767",
+   "1716"
+  ],
+  "answer": 1
  }
 ]
