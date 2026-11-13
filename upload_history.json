@@ -300,5 +300,20 @@
     "video_id": "jsO0DVrY8Qg",
     "privacy": "public",
     "uploaded_at": "2026-11-12T22:23:55+00:00"
+  },
+  {
+    "number": 23,
+    "key": "met:436440",
+    "source": "met",
+    "id": "436440",
+    "date": "2026-11-13",
+    "title": "[23] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1787",
+    "artist": "Thomas Gainsborough",
+    "variant": "hook",
+    "has_face": true,
+    "video_id": "aMcb_HXaENQ",
+    "privacy": "public",
+    "uploaded_at": "2026-11-13T01:18:32+00:00"
   }
 ]

@@ -504,5 +504,28 @@
    "1880"
   ],
   "answer": 2
+ },
+ {
+  "number": 23,
+  "slug": "23-cottage-children-the-wood-gatherers",
+  "video_id": "aMcb_HXaENQ",
+  "uploaded_at": "2026-11-13T01:18:32+00:00",
+  "title": "Cottage Children (The Wood Gatherers)",
+  "artist": "Thomas Gainsborough",
+  "artist_bio": "British, Sudbury 1727–1788 London",
+  "artist_unknown": false,
+  "date": "1787",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/436440",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP169640.jpg",
+  "source": "met",
+  "id": "436440",
+  "choices": [
+   "1787",
+   "1735",
+   "1585"
+  ],
+  "answer": 0
  }
 ]
