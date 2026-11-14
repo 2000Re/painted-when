@@ -573,5 +573,28 @@
    "1883"
   ],
   "answer": 2
+ },
+ {
+  "number": 26,
+  "slug": "26-peach-blossoms",
+  "video_id": "XEWizxGYYzU",
+  "uploaded_at": "2026-11-14T22:19:06+00:00",
+  "title": "Peach Blossoms",
+  "artist": "Winslow Homer",
+  "artist_bio": "American, 1836–1910",
+  "artist_unknown": false,
+  "date": "1878",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/55494",
+  "image": "https://www.artic.edu/iiif/2/6efc1bea-c900-28c5-e02a-c14189b10fb3/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "55494",
+  "choices": [
+   "1765",
+   "1878",
+   "1971"
+  ],
+  "answer": 1
  }
 ]
