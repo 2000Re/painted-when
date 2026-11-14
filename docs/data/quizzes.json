@@ -550,5 +550,28 @@
    "1716"
   ],
   "answer": 1
+ },
+ {
+  "number": 25,
+  "slug": "25-by-the-seashore",
+  "video_id": "mEfebwlpBHI",
+  "uploaded_at": "2026-11-14T01:18:57+00:00",
+  "title": "By the Seashore",
+  "artist": "Pierre-Auguste Renoir",
+  "artist_bio": "French, Limoges 1841–1919 Cagnes-sur-Mer",
+  "artist_unknown": false,
+  "date": "1883",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/437430",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-14936-039.jpg",
+  "source": "met",
+  "id": "437430",
+  "choices": [
+   "1967",
+   "1806",
+   "1883"
+  ],
+  "answer": 2
  }
 ]
