@@ -35,7 +35,7 @@ MARKS = {"day1": 24, "day3": 72, "day7": 168}     # 名前: 投稿からの時�
 LATE_H = 36                                        # この時間を過ぎて測った値は、その時点の値としては残さない
 COMPARE = "day3"                                   # 比べるのに使う時点
 # 集計に使う upload_history.json の項目(あるものだけ使う)
-GROUP_KEYS = ["variant", "has_face", "source", "format", "category"]
+GROUP_KEYS = ["title_style", "variant", "has_face", "source", "format", "category"]
 
 
 def http(url, data=None, headers=None):

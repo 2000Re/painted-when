@@ -853,10 +853,26 @@ def site_fields(art):
     }
 
 
+TITLE_STYLES = ["artist", "guess", "classic"]     # 番号順に回す(冒頭の版の8本周期とは独立にそろう)
+
+
+def video_title(art, number):
+    """(題名, 型)。答え(年)は書かない。型は upload_history.json の title_style に残し、stats.md で比べる。
+    artist: 画家の名前を出す(artists.py の有名な画家のときだけ。名前で検索されやすくするため)"""
+    style = TITLE_STYLES[(number - 1) % len(TITLE_STYLES)]
+    famous = art.get("famous_artist")
+    if style == "artist" and famous:
+        return f"When did {famous} paint this? 🎨 Art Quiz", style
+    if style == "guess":
+        return "Can you guess when this was painted? 🎨", style
+    return "When was this painted? 🎨 Daily Art Quiz", "classic"
+
+
 def youtube_meta(art, number):
     """クイズ動画のタイトル・説明文・タグ。答えは説明文の下の方にだけ書く(タイトルには書かない)。"""
     qz = art["quiz"]
     answer = qz["choices"][qz["answer"]]
+    title, style = video_title(art, number)
     artist = art.get("artist") or "Unknown artist"
     work = f"\"{art['title']}\" by {artist}" if artist.lower() not in (
         "unknown artist", "unidentified artist", "anonymous") else f"\"{art['title']}\" (artist unknown)"
@@ -883,7 +899,8 @@ def youtube_meta(art, number):
     return {
         # 番号を先頭に置く(スマホの YouTube Studio の一覧でタイトルが切れても番号が見えるように)。
         # 「#15」だとハッシュタグ扱いされることがあるので「[15]」にする
-        "title": _yt_text(f"[{number}] When was this painted? 🎨 Daily Art Quiz")[:100],
+        "title": _yt_text(f"[{number}] {title}")[:100],
+        "title_style": style,
         "description": _yt_text("\n".join(lines))[:4900],
         "tags": tags,
         "answer": answer,

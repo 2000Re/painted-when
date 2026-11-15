@@ -21,7 +21,10 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10
 3. **upload**: `youtube_upload.py` でアップロード(カテゴリは Education、言語は英語)し、`upload_history.json` に記録してコミットする
 4. 失敗したら Issue を立てる(トークン失効は `token-invalid`、それ以外は `post-failure` ラベル)
 
-タイトルは「[連番] When was this painted? 🎨 Daily Art Quiz」(#1〜#15 も YouTube Studio で同じ形に直した)。答えはタイトルに書かず、説明文の下の方に、
+タイトルは「[連番] 」のあとに、3つの型を番号順に回す(2026-11-15〜、#28 から。`video_title()`)。
+「When did Vincent van Gogh paint this? 🎨 Art Quiz」(artist。有名な画家のときだけ)、
+「Can you guess when this was painted? 🎨」(guess)、「When was this painted? 🎨 Daily Art Quiz」(classic。#27 まではすべてこれ。#1〜#15 も YouTube Studio で同じ形に直した)。
+型は `upload_history.json` の `title_style` に残り、`stats.md` で型ごとの再生数を比べられる。答えはタイトルに書かず、説明文の下の方に、
 作品名・作者・美術館のページへのリンク・出典(CC0)と一緒に書く。
 
 ### 使っている Google Cloud プロジェクト
@@ -279,6 +282,10 @@ python art_shorts.py --tts none                # 読み上げなし(13秒・無�
   投稿が再開すると次の確認で自動で閉じる。変数 `AUTO_POST` が `true` でないときは調べない
 - **再生数の記録**(`stats.py`): 全動画の再生数・高評価・コメント数を YouTube Data API で取り、`stats.json` に残す。
   比べやすいよう、投稿から1日・3日・7日の時点の値を固定して残す(この仕組みより前の動画は最新の値だけ)。
-  `stats.md` に、`upload_history.json` の項目(版・カテゴリ・形式・美術館など、あるもの)と投稿の時間帯ごとの
+  `stats.md` に、`upload_history.json` の項目(題名の型・版・カテゴリ・形式・美術館など、あるもの)と投稿の時間帯ごとの
   3日目の再生数の平均・中央値をまとめる。使う Secrets は投稿と同じ(`YT_CLIENT_ID`・`YT_CLIENT_SECRET`・`YT_REFRESH_TOKEN`)
-- `stats.py` と `watchdog.py` は4チャンネル(Painted When?、Guess From Space、Wait, That Big?、Too Close to Tell)で同じファイル
+- **共通ファイルのずれ**(`sync_check.py`): 4つのリポジトリの main を読み比べ、同じであるべきファイル
+  (`stats.py`・`watchdog.py`・`sync_check.py`・`daily-check.yml`)が違えば sync ジョブを失敗にする。
+  似ているファイル(`youtube_upload.py`・`posted_today.py` など)は、違う行数を Summary に並べる。
+  1つで不具合を直したら、ほかの3つにも同じ直しが要るかを見る。中身は `python sync_check.py --diff youtube_upload.py`
+- `stats.py`・`watchdog.py`・`sync_check.py` は4チャンネル(Painted When?、Guess From Space、Wait, That Big?、Too Close to Tell)で同じファイル

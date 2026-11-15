@@ -163,6 +163,7 @@ def main():
         "artist": meta.get("artist"),
         "variant": meta.get("variant"),
         "has_face": meta.get("has_face"),
+        "title_style": meta.get("title_style"),
         "video_id": video_id,
         "privacy": actual_privacy,
         "uploaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

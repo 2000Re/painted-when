@@ -1,6 +1,7 @@
 name: daily-check
 
-# 毎日1回: 投稿が止まっていないかの見張り(watchdog.py)と、再生数の記録(stats.py)。
+# 毎日1回: 投稿が止まっていないかの見張り(watchdog.py)、再生数の記録(stats.py)、
+# 4つのチャンネルの共通ファイルのずれの確認(sync_check.py)。
 # 投稿そのものではないので、数時間遅れてもかまわない GitHub の schedule で動かす(時刻は UTC)
 on:
   schedule:
@@ -82,3 +83,11 @@ jobs:
             sleep $((2 ** i))
           done
           exit 1
+
+  sync:
+    # 4つのリポジトリの共通ファイル(stats.py など)がずれていたら、このジョブが失敗する(Summary に一覧)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 sync_check.py
