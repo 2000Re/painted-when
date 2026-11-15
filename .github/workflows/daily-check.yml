@@ -1,0 +1,84 @@
+name: daily-check
+
+# 毎日1回: 投稿が止まっていないかの見張り(watchdog.py)と、再生数の記録(stats.py)。
+# 投稿そのものではないので、数時間遅れてもかまわない GitHub の schedule で動かす(時刻は UTC)
+on:
+  schedule:
+    - cron: "7 18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-check
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the last upload
+        id: w
+        env:
+          AUTO_POST: ${{ vars.AUTO_POST }}
+        run: python3 watchdog.py
+      - name: Open or close the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          STALLED: ${{ steps.w.outputs.stalled }}
+          MESSAGE: ${{ steps.w.outputs.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          label=post-stalled
+          gh label create "$label" --color d73a4a --force >/dev/null
+          existing=$(gh issue list --label "$label" --state open --json number --jq '.[0].number')
+          if [ "$STALLED" = "true" ]; then
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body "まだ止まっています: $MESSAGE"$'\n\n'"$RUN_URL"
+            else
+              gh issue create --label "$label" --title "自動投稿が止まっています" --body "$MESSAGE
+
+          post ワークフローが起動されていない可能性があります。次を確認してください。
+          - cron-job.org のジョブが動いているか(履歴に HTTP 204 以外が出ていないか)
+          - cron-job.org のヘッダーに入れた GitHub のトークンの有効期限が切れていないか
+          - Actions の post に失敗(または post-failure / token-invalid の Issue)がないか
+
+          投稿が再開すると、この Issue は次の確認で自動で閉じます。
+
+          $RUN_URL"
+            fi
+          elif [ -n "$existing" ]; then
+            gh issue close "$existing" --comment "投稿が再開しました: $MESSAGE"
+          fi
+
+  stats:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Fetch view counts
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python stats.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stats.json stats.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Update stats"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1

@@ -269,3 +269,16 @@ python art_shorts.py --tts none                # 読み上げなし(13秒・無�
 - Met のハイライトには、絵画以外の分類でも `objectName` が Wall painting のフレスコや、作者不明(`Unidentified artist`)の作品が入る
 - Met の画像には、撮影時の黒い余白が入っているものがある(例: ゴッホ「Wheat Field with Cypresses」)
 - Shorts で横長の作品は小さくなる。額縁の右端は、YouTube の右側のボタンと少し重なることがある
+
+## 毎日の確認(`.github/workflows/daily-check.yml`)
+
+毎日 03:07 JST ごろ(GitHub の schedule なので遅れることがある)に動く。手動では Actions → daily-check → Run workflow。
+
+- **投稿が止まっていないか**(`watchdog.py`): 最後の投稿から30時間以上たっていたら Issue(ラベル `post-stalled`)を立てる。
+  cron-job.org のトークン切れなどで post が起動されなかったときは post.yml 自身では何も残らないので、その見張り。
+  投稿が再開すると次の確認で自動で閉じる。変数 `AUTO_POST` が `true` でないときは調べない
+- **再生数の記録**(`stats.py`): 全動画の再生数・高評価・コメント数を YouTube Data API で取り、`stats.json` に残す。
+  比べやすいよう、投稿から1日・3日・7日の時点の値を固定して残す(この仕組みより前の動画は最新の値だけ)。
+  `stats.md` に、`upload_history.json` の項目(版・カテゴリ・形式・美術館など、あるもの)と投稿の時間帯ごとの
+  3日目の再生数の平均・中央値をまとめる。使う Secrets は投稿と同じ(`YT_CLIENT_ID`・`YT_CLIENT_SECRET`・`YT_REFRESH_TOKEN`)
+- `stats.py` と `watchdog.py` は4チャンネル(Painted When?、Guess From Space、Wait, That Big?、Too Close to Tell)で同じファイル
