@@ -21,9 +21,11 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10
 3. **upload**: `youtube_upload.py` でアップロード(カテゴリは Education、言語は英語)し、`upload_history.json` に記録してコミットする
 4. 失敗したら Issue を立てる(トークン失効は `token-invalid`、それ以外は `post-failure` ラベル)
 
-タイトルは「[連番] 」のあとに、3つの型を番号順に回す(2026-11-15〜、#28 から。`video_title()`)。
-「When did Vincent van Gogh paint this? 🎨 Art Quiz」(artist。有名な画家のときだけ)、
-「Can you guess when this was painted? 🎨」(guess)、「When was this painted? 🎨 Daily Art Quiz」(classic。#27 まではすべてこれ。#1〜#15 も YouTube Studio で同じ形に直した)。
+タイトルは「[連番] 」のあとに、12の型(`art_shorts.py` の `TITLES`)を番号順に回し、毎回ちがう題名にする(`video_title()`)。
+2026-11-15 は3つの型(artist・guess・classic)、#28 から12の型。例:「When did Vincent van Gogh paint this? 🎨 Art Quiz」、
+「Art quiz: when was “The Harvesters” painted? 🎨」、「Guess when this Monet masterpiece was painted 🎨」、
+「How old is this painting? Guess the year 🎨」。画家の名前は artists.py の有名な画家のときだけ、作品名は40字以内で年(数字)を含まないときだけ使う。
+埋められない型、過去と同じ題名、前の回と同じ型は飛ばす。#27 までは「When was this painted? 🎨 Daily Art Quiz」(classic)。
 型は `upload_history.json` の `title_style` に残り、`stats.md` で型ごとの再生数を比べられる。答えはタイトルに書かず、説明文の下の方に、
 作品名・作者・美術館のページへのリンク・出典(CC0)と一緒に書く。
 

@@ -27,6 +27,7 @@ import json
 import math
 import os
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -853,26 +854,49 @@ def site_fields(art):
     }
 
 
-TITLE_STYLES = ["artist", "guess", "classic"]     # 番号順に回す(冒頭の版の8本周期とは独立にそろう)
+# 題名の型(答えの年は書かない)。番号順に回し、埋められない型・過去と同じ題名・前の回と同じ型は飛ばす。
+# {artist}: artists.py の有名な画家の名前、{last}: その姓、{work}: 作品名(短いときだけ)
+TITLES = [
+    ("", "classic", "When was this painted? 🎨 Daily Art Quiz"),
+    ("artist", "artist", "When did {artist} paint this? 🎨 Art Quiz"),
+    ("", "guess", "Can you guess when this was painted? 🎨"),
+    ("artist", "artist_but_when", "{artist} painted this... but when? 🎨"),
+    ("work", "work", "Art quiz: when was \u201c{work}\u201d painted? 🎨"),
+    ("", "how_old", "How old is this painting? Guess the year 🎨"),
+    ("artist", "artist_year", "Can you guess the year of this {artist} painting? 🎨"),
+    ("", "zoom", "Zoom out and guess the year this was painted 🎨"),
+    ("last", "masterpiece", "Guess when this {last} masterpiece was painted 🎨"),
+    ("", "art_lovers", "Art lovers: can you date this painting? 🎨"),
+    ("work artist", "work_artist", "\u201c{work}\u201d by {artist}: guess the year 🎨"),
+    ("", "which_year", "Which year was this painted? Take a guess 🎨"),
+]
 
 
-def video_title(art, number):
+def video_title(art, number, used=(), last_style=None):
     """(題名, 型)。答え(年)は書かない。型は upload_history.json の title_style に残し、stats.md で比べる。
-    artist: 画家の名前を出す(artists.py の有名な画家のときだけ。名前で検索されやすくするため)"""
-    style = TITLE_STYLES[(number - 1) % len(TITLE_STYLES)]
+    画家の名前を出す型は、artists.py の有名な画家のときだけ(名前で検索されやすくするため)。"""
     famous = art.get("famous_artist")
-    if style == "artist" and famous:
-        return f"When did {famous} paint this? 🎨 Art Quiz", style
-    if style == "guess":
-        return "Can you guess when this was painted? 🎨", style
+    work = (art.get("title") or "").strip()
+    vals = {"artist": famous, "last": famous.split()[-1] if famous else None,
+            # 作品名に年が入っていると答えが分かるので使わない(例: "View of Toledo, 1600")
+            "work": work if work and len(work) <= 40 and "<" not in work and not re.search(r"\d{3,4}", work) else None}
+    used = {re.sub(r"^\[\d+\]\s*", "", t) for t in used}
+    for k in range(len(TITLES)):
+        need, style, tpl = TITLES[(number - 1 + k) % len(TITLES)]
+        if any(not vals.get(w) for w in need.split()):
+            continue
+        t = tpl.format(**{k2: v for k2, v in vals.items() if v})
+        if len(f"[{number}] {t}") <= 100 and t not in used and style != last_style:
+            return t, style
     return "When was this painted? 🎨 Daily Art Quiz", "classic"
 
 
-def youtube_meta(art, number):
+def youtube_meta(art, number, history=()):
     """クイズ動画のタイトル・説明文・タグ。答えは説明文の下の方にだけ書く(タイトルには書かない)。"""
     qz = art["quiz"]
     answer = qz["choices"][qz["answer"]]
-    title, style = video_title(art, number)
+    title, style = video_title(art, number, [h.get("title", "") for h in history],
+                               history[-1].get("title_style") if history else None)
     artist = art.get("artist") or "Unknown artist"
     work = f"\"{art['title']}\" by {artist}" if artist.lower() not in (
         "unknown artist", "unidentified artist", "anonymous") else f"\"{art['title']}\" (artist unknown)"
@@ -1037,7 +1061,7 @@ def main():
         render_video(size, frame_at, duration, out / f"{stem}.mp4", args.audio)
     if args.history and style == "quiz" and not args.still:
         number = len(history) + 1
-        meta = youtube_meta(art, number)
+        meta = youtube_meta(art, number, history)
         meta.update({"key": f"{art['source']}:{art['id']}", "number": number, "source": art["source"],
                      "artist": art.get("famous_artist") or art.get("artist"),
                      "variant": "hook" if args.hook else "base",
