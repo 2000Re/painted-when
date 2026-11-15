@@ -2,8 +2,8 @@
 upload_history.json に記録する。
 
 外部ライブラリに依存しない(標準ライブラリの urllib のみ)。
-必要な環境変数: YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN
-任意: YT_CHANNEL_ID … 設定すると、アップロード先のチャンネルが違うときに中止する(別チャンネルへの誤投稿防止)
+必要な環境変数: YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN, YT_CHANNEL_ID
+YT_CHANNEL_ID は必須: トークンのチャンネルがこれ(Painted When?)と違えば、アップロードせずに中止する(別チャンネルへの誤投稿防止)
 
 終了コード: 0 成功 / 1 その他の失敗 / 2 Secrets が未設定 / 3 リフレッシュトークンが無効(再取得が必要)
 """
@@ -18,7 +18,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-REQUIRED_ENV = ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN"]
+REQUIRED_ENV = ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN", "YT_CHANNEL_ID"]
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status"
 CHANNELS_URL = "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true"
@@ -122,8 +122,7 @@ def connect():
         print(f"リフレッシュトークンが無効です。README の手順で再取得してください。\n{e}", file=sys.stderr)
         set_output("token_invalid", "true")
         sys.exit(3)
-    if os.environ.get("YT_CHANNEL_ID"):
-        check_channel(token, os.environ["YT_CHANNEL_ID"])
+    check_channel(token, os.environ["YT_CHANNEL_ID"])
     return token
 
 
