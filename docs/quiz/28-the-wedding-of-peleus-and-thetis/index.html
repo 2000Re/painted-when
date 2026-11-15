@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When was “The Wedding of Peleus and Thetis” by Peter Paul Rubens painted? — Painted When? Quiz #28</title>
+<meta name="description" content="Art quiz #28: guess the year Peter Paul Rubens painted “The Wedding of Peleus and Thetis”. Choices: 1716 / 1636 / 1808. Answer, artwork details and the museum link inside.">
+<link rel="canonical" href="https://2000re.github.io/painted-when/quiz/28-the-wedding-of-peleus-and-thetis/">
+<link rel="icon" href="../../icon.png">
+<link rel="stylesheet" href="../../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VisualArtwork", "name": "The Wedding of Peleus and Thetis", "image": "https://www.artic.edu/iiif/2/35797043-49c5-71b5-d87a-566168399215/full/843,/0/default.jpg", "url": "https://www.artic.edu/artworks/59956", "creator": {"@type": "Person", "name": "Peter Paul Rubens"}, "dateCreated": "1636", "artMedium": "Oil on panel", "license": "https://creativecommons.org/publicdomain/zero/1.0/"}</script>
+</head>
+<body>
+<header><div class="bar">
+  <img src="../../icon.png" alt="">
+  <a class="name" href="../../">Painted When?</a>
+  <nav><a href="../../quiz/">All quizzes</a><a href="../../privacy.html">Privacy</a><a href="../../terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <p class="muted">Quiz #28 · Art Institute of Chicago</p>
+  <h1>When was this painted?</h1>
+  <div class="quiz-layout">
+    <div class="short">
+      <iframe src="https://www.youtube-nocookie.com/embed/qr1fr7WFK18" title="Painted When? Quiz #28"
+        loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div class="quiz">
+      <p>Pick a year, then check the answer.</p>
+      <div class="choices" data-answer="1">
+    <button type="button" class="choice" data-i="0">1716</button>
+    <button type="button" class="choice" data-i="1">1636</button>
+    <button type="button" class="choice" data-i="2">1808</button>
+      </div>
+      <button type="button" class="reveal">Show the answer</button>
+      <div class="answer" hidden>
+        <p class="answer-year">Answer: <strong>1636</strong></p>
+        <img class="artwork" src="https://www.artic.edu/iiif/2/35797043-49c5-71b5-d87a-566168399215/full/843,/0/default.jpg" alt="The Wedding of Peleus and Thetis by Peter Paul Rubens" loading="lazy">
+        <h2>The Wedding of Peleus and Thetis</h2>
+        <p><strong>Peter Paul Rubens</strong> — Flemish, 1577–1640</p>
+        <p class="muted">1636 · Oil on panel</p>
+        <p><a href="https://www.artic.edu/artworks/59956">See it at Art Institute of Chicago</a></p>
+        <p class="muted">Image: Art Institute of Chicago, Public Domain (CC0). This site is not affiliated with the museum.</p>
+      </div>
+    </div>
+  </div>
+  <p class="pager"><a href="../27-virgin-and-child/">← Quiz #27</a> · <a href="../">All quizzes</a></p>
+  <p><a href="https://www.youtube.com/@painted-when">More quizzes every day on YouTube: @painted-when</a></p>
+  <script>
+  (function () {
+    var box = document.querySelector(".choices"), ans = +box.dataset.answer;
+    var panel = document.querySelector(".answer"), btn = document.querySelector(".reveal");
+    function reveal(picked) {
+      box.querySelectorAll(".choice").forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === ans) b.classList.add("right");
+        else if (i === picked) b.classList.add("wrong");
+      });
+      panel.hidden = false; btn.hidden = true;
+    }
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".choice"); if (b) reveal(+b.dataset.i);
+    });
+    btn.addEventListener("click", function () { reveal(-1); });
+  })();
+  </script>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="../../privacy.html">Privacy Policy</a> · <a href="../../terms.html">Terms of Service</a></div></footer>
+</body>
+</html>

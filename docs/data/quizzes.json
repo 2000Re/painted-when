@@ -619,5 +619,28 @@
    "1753"
   ],
   "answer": 1
+ },
+ {
+  "number": 28,
+  "slug": "28-the-wedding-of-peleus-and-thetis",
+  "video_id": "qr1fr7WFK18",
+  "uploaded_at": "2026-11-15T22:19:33+00:00",
+  "title": "The Wedding of Peleus and Thetis",
+  "artist": "Peter Paul Rubens",
+  "artist_bio": "Flemish, 1577–1640",
+  "artist_unknown": false,
+  "date": "1636",
+  "medium": "Oil on panel",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/59956",
+  "image": "https://www.artic.edu/iiif/2/35797043-49c5-71b5-d87a-566168399215/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "59956",
+  "choices": [
+   "1716",
+   "1636",
+   "1808"
+  ],
+  "answer": 1
  }
 ]

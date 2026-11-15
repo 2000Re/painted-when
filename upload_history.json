@@ -376,5 +376,21 @@
     "video_id": "YABMYq4Zk0o",
     "privacy": "public",
     "uploaded_at": "2026-11-15T01:18:49+00:00"
+  },
+  {
+    "number": 28,
+    "key": "aic:59956",
+    "source": "aic",
+    "id": "59956",
+    "date": "2026-11-16",
+    "title": "[28] Peter Paul Rubens painted this... but when? 🎨",
+    "answer": "1636",
+    "artist": "Peter Paul Rubens",
+    "variant": "base",
+    "has_face": true,
+    "title_style": "artist_but_when",
+    "video_id": "qr1fr7WFK18",
+    "privacy": "public",
+    "uploaded_at": "2026-11-15T22:19:33+00:00"
   }
 ]
