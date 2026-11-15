@@ -360,5 +360,21 @@
     "video_id": "XEWizxGYYzU",
     "privacy": "public",
     "uploaded_at": "2026-11-14T22:19:06+00:00"
+  },
+  {
+    "number": 27,
+    "key": "met:437175",
+    "source": "met",
+    "id": "437175",
+    "date": "2026-11-15",
+    "title": "[27] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1670",
+    "artist": "Bartolomé Esteban Murillo",
+    "variant": "base",
+    "has_face": true,
+    "title_style": "classic",
+    "video_id": "YABMYq4Zk0o",
+    "privacy": "public",
+    "uploaded_at": "2026-11-15T01:18:49+00:00"
   }
 ]
