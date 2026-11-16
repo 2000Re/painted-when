@@ -392,5 +392,21 @@
     "video_id": "qr1fr7WFK18",
     "privacy": "public",
     "uploaded_at": "2026-11-15T22:19:33+00:00"
+  },
+  {
+    "number": 29,
+    "key": "met:437327",
+    "source": "met",
+    "id": "437327",
+    "date": "2026-11-16",
+    "title": "[29] Art quiz: when was “The Companions of Rinaldo” painted? 🎨",
+    "answer": "1628",
+    "artist": "Nicolas Poussin",
+    "variant": "hook",
+    "has_face": true,
+    "title_style": "work",
+    "video_id": "nARCT0AIU30",
+    "privacy": "public",
+    "uploaded_at": "2026-11-16T01:18:56+00:00"
   }
 ]
