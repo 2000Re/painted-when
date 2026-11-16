@@ -408,5 +408,21 @@
     "video_id": "nARCT0AIU30",
     "privacy": "public",
     "uploaded_at": "2026-11-16T01:18:56+00:00"
+  },
+  {
+    "number": 30,
+    "key": "aic:93342",
+    "source": "aic",
+    "id": "93342",
+    "date": "2026-11-17",
+    "title": "[30] How old is this painting? Guess the year 🎨",
+    "answer": "1862",
+    "artist": "Gustave Courbet",
+    "variant": "hook",
+    "has_face": true,
+    "title_style": "how_old",
+    "video_id": "hOKxysS3i4M",
+    "privacy": "public",
+    "uploaded_at": "2026-11-16T22:19:28+00:00"
   }
 ]

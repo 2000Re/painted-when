@@ -665,5 +665,28 @@
    "1628"
   ],
   "answer": 2
+ },
+ {
+  "number": 30,
+  "slug": "30-reverie-portrait-of-gabrielle-borreau",
+  "video_id": "hOKxysS3i4M",
+  "uploaded_at": "2026-11-16T22:19:28+00:00",
+  "title": "Rêverie (Portrait of Gabrielle Borreau)",
+  "artist": "Gustave Courbet",
+  "artist_bio": "French, 1819–1877",
+  "artist_unknown": false,
+  "date": "1862",
+  "medium": "Oil on paper, mounted on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/93342",
+  "image": "https://www.artic.edu/iiif/2/40d69445-feb4-d6d5-bcad-bb142856f0a6/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "93342",
+  "choices": [
+   "1949",
+   "1691",
+   "1862"
+  ],
+  "answer": 2
  }
 ]
