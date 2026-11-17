@@ -688,5 +688,28 @@
    "1862"
   ],
   "answer": 2
+ },
+ {
+  "number": 31,
+  "slug": "31-boy-with-a-greyhound",
+  "video_id": "LqmFBJKXZbA",
+  "uploaded_at": "2026-11-17T01:18:48+00:00",
+  "title": "Boy with a Greyhound",
+  "artist": "Paolo Veronese",
+  "artist_bio": "Italian, Verona 1528–1588 Venice",
+  "artist_unknown": false,
+  "date": "possibly 1570s",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/437890",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-14936-005.jpg",
+  "source": "met",
+  "id": "437890",
+  "choices": [
+   "1723",
+   "1570",
+   "1652"
+  ],
+  "answer": 1
  }
 ]

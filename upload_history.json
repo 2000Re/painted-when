@@ -424,5 +424,21 @@
     "video_id": "hOKxysS3i4M",
     "privacy": "public",
     "uploaded_at": "2026-11-16T22:19:28+00:00"
+  },
+  {
+    "number": 31,
+    "key": "met:437890",
+    "source": "met",
+    "id": "437890",
+    "date": "2026-11-17",
+    "title": "[31] Can you guess the year of this Paolo Veronese painting? 🎨",
+    "answer": "1570",
+    "artist": "Paolo Veronese",
+    "variant": "hook",
+    "has_face": true,
+    "title_style": "artist_year",
+    "video_id": "LqmFBJKXZbA",
+    "privacy": "public",
+    "uploaded_at": "2026-11-17T01:18:48+00:00"
   }
 ]

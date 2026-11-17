@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When was “Boy with a Greyhound” by Paolo Veronese painted? — Painted When? Quiz #31</title>
+<meta name="description" content="Art quiz #31: guess the year Paolo Veronese painted “Boy with a Greyhound”. Choices: 1723 / 1570 / 1652. Answer, artwork details and the museum link inside.">
+<link rel="canonical" href="https://2000re.github.io/painted-when/quiz/31-boy-with-a-greyhound/">
+<link rel="icon" href="../../icon.png">
+<link rel="stylesheet" href="../../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VisualArtwork", "name": "Boy with a Greyhound", "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-14936-005.jpg", "url": "https://www.metmuseum.org/art/collection/search/437890", "creator": {"@type": "Person", "name": "Paolo Veronese"}, "dateCreated": "possibly 1570s", "artMedium": "Oil on canvas", "license": "https://creativecommons.org/publicdomain/zero/1.0/"}</script>
+</head>
+<body>
+<header><div class="bar">
+  <img src="../../icon.png" alt="">
+  <a class="name" href="../../">Painted When?</a>
+  <nav><a href="../../quiz/">All quizzes</a><a href="../../privacy.html">Privacy</a><a href="../../terms.html">Terms</a></nav>
+</div></header>
+<main>
+  <p class="muted">Quiz #31 · The Metropolitan Museum of Art</p>
+  <h1>When was this painted?</h1>
+  <div class="quiz-layout">
+    <div class="short">
+      <iframe src="https://www.youtube-nocookie.com/embed/LqmFBJKXZbA" title="Painted When? Quiz #31"
+        loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <div class="quiz">
+      <p>Pick a year, then check the answer.</p>
+      <div class="choices" data-answer="1">
+    <button type="button" class="choice" data-i="0">1723</button>
+    <button type="button" class="choice" data-i="1">1570</button>
+    <button type="button" class="choice" data-i="2">1652</button>
+      </div>
+      <button type="button" class="reveal">Show the answer</button>
+      <div class="answer" hidden>
+        <p class="answer-year">Answer: <strong>1570</strong></p>
+        <img class="artwork" src="https://images.metmuseum.org/CRDImages/ep/web-large/DP-14936-005.jpg" alt="Boy with a Greyhound by Paolo Veronese" loading="lazy">
+        <h2>Boy with a Greyhound</h2>
+        <p><strong>Paolo Veronese</strong> — Italian, Verona 1528–1588 Venice</p>
+        <p class="muted">possibly 1570s · Oil on canvas</p>
+        <p><a href="https://www.metmuseum.org/art/collection/search/437890">See it at The Metropolitan Museum of Art</a></p>
+        <p class="muted">Image: The Metropolitan Museum of Art, Public Domain (CC0). This site is not affiliated with the museum.</p>
+      </div>
+    </div>
+  </div>
+  <p class="pager"><a href="../30-reverie-portrait-of-gabrielle-borreau/">← Quiz #30</a> · <a href="../">All quizzes</a></p>
+  <p><a href="https://www.youtube.com/@painted-when">More quizzes every day on YouTube: @painted-when</a></p>
+  <script>
+  (function () {
+    var box = document.querySelector(".choices"), ans = +box.dataset.answer;
+    var panel = document.querySelector(".answer"), btn = document.querySelector(".reveal");
+    function reveal(picked) {
+      box.querySelectorAll(".choice").forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === ans) b.classList.add("right");
+        else if (i === picked) b.classList.add("wrong");
+      });
+      panel.hidden = false; btn.hidden = true;
+    }
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".choice"); if (b) reveal(+b.dataset.i);
+    });
+    btn.addEventListener("click", function () { reveal(-1); });
+  })();
+  </script>
+</main>
+<footer><div class="bar">© 2026 Painted When? · <a href="../../privacy.html">Privacy Policy</a> · <a href="../../terms.html">Terms of Service</a></div></footer>
+</body>
+</html>
