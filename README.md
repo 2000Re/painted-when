@@ -106,18 +106,18 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 07:17・10
 - YouTube Data API の割り当て(1日あたり)はプロジェクト単位。Painted When? 専用のプロジェクトなので、ほかのチャンネルとは共有しない
 - 定期実行は cron-job.org だけなので、`post.yml` を変更しても GitHub の画面でコミットし直す必要はない
 
-## 冒頭の版の比較(2026-11-08〜)
+## 冒頭の版の比較(2026-11-08〜11-17、終了)
 
-冒頭を2つの版で作り、8本周期(hook, hook, base, base, base, base, hook, hook)で投稿して反応を比べている(`--variant auto`)。
+冒頭を2つの版で作り、8本周期(hook, hook, base, base, base, base, hook, hook)で投稿して反応を比べた(`--variant auto`)。
 
 | 版 | 冒頭 |
 |---|---|
 | `base`(今の版) | 拡大した絵と問いから始まり、選択肢は3秒あたりから順に出る。声は0.15秒から「When was this painted?」 |
 | `hook`(フック版) | 最初のコマから3択と残り時間のバーを出す(読み上げに合わせて選択肢が弾む)。0秒に効果音、声は「Quick, guess the year!」 |
 
-美術館は1本ごとに交互なので、版と美術館の組み合わせは4通りとも均等に出る。1日2本でも、8本周期なので、どちらの時間帯にも両方の版が来る。どの動画がどちらの版かは
-`python tools/variants.py` で一覧にできる(`upload_history.json` の `variant`)。1〜2週間たったら、YouTube Studio の
-「スワイプされずに視聴された割合」と「平均視聴率」を版ごとに比べ、良い方に揃える。
+結果(2026-11-17 の `stats.md`、投稿から3日目の再生数): base 5本の平均 494・中央値 427、hook 7本の平均 273・中央値 185。
+base の方が良かったので、2026-11-17 から `post.yml` は `--variant base` で base だけを出す。`--variant hook`・`--variant auto`
+は残してあるので、手元で試すことはできる。どの動画がどちらの版かは `python tools/variants.py` で一覧にできる。
 
 ## サイト(`docs/`、GitHub Pages)
 
@@ -186,9 +186,10 @@ python art_shorts.py --still                     # 動画を作らず、サム�
   旧 `v1/search` は廃止済み(410)
 - **AIC**: `artworks/search?q=画家名&limit=100`(最大3ページ)から、`is_public_domain` が true・`image_id` あり・
   `artwork_type_title` が Painting のものを選ぶ。画像は `{config.iiif_url}/{image_id}/full/1686,/0/default.jpg`
-- **人物の絵を優先する**(2026-11-11〜)。最初の数日の数字で、上位はすべて人物・肖像、人物のいない風景は再生が少なかった
-  ため。候補を最大8点(1人の画家から2点まで)、小さい画像(Met は `primaryImageSmall`、AIC は 843px 幅)で顔の検出にかけ、
-  顔のある作品を選ぶ。8点とも顔がなければ最初の候補を使う(風景も出る)。顔の有無は `upload_history.json` の `has_face` に残る
+- **顔のない絵を優先する**(2026-11-17〜)。2026-11-11 からは人物の絵を優先していたが、3日目の再生数の平均が
+  顔あり 277(8本)・顔なし 541(4本)で逆の結果になったため(`stats.md` の `has_face`)。候補を最大8点(1人の画家から2点まで)、
+  小さい画像(Met は `primaryImageSmall`、AIC は 843px 幅)で顔の検出にかけ、顔のない作品(風景・静物など)を選ぶ。
+  8点とも顔があれば(または調べられなければ)最初の候補を使う(人物画も出る)。顔の有無は `upload_history.json` の `has_face` に残る
 - `--any-artist` を付けると、以前の選び方(Met はハイライト、AIC は検索結果のランダムなページ)に戻る
 - 日付(日本時間)+ source をシードにする。投稿済みの作品(`upload_history.json`)は選ばない
 - パブリックドメイン(CC0)以外の画像は使わない。AIC の `description`(CC-BY)は取得しない
