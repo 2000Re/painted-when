@@ -365,7 +365,7 @@ def choose_artwork(src, rng, used, today, accept=None):
     raise RuntimeError(f"{src.name}: 条件に合う未使用の作品が見つかりません")
 
 
-FACE_TRIES = 8          # 顔のある作品を探す候補の数。見つからなければ最初の候補を使う
+FACE_TRIES = 8          # 顔のない作品を探す候補の数。見つからなければ最初の候補を使う
 PER_ARTIST = 2          # 1人の画家から出す候補の数(画家がかたよらないように)
 
 
@@ -427,24 +427,25 @@ def has_face(art):
     return bool(faces)
 
 
-def choose_famous(src, rng, used, accept=None, avoid_artists=(), prefer_faces=True):
+def choose_famous(src, rng, used, accept=None, avoid_artists=(), avoid_faces=True):
     """有名な画家(artists.FAMOUS)の本人の作品から、未使用のものを1点選ぶ。
-    人物の絵のほうが見てもらえる傾向があった(2026-11 の数字)ので、候補を FACE_TRIES 点まで見て、
-    顔が描かれた作品を優先する。見つからなければ最初の候補を使う(風景も出る)。"""
+    顔が描かれた作品は見てもらえにくい傾向があった(2026-11-17 の stats.md: 3日目の再生数の平均が
+    顔あり 277・顔なし 541)ので、候補を FACE_TRIES 点まで見て、顔のない作品(風景・静物など)を優先する。
+    見つからなければ最初の候補を使う(人物画も出る)。"""
     first = None
     for i, art in enumerate(_famous_candidates(src, rng, used, accept, avoid_artists)):
-        if not prefer_faces:
+        if not avoid_faces:
             return art
         face = has_face(art)
         art["has_face"] = face
-        print(f"  候補: {art['famous_artist']} 「{art['title'][:40]}」 顔{'あり' if face else 'なし'}")
-        if face:
+        print(f"  候補: {art['famous_artist']} 「{art['title'][:40]}」 顔{'あり' if face else ('なし' if face is False else '不明')}")
+        if face is False:
             return art
         first = first or art
         if i + 1 >= FACE_TRIES:
             break
     if first:
-        print("  顔のある作品が見つからなかったので、最初の候補を使います")
+        print("  顔のない作品が見つからなかったので、最初の候補を使います")
         return first
     raise RuntimeError(f"{src.name}: 有名な画家の未使用の作品が見つかりません")
 
