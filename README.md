@@ -26,6 +26,8 @@ cron-job.org から `workflow_dispatch`(`scheduled=true`)で、毎日 10:17・22
 「Art quiz: when was “The Harvesters” painted? 🎨」、「Guess when this Monet masterpiece was painted 🎨」、
 「How old is this painting? Guess the year 🎨」。画家の名前は artists.py の有名な画家のときだけ、作品名は40字以内で年(数字)を含まないときだけ使う。
 埋められない型、過去と同じ題名、前の回と同じ型は飛ばす。#27 までは「When was this painted? 🎨 Daily Art Quiz」(classic)。
+**2026-11-17 から、偶数番の回は元の型(classic)に戻す**(`CLASSIC_EVERY = 2`。2本に1本)。新しい型はどれも 0〜427回で、
+元の型の平均 656回を下回っていたため。奇数番の回は、ほかの11の型を順に回す。
 型は `upload_history.json` の `title_style` に残り、`stats.md` で型ごとの再生数を比べられる。答えはタイトルに書かず、説明文の下の方に、
 作品名・作者・美術館のページへのリンク・出典(CC0)と一緒に書く。
 

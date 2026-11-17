@@ -855,8 +855,12 @@ def site_fields(art):
     }
 
 
-# 題名の型(答えの年は書かない)。番号順に回し、埋められない型・過去と同じ題名・前の回と同じ型は飛ばす。
+# 題名の型(答えの年は書かない)。偶数番の回は元の型(classic)、奇数番の回はほかの型を順に回す
+# (2026-11-17〜。元の型の最新の平均 656 に対し、新しい型はどれも 0〜427 だったので、元の型の割合を半分に増やした)。
+# 奇数番の回では、埋められない型・過去と同じ題名・前の回と同じ型は飛ばす。
 # {artist}: artists.py の有名な画家の名前、{last}: その姓、{work}: 作品名(短いときだけ)
+CLASSIC_EVERY = 2       # この本数に1本は元の型(classic)
+
 TITLES = [
     ("", "classic", "When was this painted? 🎨 Daily Art Quiz"),
     ("artist", "artist", "When did {artist} paint this? 🎨 Art Quiz"),
@@ -881,9 +885,12 @@ def video_title(art, number, used=(), last_style=None):
     vals = {"artist": famous, "last": famous.split()[-1] if famous else None,
             # 作品名に年が入っていると答えが分かるので使わない(例: "View of Toledo, 1600")
             "work": work if work and len(work) <= 40 and "<" not in work and not re.search(r"\d{3,4}", work) else None}
+    if number % CLASSIC_EVERY == 0:
+        return TITLES[0][2], TITLES[0][1]       # 元の型は毎回同じ題名でよい(番号で区別される)
     used = {re.sub(r"^\[\d+\]\s*", "", t) for t in used}
-    for k in range(len(TITLES)):
-        need, style, tpl = TITLES[(number - 1 + k) % len(TITLES)]
+    others = TITLES[1:]
+    for k in range(len(others)):
+        need, style, tpl = others[(number // CLASSIC_EVERY + k) % len(others)]
         if any(not vals.get(w) for w in need.split()):
             continue
         t = tpl.format(**{k2: v for k2, v in vals.items() if v})
