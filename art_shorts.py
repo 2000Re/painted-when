@@ -365,6 +365,7 @@ def choose_artwork(src, rng, used, today, accept=None):
     raise RuntimeError(f"{src.name}: 条件に合う未使用の作品が見つかりません")
 
 
+SOURCE_ERRORS = 6      # 美術館の API がこの回数失敗したら、その回はもう一方の美術館を使う
 FACE_TRIES = 8          # 顔のない作品を探す候補の数。見つからなければ最初の候補を使う
 PER_ARTIST = 2          # 1人の画家から出す候補の数(画家がかたよらないように)
 
@@ -377,13 +378,30 @@ def _famous_candidates(src, rng, used, accept, avoid_artists):
     names = [n for n, _ in artists.FAMOUS]
     rng.shuffle(names)
     names.sort(key=lambda n: n in avoid_artists)   # 直近の画家は後回し(順番は保つ)
+    errors = 0
     for name in names[:12]:
         found = 0
         if isinstance(src, Met):
-            ids = [i for i in src.search_artist(name) if i not in used_ids]
+            try:
+                ids = [i for i in src.search_artist(name) if i not in used_ids]
+            except HTTPStatusError as e:
+                errors += 1
+                print(f"  {name}: 検索できません({e})。次の画家へ", file=sys.stderr)
+                if errors >= SOURCE_ERRORS:
+                    raise
+                continue
             rng.shuffle(ids)
             for oid in ids[:30]:
-                art = src.fetch(oid)
+                # Met は一時的に 403 を返し続けることがある(2026-11-18 22:17 の失敗)。1点取れなくても次の候補へ進み、
+                # 続けて SOURCE_ERRORS 回失敗したら、呼び出し側でもう一方の美術館に切り替える
+                try:
+                    art = src.fetch(oid)
+                except HTTPStatusError as e:
+                    errors += 1
+                    print(f"  {oid}: 取れません({e})。次の候補へ", file=sys.stderr)
+                    if errors >= SOURCE_ERRORS:
+                        raise
+                    continue
                 if ok(art) and artists.find(art["artist"], art.get("artist_prefix", "")) == name:
                     art["famous_artist"] = name
                     yield art
@@ -1022,7 +1040,13 @@ def main():
                 art = choose_artwork(src, rng, used, today, accept)
             else:
                 recent = [h.get("artist") for h in history[-10:] if h.get("artist")]
-                art = choose_famous(src, rng, used, accept, avoid_artists=recent)
+                try:
+                    art = choose_famous(src, rng, used, accept, avoid_artists=recent)
+                except HTTPStatusError as e:
+                    other = "aic" if src.name == "met" else "met"
+                    print(f"警告: {src.name} の API が失敗し続けたので({e})、この回は {other} から選びます", file=sys.stderr)
+                    src = SOURCES[other]()
+                    art = choose_famous(src, rng, used, accept, avoid_artists=recent)
             record = not args.seed and not args.still and not any(
                 u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
         print(f"  → {art['title']} / {art['artist']} / {art['date']}  {art['url']}")
