@@ -734,5 +734,28 @@
    "1884"
   ],
   "answer": 2
+ },
+ {
+  "number": 33,
+  "slug": "33-alexandre-charles-emmanuel-de-crussol-florensac-17431815",
+  "video_id": "XMMIXn8zIjs",
+  "uploaded_at": "2026-11-18T14:00:45+00:00",
+  "title": "Alexandre Charles Emmanuel de Crussol-Florensac (1743–1815)",
+  "artist": "Élisabeth Louise Vigée Le Brun",
+  "artist_bio": "French, Paris 1755–1842 Paris",
+  "artist_unknown": false,
+  "date": "1787",
+  "medium": "Oil on wood",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/437899",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP320090.jpg",
+  "source": "met",
+  "id": "437899",
+  "choices": [
+   "1986",
+   "1916",
+   "1787"
+  ],
+  "answer": 2
  }
 ]

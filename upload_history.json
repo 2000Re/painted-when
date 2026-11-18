@@ -456,5 +456,21 @@
     "video_id": "is80msEUS5k",
     "privacy": "public",
     "uploaded_at": "2026-11-18T01:18:59+00:00"
+  },
+  {
+    "number": 33,
+    "key": "met:437899",
+    "source": "met",
+    "id": "437899",
+    "date": "2026-11-18",
+    "title": "[33] Can you guess the year of this Élisabeth Louise Vigée Le Brun painting? 🎨",
+    "answer": "1787",
+    "artist": "Élisabeth Louise Vigée Le Brun",
+    "variant": "base",
+    "has_face": true,
+    "title_style": "artist_year",
+    "video_id": "XMMIXn8zIjs",
+    "privacy": "public",
+    "uploaded_at": "2026-11-18T14:00:45+00:00"
   }
 ]
