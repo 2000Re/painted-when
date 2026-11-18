@@ -48,7 +48,41 @@ def spoken_year(label):
     return label
 
 
+# 毎回ちがう言い回し(繰り返しの多い動画に見えないように)。番号で回すので、同じ番号なら作り直しても同じ
+LINES = {
+    "q": ["When was this painted?", "Can you guess when this was painted?", "What year was this painted?",
+          "Guess the year this was painted!", "When do you think this was painted?"],
+    "lock": ["Lock in your answer!", "Pick your year!", "Got your guess?", "Make your choice!", "Final answer?"],
+    "outro": ["How did you do? Tell me in the comments.", "Did you get the year right?",
+              "Were you close? Let me know below!", "How many years off were you?",
+              "Did you guess it? Comment your answer!"],
+    "age": ["{name} painted this at around age {age}.", "{name} was about {age} when this was painted.",
+            "This was painted when {name} was about {age}."],
+}
+
+
+def vary(number, key, **kw):
+    opts = LINES[key]
+    return opts[(number + sum(map(ord, key))) % len(opts)].format(**kw)
+
+
+def age_fact(art, number=1):
+    """「画家が何歳ごろに描いたか」の一文(美術館のデータの生没年と制作年から)。分からなければ None。"""
+    import re
+    m = re.search(r"(1[2-9]\d\d)\s*[–-]\s*(1[2-9]\d\d|20\d\d)", art.get("artist_bio") or "")
+    year = art.get("year_start")
+    name = art.get("artist") or ""          # 生没年(artist_bio)はこの作者のもの(famous_artist ではなく)
+    if not m or not year or not name or name.lower() in ("unknown artist", "unidentified artist", "anonymous"):
+        return None
+    born, died = int(m.group(1)), int(m.group(2))
+    age = year - born
+    if not 14 <= age <= 95 or year > died + 1:
+        return None
+    return vary(number, "age", name=name, age=age)
+
+
 def script(art, labels, correct, hook=False):
+    number = art.get("number") or 1
     artist = art.get("artist") or ""
     if artist.lower() in ("", "unknown artist", "unidentified artist", "anonymous"):
         by = "by an unknown artist"
@@ -56,15 +90,15 @@ def script(art, labels, correct, hook=False):
         by = f"by {artist}"
     ys = [spoken_year(lb) for lb in labels]
     return {
-        "q": "Quick, guess the year!" if hook else "When was this painted?",
+        "q": "Quick, guess the year!" if hook else vary(number, "q"),
         "c0": f"Was it {ys[0]}?",
         "c1": f"{ys[1]}?",
         "c2": f"Or {ys[2]}?",
-        "lock": "Lock in your answer!",
+        "lock": vary(number, "lock"),
         "ans": f"It's {ys[correct]}!",
         "info": (f"{art['title'].rstrip('.')}, {by}." if len(art["title"]) <= LONG_TITLE
-                 else f"{by[0].upper()}{by[1:]}."),
-        "outro": "How did you do? Tell me in the comments.",
+                 else f"{by[0].upper()}{by[1:]}.") + (f" {age_fact(art, number)}" if age_fact(art, number) else ""),
+        "outro": vary(number, "outro"),
     }
 
 

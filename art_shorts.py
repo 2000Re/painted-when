@@ -926,8 +926,14 @@ def youtube_meta(art, number, history=()):
     artist = art.get("artist") or "Unknown artist"
     work = f"\"{art['title']}\" by {artist}" if artist.lower() not in (
         "unknown artist", "unidentified artist", "anonymous") else f"\"{art['title']}\" (artist unknown)"
+    import narration
+    leads = ["Can you guess the year? Comment your answer before the reveal! 🎨",
+             "Guess the year before the answer appears! 🎨",
+             "Pause and pick a year, then watch the reveal! 🖼️",
+             "How good is your eye for art history? Guess the year! 🎨"]
+    fact = narration.age_fact(art, number)
     lines = [
-        "Can you guess the year? Comment your answer before the reveal! 🎨",
+        leads[number % len(leads)],
         "",
         "Choices: " + " / ".join(qz["choices"]),
         "",
@@ -935,6 +941,7 @@ def youtube_meta(art, number, history=()):
         ".", ".", ".",
         f"Answer: {answer}",
         work,
+        *([fact] if fact else []),
         " · ".join(x for x in (art.get("date"), art.get("medium")) if x),
         art["museum"],
         art["url"],
@@ -1061,6 +1068,7 @@ def main():
         q = quiz.Quiz(art, img, random.Random(f"{art['source']}:{art['id']}"), max_year=int(today[:4]))
         art["quiz"] = {"question": "When was this painted?",
                        "choices": q.labels, "answer": q.correct}
+        art["number"] = len(history) + 1          # 言い回しを番号で回す(narration.vary)
         if tts != "none":
             import narration
             print(f"読み上げを作っています({tts})")

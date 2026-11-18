@@ -25,17 +25,17 @@ FAMOUS = [
     ("Tintoretto", ["tintoretto"]),
     ("Paolo Veronese", ["veronese"]),
     ("Albrecht Dürer", ["durer"]),
-    ("Hans Holbein the Younger", ["holbein"]),
-    ("Pieter Bruegel", ["bruegel"]),
+    ("Hans Holbein the Younger", ["holbein", "younger"]),   # 父 the Elder を除く
+    ("Pieter Bruegel the Elder", ["bruegel", "elder"]),     # 息子 the Younger を除く
     ("El Greco", ["el greco"]),
     ("Caravaggio", ["caravaggio"]),
     ("Peter Paul Rubens", ["rubens"]),
     ("Anthony van Dyck", ["dyck", "anthony"]),
     ("Frans Hals", ["frans", "hals"]),
     ("Rembrandt", ["rembrandt"]),
-    ("Johannes Vermeer", ["vermeer"]),
+    ("Johannes Vermeer", ["johannes", "vermeer"]),          # Jan Vermeer van Haarlem を除く
     ("Diego Velázquez", ["velazquez"]),
-    ("Francisco de Zurbarán", ["zurbaran"]),
+    ("Francisco de Zurbarán", ["francisco", "zurbaran"]),  # 息子 Juan de Zurbarán を除く
     ("Bartolomé Esteban Murillo", ["murillo"]),
     ("Georges de La Tour", ["georges", "la tour"]),
     ("Nicolas Poussin", ["poussin"]),
@@ -45,8 +45,8 @@ FAMOUS = [
     ("Antoine Watteau", ["watteau"]),
     ("François Boucher", ["boucher", "francois"]),
     ("Jean-Honoré Fragonard", ["fragonard"]),
-    ("Canaletto", ["canaletto"]),
-    ("Giovanni Battista Tiepolo", ["tiepolo"]),
+    ("Canaletto", ["canaletto", "-bellotto"]),              # 甥 Bellotto も Canaletto と呼ばれる
+    ("Giovanni Battista Tiepolo", ["battista", "tiepolo"]),  # 息子 Giovanni Domenico を除く
     ("Thomas Gainsborough", ["gainsborough"]),
     ("Joshua Reynolds", ["joshua", "reynolds"]),
     ("Jean-Baptiste-Siméon Chardin", ["chardin"]),
@@ -119,8 +119,9 @@ def normalize(s):
 
 
 def matches(artist, required):
+    """required の語をすべて含むか。「-」で始まる語は、含んでいたら別人とみなす(例: "-bellotto")。"""
     a = normalize(artist)
-    return all(w in a for w in required)
+    return all((w[1:] not in a) if w.startswith("-") else (w in a) for w in required)
 
 
 def is_attributed_only(artist_text, prefix=""):
