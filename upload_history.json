@@ -440,5 +440,21 @@
     "video_id": "LqmFBJKXZbA",
     "privacy": "public",
     "uploaded_at": "2026-11-17T01:18:48+00:00"
+  },
+  {
+    "number": 32,
+    "key": "aic:81566",
+    "source": "aic",
+    "id": "81566",
+    "date": "2026-11-18",
+    "title": "[32] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1884",
+    "artist": "Pierre Puvis de Chavannes",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "classic",
+    "video_id": "is80msEUS5k",
+    "privacy": "public",
+    "uploaded_at": "2026-11-18T01:18:59+00:00"
   }
 ]

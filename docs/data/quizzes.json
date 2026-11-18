@@ -711,5 +711,28 @@
    "1652"
   ],
   "answer": 1
+ },
+ {
+  "number": 32,
+  "slug": "32-the-sacred-grove-beloved-of-the-arts-and-the-muses",
+  "video_id": "is80msEUS5k",
+  "uploaded_at": "2026-11-18T01:18:59+00:00",
+  "title": "The Sacred Grove, Beloved of the Arts and the Muses",
+  "artist": "Pierre Puvis de Chavannes",
+  "artist_bio": "French, 1824–1898",
+  "artist_unknown": false,
+  "date": "1884–89",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/81566",
+  "image": "https://www.artic.edu/iiif/2/94bfb508-31cc-7c9f-63a9-5478c826129a/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "81566",
+  "choices": [
+   "1675",
+   "2021",
+   "1884"
+  ],
+  "answer": 2
  }
 ]
