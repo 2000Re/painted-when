@@ -488,5 +488,21 @@
     "video_id": "C2pY3rNQ9cw",
     "privacy": "public",
     "uploaded_at": "2026-11-19T01:31:00+00:00"
+  },
+  {
+    "number": 35,
+    "key": "met:10475",
+    "source": "met",
+    "id": "10475",
+    "date": "2026-11-19",
+    "title": "[35] Zoom out and guess the year this was painted 🎨",
+    "answer": "1892",
+    "artist": "William Merritt Chase",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "zoom",
+    "video_id": "5OUEf9g56Go",
+    "privacy": "public",
+    "uploaded_at": "2026-11-19T13:19:11+00:00"
   }
 ]

@@ -780,5 +780,28 @@
    "1694"
   ],
   "answer": 0
+ },
+ {
+  "number": 35,
+  "slug": "35-seventeenth-century-lady",
+  "video_id": "5OUEf9g56Go",
+  "uploaded_at": "2026-11-19T13:19:11+00:00",
+  "title": "Seventeenth Century Lady",
+  "artist": "William Merritt Chase",
+  "artist_bio": "American, Williamsburg, Indiana 1849–1916 New York",
+  "artist_unknown": false,
+  "date": "ca. 1895",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/10475",
+  "image": "https://images.metmuseum.org/CRDImages/ad/web-large/DP161207.jpg",
+  "source": "met",
+  "id": "10475",
+  "choices": [
+   "1804",
+   "1709",
+   "1892"
+  ],
+  "answer": 2
  }
 ]
