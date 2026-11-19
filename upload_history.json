@@ -472,5 +472,21 @@
     "video_id": "XMMIXn8zIjs",
     "privacy": "public",
     "uploaded_at": "2026-11-18T14:00:45+00:00"
+  },
+  {
+    "number": 34,
+    "key": "aic:80084",
+    "source": "aic",
+    "id": "80084",
+    "date": "2026-11-19",
+    "title": "[34] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1627",
+    "artist": "Francisco de Zurbarán",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "classic",
+    "video_id": "C2pY3rNQ9cw",
+    "privacy": "public",
+    "uploaded_at": "2026-11-19T01:31:00+00:00"
   }
 ]
