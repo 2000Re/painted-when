@@ -43,6 +43,8 @@ from zoneinfo import ZoneInfo
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
+import locales
+
 HERE = Path(__file__).resolve().parent
 FONT_DIR = HERE / "fonts"
 SERIF = FONT_DIR / "LiberationSerif-Regular.ttf"
@@ -895,14 +897,19 @@ TITLES = [
 ]
 
 
+def title_vals(art):
+    """題名の型に入れる値。画家は artists.py の有名な画家のときだけ。"""
+    famous = art.get("famous_artist")
+    work = (art.get("title") or "").strip()
+    return {"artist": famous, "last": famous.split()[-1] if famous else None,
+            # 作品名に年が入っていると答えが分かるので使わない(例: "View of Toledo, 1600")
+            "work": work if work and len(work) <= 40 and "<" not in work and not re.search(r"\d{3,4}", work) else None}
+
+
 def video_title(art, number, used=(), last_style=None):
     """(題名, 型)。答え(年)は書かない。型は upload_history.json の title_style に残し、stats.md で比べる。
     画家の名前を出す型は、artists.py の有名な画家のときだけ(名前で検索されやすくするため)。"""
-    famous = art.get("famous_artist")
-    work = (art.get("title") or "").strip()
-    vals = {"artist": famous, "last": famous.split()[-1] if famous else None,
-            # 作品名に年が入っていると答えが分かるので使わない(例: "View of Toledo, 1600")
-            "work": work if work and len(work) <= 40 and "<" not in work and not re.search(r"\d{3,4}", work) else None}
+    vals = title_vals(art)
     if number % CLASSIC_EVERY == 0:
         return TITLES[0][2], TITLES[0][1]       # 元の型は毎回同じ題名でよい(番号で区別される)
     used = {re.sub(r"^\[\d+\]\s*", "", t) for t in used}
@@ -915,6 +922,13 @@ def video_title(art, number, used=(), last_style=None):
         if len(f"[{number}] {t}") <= 100 and t not in used and style != last_style:
             return t, style
     return "When was this painted? 🎨 Daily Art Quiz", "classic"
+
+
+# 姉妹チャンネル(説明欄の終わりで紹介する。上級者向け機能でリンクがクリックできる)。閉じる予定の Too Close to Tell は入れない
+SISTERS = [
+    ("🗺️ Wait, That Big? — the true size of countries on the map", "https://www.youtube.com/@wait-that-big"),
+    ("🛰️ Guess From Space — name famous places from satellite images", "https://www.youtube.com/@guess-from-space"),
+]
 
 
 def youtube_meta(art, number, history=()):
@@ -948,6 +962,9 @@ def youtube_meta(art, number, history=()):
         "",
         f"Image: {art['museum']}, Public Domain (CC0). This channel is not affiliated with the museum.",
         "",
+        "More quizzes from the same creator:",
+        *[f"{t}: {u}" for t, u in SISTERS],
+        "",
         "#arthistory #artquiz #painting #shorts",
     ]
     tags = ["art quiz", "art history", "painting", "guess the year", "museum", "fine art", "art", "quiz"]
@@ -959,6 +976,8 @@ def youtube_meta(art, number, history=()):
         "title": _yt_text(f"[{number}] {title}")[:100],
         "title_style": style,
         "description": _yt_text("\n".join(lines))[:4900],
+        # 題名と説明の翻訳(日本語・スペイン語・フランス語・ドイツ語・ポルトガル語)
+        "localizations": locales.build(style, number, title_vals(art), _yt_text("\n".join(lines))[:4800]),
         "tags": tags,
         "answer": answer,
     }
