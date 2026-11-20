@@ -504,5 +504,21 @@
     "video_id": "5OUEf9g56Go",
     "privacy": "public",
     "uploaded_at": "2026-11-19T13:19:11+00:00"
+  },
+  {
+    "number": 36,
+    "key": "aic:120154",
+    "source": "aic",
+    "id": "120154",
+    "date": "2026-11-20",
+    "title": "[36] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1822",
+    "artist": "Raphael",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "classic",
+    "video_id": "UvCmEgBJrjA",
+    "privacy": "public",
+    "uploaded_at": "2026-11-20T01:18:45+00:00"
   }
 ]

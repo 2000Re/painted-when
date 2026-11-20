@@ -803,5 +803,28 @@
    "1892"
   ],
   "answer": 2
+ },
+ {
+  "number": 36,
+  "slug": "36-still-lifestrawberries-nuts-c",
+  "video_id": "UvCmEgBJrjA",
+  "uploaded_at": "2026-11-20T01:18:45+00:00",
+  "title": "Still Life—Strawberries, Nuts, &c.",
+  "artist": "Raphael",
+  "artist_bio": "American, 1774–1825",
+  "artist_unknown": false,
+  "date": "1822",
+  "medium": "Oil on wood panel",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/120154",
+  "image": "https://www.artic.edu/iiif/2/1cddae1c-99d5-462f-4aa6-128c0732ac11/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "120154",
+  "choices": [
+   "2016",
+   "1822",
+   "1616"
+  ],
+  "answer": 1
  }
 ]
