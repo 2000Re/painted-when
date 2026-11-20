@@ -21,6 +21,7 @@ from pathlib import Path
 REQUIRED_ENV = ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN", "YT_CHANNEL_ID"]
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status"
+UPLOAD_URL_L10N = UPLOAD_URL + ",localizations"      # 題名と説明の翻訳(locales.py)も一緒に送る
 CHANNELS_URL = "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true"
 CATEGORY_EDUCATION = "27"
 
@@ -71,7 +72,7 @@ def check_channel(token, expected):
 
 
 def upload(token, video_path, meta, privacy):
-    body = json.dumps({
+    body = {
         "snippet": {
             "title": meta["title"],
             "description": meta["description"],
@@ -85,14 +86,27 @@ def upload(token, video_path, meta, privacy):
             "selfDeclaredMadeForKids": False,
             "embeddable": True,
         },
-    }).encode()
+    }
     size = video_path.stat().st_size
-    _, headers, _ = request(UPLOAD_URL, data=body, method="POST", headers={
+    start_headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json; charset=UTF-8",
         "X-Upload-Content-Type": "video/mp4",
         "X-Upload-Content-Length": str(size),
-    })
+    }
+    headers = None
+    if meta.get("localizations"):
+        try:
+            _, headers, _ = request(UPLOAD_URL_L10N, method="POST", headers=start_headers,
+                                    data=json.dumps({**body, "localizations": meta["localizations"]}).encode())
+        except urllib.error.HTTPError as e:
+            if e.code not in (400, 403):
+                raise
+            # 翻訳を受け付けられなかったら(形式の誤り・権限不足)、翻訳なしで投稿する(投稿そのものは止めない)
+            print(f"警告: 翻訳つきの投稿が断られたので、翻訳なしで投稿します: {e.read().decode(errors='replace')[:300]}",
+                  file=sys.stderr)
+    if headers is None:
+        _, headers, _ = request(UPLOAD_URL, data=json.dumps(body).encode(), method="POST", headers=start_headers)
     location = headers.get("Location") or headers.get("location")
     # 動画は数MBなので一括 PUT。5xx・通信断のときだけ再試行する
     for attempt in range(4):

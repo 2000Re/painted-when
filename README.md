@@ -294,3 +294,13 @@ python art_shorts.py --tts none                # 読み上げなし(13秒・無�
   似ているファイル(`youtube_upload.py`・`posted_today.py` など)は、違う行数を Summary に並べる。
   1つで不具合を直したら、ほかの3つにも同じ直しが要るかを見る。中身は `python sync_check.py --diff youtube_upload.py`
 - `stats.py`・`watchdog.py`・`sync_check.py` は4チャンネル(Painted When?、Guess From Space、Wait, That Big?、Too Close to Tell)で同じファイル
+
+## 題名と説明の翻訳・説明欄のリンク(2026-11-21〜)
+
+上級者向け機能(多言語の機能・説明欄のリンク)が使えるようになったので、次を入れた。
+
+- `locales.py`: 題名の12の型と、説明の1行目を5言語(日本語・スペイン語・フランス語・ドイツ語・ポルトガル語)に訳す。
+  画家の名前と作品名は英語のまま入れる。Wait, That Big? の `locales.py` と同じ仕組み(AI は使わない)。
+  `youtube_upload.py` が `part=snippet,status,localizations` で一緒に送り、400/403 で断られたら翻訳なしで投稿する
+- 説明欄の終わりに、姉妹チャンネル(Wait, That Big?・Guess From Space)へのリンク(`art_shorts.SISTERS`。
+  閉じる予定の Too Close to Tell は入れない)
