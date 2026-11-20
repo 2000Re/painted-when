@@ -826,5 +826,28 @@
    "1616"
   ],
   "answer": 1
+ },
+ {
+  "number": 37,
+  "slug": "37-salisbury-cathedral-from-the-bishop-s-grounds",
+  "video_id": "BdVSGreVeWU",
+  "uploaded_at": "2026-11-20T13:43:42+00:00",
+  "title": "Salisbury Cathedral from the Bishop's Grounds",
+  "artist": "John Constable",
+  "artist_bio": "British, East Bergholt 1776–1837 Hampstead",
+  "artist_unknown": false,
+  "date": "ca. 1825",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/435922",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP164837.jpg",
+  "source": "met",
+  "id": "435922",
+  "choices": [
+   "2011",
+   "1820",
+   "1920"
+  ],
+  "answer": 1
  }
 ]
