@@ -344,6 +344,12 @@ class Quiz:
             f = A.font(A.SERIF, 30)
             self.info.append(text_layer(A.wrap(meta, f, TEXT_W, 1), f, (220, 214, 204, 255), TEXT_W,
                                         align="left"))
+        # 答えの年を、だれでも知っている出来事と比べる一文(timeline_facts.py。画面だけ)
+        import timeline_facts
+        fact = timeline_facts.fact(art, quiz_year(art))
+        if fact:
+            f = A.font(A.SANS_BOLD, 30)
+            self.info.append(text_layer(A.wrap(fact, f, TEXT_W, 2), f, GOLD + (255,), TEXT_W, align="left"))
         self.info_y = []
         y = INFO_Y
         for i, layer in enumerate(self.info):
@@ -471,7 +477,8 @@ class Quiz:
 
         # 答え合わせ:題名・作者・年
         for i, layer in enumerate(self.info):
-            a = A.ease((t - tl.info[i]) / 0.6) * (1 - lp)
+            ti = tl.info[min(i, len(tl.info) - 1)] + 0.3 * max(0, i - len(tl.info) + 1)   # 行が多いときは少しずつ遅らせる
+            a = A.ease((t - ti) / 0.6) * (1 - lp)
             if a > 0:
                 frame.alpha_composite(with_alpha(layer, a), (TEXT_X, self.info_y[i] - 8))
         return frame.convert("RGB")

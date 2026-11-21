@@ -41,6 +41,7 @@ TTS_URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
 
 TAIL = 0.4          # 最後の読み上げのあとの間(秒)。以前は 1.0(2026-11-21 に短くした)
 LOOP_SEC = 1.1      # 最後のこの秒数で、冒頭の拡大した場面に戻る(quiz.Timeline.loop)
+READ_SEC = 2.2      # 答えのあと、作品名・作者・出来事との比較を読める時間(読み上げはしないので)
 
 def spoken_year(label):
     """画面の表記を読み上げ用に。"50 BC" → "50 B.C."、"AD 224" → "A.D. 224"。"""
@@ -99,8 +100,8 @@ def script(art, labels, correct, hook=False):
         "c2": f"Or {ys[2]}?",
         "lock": vary(number, "lock"),
         "ans": f"It's {ys[correct]}!",
-        "info": (f"{art['title'].rstrip('.')}, {by}." if len(art["title"]) <= LONG_TITLE
-                 else f"{by[0].upper()}{by[1:]}.") + (f" {age_fact(art, number)}" if age_fact(art, number) else ""),
+        # 作品名・作者・年代の話は読み上げず、画面に出すだけ(2026-11-21〜。答えのあとに離れる人が多かったので短くした。
+        # 以前は「<作品名>, by <作者>. <何歳ごろ>」を読んでいた。age_fact は説明欄で使う)
         "outro": vary(number, "outro"),
     }
 
@@ -239,26 +240,23 @@ def build(art, q, tts, hook=False):
     dur = {k: len(v) / SR for k, v in clips.items()}
     at = {}
 
+    # 間は短めに(2026-11-21 に詰めた。平均視聴割合が Wait, That Big? の 90% 台に対して 50〜70% 台だったため)
     at["q"] = 0.08 if hook else 0.15
     q_end = at["q"] + dur["q"]
-    pull = (0.5, max(3.0, q_end + 1.0))
-    at["c0"] = max(pull[1] - 0.3, q_end + 0.4)
-    at["c1"] = at["c0"] + dur["c0"] + 0.3
-    at["c2"] = at["c1"] + dur["c1"] + 0.3
-    at["lock"] = at["c2"] + dur["c2"] + 0.35
-    timer = (at["lock"], at["lock"] + dur["lock"] + 2.0)
+    pull = (0.4, max(2.4, q_end + 0.6))
+    at["c0"] = max(pull[1] - 0.3, q_end + 0.25)
+    at["c1"] = at["c0"] + dur["c0"] + 0.2
+    at["c2"] = at["c1"] + dur["c1"] + 0.2
+    at["lock"] = at["c2"] + dur["c2"] + 0.2
+    timer = (at["lock"], at["lock"] + dur["lock"] + 1.5)
     reveal = timer[1] + 0.1
     at["ans"] = reveal + 0.15
-    at["info"] = at["ans"] + dur["ans"] + 0.4
-    # 題名を読み始めたら題名、"by" のあたりで作者、読み終わりで年と技法を出す
-    if ", by " in lines["info"]:
-        title_chars = len(lines["info"].split(", by ")[0])
-        by_t = at["info"] + dur["info"] * title_chars / max(1, len(lines["info"]))
-    else:                       # 題名を読まないときは、題名と作者を続けて出す
-        by_t = at["info"] + 0.4
-    info = (at["info"], by_t, at["info"] + dur["info"])
-    at["outro"] = at["info"] + dur["info"] + 0.7
-    end = at["outro"] + dur["outro"] + TAIL
+    # 答えを言い始めたら、作品名・作者・年と技法・出来事との比較を続けて出す(読み上げはしない)
+    a0 = at["ans"] + 0.3
+    info = (a0, a0 + 0.1, a0 + 0.2, a0 + 0.3)
+    at["outro"] = at["ans"] + dur["ans"] + 0.35
+    # 作品名などを読める時間(出そろってから、冒頭へ戻り始めるまで)を READ_SEC 以上とる
+    end = max(at["outro"] + dur["outro"] + TAIL, info[-1] + 0.6 + READ_SEC + LOOP_SEC)
     loop = (end - LOOP_SEC, end)
 
     if hook:
