@@ -947,6 +947,9 @@ def youtube_meta(art, number, history=()):
              "Pause and pick a year, then watch the reveal! 🖼️",
              "How good is your eye for art history? Guess the year! 🎨"]
     fact = narration.age_fact(art, number)
+    import quiz as _quiz
+    import timeline_facts
+    then = timeline_facts.fact(art, _quiz.quiz_year(art))
     lines = [
         leads[number % len(leads)],
         "",
@@ -957,6 +960,7 @@ def youtube_meta(art, number, history=()):
         f"Answer: {answer}",
         work,
         *([fact] if fact else []),
+        *([then + "."] if then else []),
         " · ".join(x for x in (art.get("date"), art.get("medium")) if x),
         art["museum"],
         art["url"],
@@ -1126,7 +1130,7 @@ def main():
                      "artist": art.get("famous_artist") or art.get("artist"),
                      "variant": "hook" if args.hook else "base",
                      "has_face": art.get("has_face"),
-                     "ending": "loop",          # 最後に冒頭の場面へ戻る終わり方(2026-11-21〜。stats.md で比べる)
+                     "ending": "loop_short",    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
                      "site": site_fields(art),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
