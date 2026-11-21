@@ -924,10 +924,11 @@ def video_title(art, number, used=(), last_style=None):
     return "When was this painted? 🎨 Daily Art Quiz", "classic"
 
 
-# 姉妹チャンネル(説明欄の終わりで紹介する。上級者向け機能でリンクがクリックできる)。閉じる予定の Too Close to Tell は入れない
+# 姉妹チャンネル(説明欄の終わりで紹介する。上級者向け機能でリンクがクリックできる)
 SISTERS = [
     ("🗺️ Wait, That Big? — the true size of countries on the map", "https://www.youtube.com/@wait-that-big"),
     ("🛰️ Guess From Space — name famous places from satellite images", "https://www.youtube.com/@guess-from-space"),
+    ("🔍 Too Close to Tell — guess the museum object from an extreme close-up", "https://www.youtube.com/@too-close-to-tell"),
 ]
 
 
