@@ -178,11 +178,16 @@ def main():
         "has_face": meta.get("has_face"),
         "title_style": meta.get("title_style"),
         "ending": meta.get("ending"),
+        "format": meta.get("format"),
         "video_id": video_id,
         "privacy": actual_privacy,
         "uploaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     })
     history_path.write_text(json.dumps(history, ensure_ascii=False, indent=2) + "\n")
+
+    # 合う再生リストに入れる(playlists.py・playlist_rules.py)。失敗しても投稿は止めない
+    import playlists
+    playlists.add_after_upload(token, history[-1])
 
     # サイト(docs/)にクイズのページを足す。失敗しても投稿の記録は残す(記録がないと同じ作品をまた選んでしまう)
     if meta.get("site"):

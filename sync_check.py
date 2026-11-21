@@ -24,7 +24,8 @@ import urllib.request
 
 OWNER = "2000Re"
 REPOS = ["painted-when", "guess-from-space", "wait-that-big", "too-close-to-tell"]
-SAME = ["stats.py", "watchdog.py", "sync_check.py", ".github/workflows/daily-check.yml"]
+SAME = ["stats.py", "watchdog.py", "sync_check.py", ".github/workflows/daily-check.yml", "playlists.py",
+        ".github/workflows/playlists.yml"]
 SIMILAR = ["youtube_upload.py", "posted_today.py", "get_youtube_refresh_token.py", "site_gen.py",
            ".github/workflows/post.yml"]
 

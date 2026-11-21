@@ -1,0 +1,25 @@
+name: playlists
+
+# これまでに投稿した動画を、再生リストにまとめて入れる(playlists.py --backfill)。手動で1回動かせばよい。
+# 新しく投稿する動画は、投稿のたびに自動で入る(youtube_upload.py)。4チャンネルで同じファイル(sync_check.py)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Add past videos to playlists
+        run: python playlists.py --backfill
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
