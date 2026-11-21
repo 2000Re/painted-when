@@ -302,8 +302,8 @@ python art_shorts.py --tts none                # 読み上げなし(13秒・無�
 - `locales.py`: 題名の12の型と、説明の1行目を5言語(日本語・スペイン語・フランス語・ドイツ語・ポルトガル語)に訳す。
   画家の名前と作品名は英語のまま入れる。Wait, That Big? の `locales.py` と同じ仕組み(AI は使わない)。
   `youtube_upload.py` が `part=snippet,status,localizations` で一緒に送り、400/403 で断られたら翻訳なしで投稿する
-- 説明欄の終わりに、姉妹チャンネル(Wait, That Big?・Guess From Space)へのリンク(`art_shorts.SISTERS`。
-  閉じる予定の Too Close to Tell は入れない)
+- 説明欄の終わりに、姉妹チャンネル(Wait, That Big?・Guess From Space・Too Close to Tell)へのリンク(`art_shorts.SISTERS`。
+  2026-11-21 から Too Close to Tell も入れた)
 
 ## YouTube Analytics の数字(2026-11-21〜、`stats.py`)
 
