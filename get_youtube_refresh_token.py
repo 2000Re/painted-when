@@ -24,6 +24,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.upload",
     "https://www.googleapis.com/auth/youtube.readonly",  # 投稿先チャンネルの確認用
     "https://www.googleapis.com/auth/yt-analytics.readonly",  # 平均視聴割合・流入元(stats.py)。2026-11-21 に追加
+    "https://www.googleapis.com/auth/youtube",  # 再生リストを作って動画を入れる(playlists.py)。2026-11-22 に追加
 ]
 
 
