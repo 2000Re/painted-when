@@ -849,5 +849,28 @@
    "1920"
   ],
   "answer": 1
+ },
+ {
+  "number": 38,
+  "slug": "38-study-for-arrangement-in-grey-and-black-no-2-portrait-of-tho",
+  "video_id": "INipQMNX1zY",
+  "uploaded_at": "2026-11-21T01:18:54+00:00",
+  "title": "Study for \"Arrangement in Grey and Black, No. 2: Portrait of Thomas Carlyle\"",
+  "artist": "James McNeill Whistler",
+  "artist_bio": "American, 1834–1903",
+  "artist_unknown": false,
+  "date": "1872–73",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/3551",
+  "image": "https://www.artic.edu/iiif/2/b7637e1b-47d7-123c-fe43-46981a93550e/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "3551",
+  "choices": [
+   "1953",
+   "1665",
+   "1872"
+  ],
+  "answer": 2
  }
 ]
