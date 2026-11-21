@@ -897,6 +897,14 @@ TITLES = [
 ]
 
 
+# 「服装から当てる」回の題名(その回の中で順に回す)
+FASHION_TITLES = [
+    ("fashion_clothes", "Can you date this painting from the clothes alone? 👗"),
+    ("fashion_century", "Which century? The clothes are the clue 🎨"),
+    ("fashion_detective", "Fashion detectives: guess the century of this painting 👒"),
+]
+
+
 def title_vals(art):
     """題名の型に入れる値。画家は artists.py の有名な画家のときだけ。"""
     famous = art.get("famous_artist")
@@ -910,6 +918,10 @@ def video_title(art, number, used=(), last_style=None):
     """(題名, 型)。答え(年)は書かない。型は upload_history.json の title_style に残し、stats.md で比べる。
     画家の名前を出す型は、artists.py の有名な画家のときだけ(名前で検索されやすくするため)。"""
     vals = title_vals(art)
+    if art.get("fashion"):
+        import fashion as F
+        style, t = FASHION_TITLES[number // F.FASHION_EVERY % len(FASHION_TITLES)]
+        return t, style
     if number % CLASSIC_EVERY == 0:
         return TITLES[0][2], TITLES[0][1]       # 元の型は毎回同じ題名でよい(番号で区別される)
     used = {re.sub(r"^\[\d+\]\s*", "", t) for t in used}
@@ -947,6 +959,9 @@ def youtube_meta(art, number, history=()):
              "Pause and pick a year, then watch the reveal! 🖼️",
              "How good is your eye for art history? Guess the year! 🎨"]
     fact = narration.age_fact(art, number)
+    clue = (art.get("fashion") or {}).get("clue")
+    if clue:
+        leads = ["Look at the clothes: which century was this painted in? Comment your guess! 👗"]
     import quiz as _quiz
     import timeline_facts
     then = timeline_facts.fact(art, _quiz.quiz_year(art))
@@ -959,6 +974,7 @@ def youtube_meta(art, number, history=()):
         ".", ".", ".",
         f"Answer: {answer}",
         work,
+        *([clue + "."] if clue else []),
         *([fact] if fact else []),
         *([then + "."] if then else []),
         " · ".join(x for x in (art.get("date"), art.get("medium")) if x),
@@ -970,9 +986,11 @@ def youtube_meta(art, number, history=()):
         "More quizzes from the same creator:",
         *[f"{t}: {u}" for t, u in SISTERS],
         "",
-        "#arthistory #artquiz #painting #shorts",
+        "#arthistory #artquiz #painting #shorts" + (" #fashionhistory" if clue else ""),
     ]
     tags = ["art quiz", "art history", "painting", "guess the year", "museum", "fine art", "art", "quiz"]
+    if clue:
+        tags += ["fashion history", "historical fashion", "costume history"]
     if artist.lower() not in ("unknown artist", "unidentified artist", "anonymous"):
         tags.append(artist)
     return {
@@ -982,7 +1000,8 @@ def youtube_meta(art, number, history=()):
         "title_style": style,
         "description": _yt_text("\n".join(lines))[:4900],
         # 題名と説明の翻訳(日本語・スペイン語・フランス語・ドイツ語・ポルトガル語)
-        "localizations": locales.build(style, number, title_vals(art), _yt_text("\n".join(lines))[:4800]),
+        "localizations": locales.build(style, number, title_vals(art), _yt_text("\n".join(lines))[:4800],
+                                       fashion=bool(clue)),
         "tags": tags,
         "answer": answer,
     }
@@ -1013,6 +1032,9 @@ def main():
                     help="有名な画家(artists.py)に絞らず、以前の選び方(Met はハイライト、AIC は検索結果)で選ぶ")
     ap.add_argument("--seed", help="作品選びのシード(既定は日付+source)")
     ap.add_argument("--id", help="作品IDを指定(試作用。used.json に記録しない)")
+    ap.add_argument("--fashion", nargs="?", const="auto",
+                    help="「服装から当てる」回(fashion.py)。ID を付けるとその作品(試作用)。"
+                         "付けなくても、--history があれば番号が fashion.FASHION_EVERY の倍数の回は自動でこの回になる")
     ap.add_argument("--date", help="日付 YYYY-MM-DD(既定は日本時間の今日)")
     ap.add_argument("--out", default=str(HERE / "out"))
     ap.add_argument("--demo", action="store_true", help="仮画像で作る(通信なし)")
@@ -1053,12 +1075,39 @@ def main():
     used_path = out / "used.json"
     record = False
 
+    import fashion as F
+    fashion_item = None
+    if style == "quiz" and not args.demo and not args.id:
+        if args.fashion and args.fashion != "auto":
+            fashion_item = next((it for it in F.ITEMS if it["id"] == args.fashion), None)
+            if not fashion_item:
+                sys.exit(f"fashion.ITEMS に {args.fashion} がありません")
+        elif args.fashion or (args.history and F.is_due(len(history) + 1)):
+            fashion_item = F.pick(history, rng)
+            if not fashion_item:
+                print("「服装」の回の作品を出し終えたので、ふつうの回にします", file=sys.stderr)
+    if fashion_item:
+        args.source = fashion_item["source"]
+        args.hook = False
+
     if args.demo:
         art, img = demo_artwork(rng, args.demo_index)
     else:
         src = SOURCES[args.source]()
         print(f"[{args.source}] 作品を選んでいます(seed={seed})")
-        if args.id:
+        if fashion_item:
+            art = src.fetch(fashion_item["id"])
+            if not art or not accept(art):
+                sys.exit(f"{F.key(fashion_item)} が使えません(パブリックドメインでない・制作年の幅が広いなど)")
+            import artists
+            name = artists.find(art["artist"], art.get("artist_prefix", ""))
+            if name:
+                art["famous_artist"] = name
+            art["fashion"] = {"clue": fashion_item["clue"]}
+            used = load_used(used_path)
+            record = not args.seed and not args.still and not any(
+                u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
+        elif args.id:
             art = src.fetch(args.id)
             if not art:
                 sys.exit(f"{args.id} は使えません(パブリックドメインの絵画で、画像があるものだけ)")
@@ -1089,8 +1138,9 @@ def main():
         ("" if args.format == "shorts" else "_wide")
     if style == "quiz":
         # 選択肢は作品ごとに決める(同じ作品なら何度作っても同じ選択肢)
-        q = quiz.Quiz(art, img, random.Random(f"{art['source']}:{art['id']}"), max_year=int(today[:4]))
-        art["quiz"] = {"question": "When was this painted?",
+        q = quiz.Quiz(art, img, random.Random(f"{art['source']}:{art['id']}"), max_year=int(today[:4]),
+                      fashion=fashion_item)
+        art["quiz"] = {"question": "Which century? Check the clothes!" if fashion_item else "When was this painted?",
                        "choices": q.labels, "answer": q.correct}
         art["number"] = len(history) + 1          # 言い回しを番号で回す(narration.vary)
         if tts != "none":
@@ -1130,7 +1180,8 @@ def main():
                      "artist": art.get("famous_artist") or art.get("artist"),
                      "variant": "hook" if args.hook else "base",
                      "has_face": art.get("has_face"),
-                     "ending": "loop_short",    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
+                     "ending": "loop_short",
+                     "format": "fashion" if fashion_item else "year",   # 「服装から当てる」回(fashion.py)と比べる    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
                      "site": site_fields(art),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))

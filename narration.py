@@ -85,8 +85,24 @@ def age_fact(art, number=1):
     return vary(number, "age", name=name, age=age)
 
 
+FASHION_Q = ["Look at the clothes. Which century is this?", "Can you date this from the clothes alone?",
+             "The clothes are the clue. Which century?"]
+FASHION_OUTRO = ["What clue gave it away? Tell me below!", "Did the clothes help you? Comment below!",
+                 "Which detail did you spot first?"]
+
+
 def script(art, labels, correct, hook=False):
     number = art.get("number") or 1
+    if art.get("fashion"):
+        # 「服装から当てる」回(fashion.py)。ラベルは "1600s" → 「the 1600s」
+        ys = [f"the {lb}" for lb in labels]
+        return {
+            "q": FASHION_Q[number // 5 % len(FASHION_Q)],
+            "c0": f"Was it {ys[0]}?", "c1": f"{ys[1]}?", "c2": f"Or {ys[2]}?",
+            "lock": vary(number, "lock"),
+            "ans": f"It's {ys[correct]}!",
+            "outro": FASHION_OUTRO[number // 5 % len(FASHION_OUTRO)],
+        }
     artist = art.get("artist") or ""
     if artist.lower() in ("", "unknown artist", "unidentified artist", "anonymous"):
         by = "by an unknown artist"
