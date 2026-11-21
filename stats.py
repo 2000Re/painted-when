@@ -10,6 +10,10 @@
 - stats.md には、upload_history.json の項目(版・カテゴリ・形式・美術館など)と投稿の時間帯ごとに、
   3日目の再生数の平均と中央値をまとめる(参考に、最新の再生数の平均も並べる)
 
+- YouTube Analytics API(スコープ yt-analytics.readonly)も使えれば、動画ごとの平均視聴割合・登録者の増加と、
+  チャンネルの日別の流入元(ショート フィードからの再生の割合)も記録する。Analytics の数字は2〜3日遅れて出る。
+  トークンにこのスコープがない(get_youtube_refresh_token.py で取り直す前の)ときは、その部分だけ飛ばす
+
 使い方: python stats.py   (--dry-run で API を呼ばずに stats.md だけ作り直す)
 """
 import argparse
@@ -30,12 +34,14 @@ STATS = ROOT / "stats.json"
 REPORT = ROOT / "stats.md"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
+ANALYTICS_URL = "https://youtubeanalytics.googleapis.com/v2/reports"
+TRAFFIC_DAYS = 28                                  # 流入元の表に出す日数
 TZ = ZoneInfo("Asia/Tokyo")
 MARKS = {"day1": 24, "day3": 72, "day7": 168}     # 名前: 投稿からの時間(h)
 LATE_H = 36                                        # この時間を過ぎて測った値は、その時点の値としては残さない
 COMPARE = "day3"                                   # 比べるのに使う時点
 # 集計に使う upload_history.json の項目(あるものだけ使う)
-GROUP_KEYS = ["title_style", "variant", "has_face", "source", "format", "category"]
+GROUP_KEYS = ["title_style", "variant", "has_face", "source", "format", "category", "ending"]
 
 
 def http(url, data=None, headers=None):
@@ -68,6 +74,47 @@ def fetch(token, ids):
             out[it["id"]] = {k: int(s.get(f, 0)) for k, f in
                              (("views", "viewCount"), ("likes", "likeCount"), ("comments", "commentCount"))}
     return out
+
+
+def analytics_query(token, **params):
+    """YouTube Analytics API の reports。[{列名: 値}] を返す。"""
+    q = urllib.parse.urlencode({"ids": "channel==MINE", **params})
+    res = http(f"{ANALYTICS_URL}?{q}", headers={"Authorization": f"Bearer {token}"})
+    cols = [c["name"] for c in res.get("columnHeaders", [])]
+    return [dict(zip(cols, row)) for row in res.get("rows", [])]
+
+
+def fetch_analytics(token, history, now):
+    """(動画ごとの数字 {video_id: {...}}, 日別の流入元 {日付: {流入元: 再生数}}, 説明)。使えなければ空と理由。"""
+    if not history:
+        return {}, {}, ""
+    first = min(datetime.fromisoformat(h["uploaded_at"]) for h in history).astimezone(TZ).date()
+    today = now.astimezone(TZ).date()
+    per_video, traffic, notes = {}, {}, []
+    try:
+        for metrics in ("views,averageViewPercentage,averageViewDuration,subscribersGained",
+                        "views,averageViewDuration,subscribersGained"):
+            try:
+                rows = analytics_query(token, startDate=first.isoformat(), endDate=today.isoformat(),
+                                       metrics=metrics, dimensions="video", sort="-views", maxResults=200)
+                break
+            except urllib.error.HTTPError as e:
+                if e.code != 400 or "averageViewPercentage" not in metrics:
+                    raise
+                notes.append("平均視聴割合は取れなかった(この組み合わせは API が受け付けない)")
+        for r in rows:
+            per_video[r["video"]] = {k: r[k] for k in r if k != "video"}
+        start = datetime.fromtimestamp(now.timestamp() - TRAFFIC_DAYS * 86400, TZ).date()
+        for r in analytics_query(token, startDate=start.isoformat(), endDate=today.isoformat(), metrics="views",
+                                 dimensions="day,insightTrafficSourceType", sort="day"):
+            traffic.setdefault(r["day"], {})[r["insightTrafficSourceType"]] = r["views"]
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode(errors="replace")[:200]
+        if e.code in (401, 403):
+            return {}, {}, ("YouTube Analytics の数字は取っていない(トークンに yt-analytics.readonly のスコープがないか、"
+                            "YouTube Analytics API が有効になっていない)")
+        return per_video, traffic, f"YouTube Analytics の取得に失敗 (HTTP {e.code}): {detail}"
+    return per_video, traffic, " / ".join(notes)
 
 
 def update(stats, history, current, now):
@@ -112,22 +159,24 @@ def report(stats, history, now):
     def table(title, key_fn):
         groups = {}
         for h, rec in rows:
-            g = groups.setdefault(key_fn(h), ([], []))
+            g = groups.setdefault(key_fn(h), ([], [], []))
             if COMPARE in rec:
                 g[0].append(rec[COMPARE]["views"])
             if "latest" in rec:
                 g[1].append(rec["latest"]["views"])
+            if "averageViewPercentage" in rec.get("analytics", {}):
+                g[2].append(rec["analytics"]["averageViewPercentage"])
         groups = {k: v for k, v in groups.items() if v[0] or v[1]}
         if not groups:
             return
         mean = lambda v: f"{statistics.mean(v):.0f}" if v else ""
         lines.extend([f"## {title}", "",
-                      f"| 値 | {COMPARE[3:]}日目の本数 | 平均 | 中央値 | 最新の本数 | 最新の平均(参考) |",
-                      "|---|---:|---:|---:|---:|---:|"])
+                      f"| 値 | {COMPARE[3:]}日目の本数 | 平均 | 中央値 | 最新の本数 | 最新の平均(参考) | 平均視聴割合(%) |",
+                      "|---|---:|---:|---:|---:|---:|---:|"])
         order = lambda kv: (-statistics.mean(kv[1][0]) if kv[1][0] else 0, -len(kv[1][1]))
-        for k, (a, b) in sorted(groups.items(), key=order):
+        for k, (a, b, c) in sorted(groups.items(), key=order):
             med = f"{statistics.median(a):.0f}" if a else ""
-            lines.append(f"| {k} | {len(a)} | {mean(a)} | {med} | {len(b)} | {mean(b)} |")
+            lines.append(f"| {k} | {len(a)} | {mean(a)} | {med} | {len(b)} | {mean(b)} | {mean(c)} |")
         lines.append("")
 
     table("全体", lambda h: "すべて")
@@ -136,9 +185,22 @@ def report(stats, history, now):
             table(key, lambda h, key=key: h.get(key, "(なし)"))
     table("投稿の時間帯", slot)
 
+    traffic = stats.get("_traffic") or {}
+    if traffic:
+        lines.extend([f"## 日別の再生と流入元(直近{TRAFFIC_DAYS}日、YouTube Analytics。2〜3日遅れ)", "",
+                      "| 日付 | 再生(全体) | ショート フィード | 割合 |", "|---|---:|---:|---:|"])
+        for day in sorted(traffic, reverse=True):
+            src = traffic[day]
+            total = sum(src.values())
+            sf = src.get("SHORTS", 0)
+            lines.append(f"| {day} | {total} | {sf} | {sf / total * 100:.0f}% |" if total else f"| {day} | 0 | 0 | |")
+        lines.append("")
+    if stats.get("_analytics_note"):
+        lines.extend([f"(Analytics: {stats['_analytics_note']})", ""])
+
     lines.extend(["## 動画ごと(新しい順)", "",
-                  "| # | 答え | 投稿(JST) | 1日目 | 3日目 | 7日目 | 最新 | 高評価 | コメント |",
-                  "|---:|---|---|---:|---:|---:|---:|---:|---:|"])
+                  "| # | 答え | 投稿(JST) | 1日目 | 3日目 | 7日目 | 最新 | 高評価 | コメント | 平均視聴割合 | 登録者+ |",
+                  "|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"])
     for h, rec in reversed(rows):
         v = lambda name: str(rec[name]["views"]) if name in rec else ""
         last = rec.get("latest", {})
@@ -147,8 +209,11 @@ def report(stats, history, now):
         url = f"https://youtube.com/shorts/{h['video_id']}" if h.get("video_id") else ""
         num = f"[{h['number']}]({url})" if url else str(h["number"])
         flag = " (見られない)" if rec.get("missing") else ""
+        an = rec.get("analytics", {})
+        avp = f"{an['averageViewPercentage']:.0f}%" if "averageViewPercentage" in an else ""
         lines.append(f"| {num} | {answer}{flag} | {when} | {v('day1')} | {v('day3')} | {v('day7')} | "
-                     f"{last.get('views', '')} | {last.get('likes', '')} | {last.get('comments', '')} |")
+                     f"{last.get('views', '')} | {last.get('likes', '')} | {last.get('comments', '')} | "
+                     f"{avp} | {an.get('subscribersGained', '')} |")
     return "\n".join(lines) + "\n"
 
 
@@ -161,8 +226,18 @@ def main():
     now = datetime.now(timezone.utc)
     if not args.dry_run:
         ids = [h["video_id"] for h in history if h.get("video_id")]
-        current = fetch(access_token(), ids) if ids else {}
+        token = access_token()
+        current = fetch(token, ids) if ids else {}
         update(stats, history, current, now)
+        per_video, traffic, note = fetch_analytics(token, history, now)
+        for h in history:
+            if h.get("video_id") in per_video:
+                stats.setdefault(str(h["number"]), {})["analytics"] = {**per_video[h["video_id"]],
+                                                                        "at": now.isoformat(timespec="seconds")}
+        if traffic:
+            stats["_traffic"] = traffic
+        stats["_analytics_note"] = note
+        print(f"Analytics: 動画 {len(per_video)} 本、流入元 {len(traffic)} 日分" + (f"({note})" if note else ""))
         STATS.write_text(json.dumps(stats, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
         print(f"{len(current)}/{len(ids)} 本の数字を取りました")
     text = report(stats, history, now)

@@ -26,7 +26,7 @@ class Timeline:
     """各場面の始まる時刻(秒)。ナレーションがあるときは、声の長さから narration.py が決める。"""
 
     def __init__(self, pull=(0.5, 3.2), choices=(3.0, 3.35, 3.7), timer=(4.0, 8.0), reveal=8.2,
-                 info=(8.8, 9.3, 9.8), outro=None, end=DEFAULT_SECONDS, hook=False):
+                 info=(8.8, 9.3, 9.8), outro=None, end=DEFAULT_SECONDS, hook=False, loop=None):
         self.pull = pull          # 引いていく区間
         self.choices = choices    # 選択肢が1つずつ出る時刻
         self.timer = timer        # 残り時間のバー
@@ -36,6 +36,9 @@ class Timeline:
         self.end = end            # 動画の長さ
         # フック版: 選択肢と残り時間のバーを最初のコマから出し、choices の時刻には選択肢を軽く弾ませる
         self.hook = hook
+        # 最後に、冒頭と同じ拡大した場面へ戻る区間 (開始, 終わり)。Shorts は最後まで見られると頭から
+        # くり返されるので、最後のコマを最初のコマに近づけて、つながりを自然にする(くり返し再生を増やす)
+        self.loop = loop
 
     def as_dict(self):
         r = lambda v: [round(x, 2) for x in v] if isinstance(v, (tuple, list)) else (None if v is None else round(v, 2))
@@ -352,16 +355,24 @@ class Quiz:
         u, v, dw, dh = self.detail
         fx, fy, fw, fh = self.final_rect
         p0, p1 = self.tl.pull
-        e = A.ease((t - p0) / (p1 - p0))
+        lp = self.loop_amount(t)
+        e = A.ease((t - p0) / (p1 - p0)) * (1 - lp)
         # 開始:拡大範囲が画面を覆う大きさ。少しずつ引き始める(0〜0.5秒もわずかに動かす)
         w0 = max(W / dw, H / dh * (fw / fh))
-        w0 *= 1.06 - 0.06 * min(1.0, max(0.0, t) / p0)
+        w0 *= 1.06 - 0.06 * min(1.0, max(0.0, t) / p0) * (1 - lp)
         w = math.exp(lerp(math.log(w0), math.log(fw), e))
         h = w * fh / fw
         # 拡大中心 (u,v) が、画面中央から最終位置へ移る
         px = lerp(W / 2, fx + u * fw, e)
         py = lerp(H / 2, fy + v * fh, e)
         return px - u * w, py - v * h, w, h, e
+
+    def loop_amount(self, t):
+        """最後の区間で 0 → 1(冒頭の場面に戻る度合い)。"""
+        if not self.tl.loop:
+            return 0.0
+        l0, l1 = self.tl.loop
+        return A.ease((t - l0) / (l1 - l0))
 
     def draw_art(self, frame, rect):
         x, y, w, h = rect
@@ -405,14 +416,15 @@ class Quiz:
 
         # 問い
         tl = self.tl
-        oa = A.ease((t - tl.outro) / 0.4) if tl.outro is not None else 0
+        lp = self.loop_amount(t)
+        oa = (A.ease((t - tl.outro) / 0.4) if tl.outro is not None else 0) * (1 - lp)
         frame.alpha_composite(self.q_kicker, (0, 130))
         if oa < 1:
             frame.alpha_composite(with_alpha(self.q_main, 1 - oa), (0, 178))
         if oa > 0:
             frame.alpha_composite(with_alpha(self.q_outro, oa), (0, 178))
         # 出典(引き終わってから額縁の下に)
-        ca = A.ease((t - tl.pull[1]) / 0.4)
+        ca = A.ease((t - tl.pull[1]) / 0.4) * (1 - lp)
         if ca > 0:
             fy_bottom = self.frame_xy[1] + self.frame.height
             frame.alpha_composite(with_alpha(self.credit, ca), (0, fy_bottom + 2))
@@ -421,7 +433,7 @@ class Quiz:
         n = len(self.choices)
         total = n * CHOICE_W + (n - 1) * CHOICE_GAP
         for i, p in enumerate(self.pills):
-            a = 1.0 if tl.hook else A.ease((t - tl.choices[i]) / 0.3)
+            a = (1.0 if tl.hook else A.ease((t - tl.choices[i]) / 0.3)) * (1 - lp)
             if a <= 0:
                 continue
             px = int(CHOICE_CX - total / 2 + i * (CHOICE_W + CHOICE_GAP)) - 10
@@ -439,7 +451,7 @@ class Quiz:
                 pr = self.pill_right
                 if pop != 1:
                     pr = pr.resize((int(pr.width * pop), int(pr.height * pop)), Image.BICUBIC)
-                frame.alpha_composite(with_alpha(pr, r), (px - (pr.width - p.width) // 2,
+                frame.alpha_composite(with_alpha(pr, r * (1 - lp)), (px - (pr.width - p.width) // 2,
                                                           py - (pr.height - p.height) // 2))
             else:
                 frame.alpha_composite(with_alpha(p, a * (1 - 0.65 * r)), (px, py))
@@ -459,7 +471,7 @@ class Quiz:
 
         # 答え合わせ:題名・作者・年
         for i, layer in enumerate(self.info):
-            a = A.ease((t - tl.info[i]) / 0.6)
+            a = A.ease((t - tl.info[i]) / 0.6) * (1 - lp)
             if a > 0:
                 frame.alpha_composite(with_alpha(layer, a), (TEXT_X, self.info_y[i] - 8))
         return frame.convert("RGB")

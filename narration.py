@@ -39,6 +39,9 @@ TTS_URL = "https://texttospeech.googleapis.com/v1/text:synthesize"
 # ---------------------------------------------------------------- 台本
 
 
+TAIL = 0.4          # 最後の読み上げのあとの間(秒)。以前は 1.0(2026-11-21 に短くした)
+LOOP_SEC = 1.1      # 最後のこの秒数で、冒頭の拡大した場面に戻る(quiz.Timeline.loop)
+
 def spoken_year(label):
     """画面の表記を読み上げ用に。"50 BC" → "50 B.C."、"AD 224" → "A.D. 224"。"""
     if label.endswith(" BC"):
@@ -255,12 +258,13 @@ def build(art, q, tts, hook=False):
         by_t = at["info"] + 0.4
     info = (at["info"], by_t, at["info"] + dur["info"])
     at["outro"] = at["info"] + dur["info"] + 0.7
-    end = at["outro"] + dur["outro"] + 1.0
+    end = at["outro"] + dur["outro"] + TAIL
+    loop = (end - LOOP_SEC, end)
 
     if hook:
         timer = (0.0, timer[1])     # 残り時間のバーは最初のコマから、答えの直前まで
     tl = quiz.Timeline(pull=pull, choices=tuple(at[f"c{i}"] for i in range(3)), timer=timer,
-                       reveal=reveal, info=info, outro=at["outro"], end=end, hook=hook)
+                       reveal=reveal, info=info, outro=at["outro"], end=end, hook=hook, loop=loop)
 
     n = int(math.ceil(end * SR))
     voice = np.zeros(n, np.float32)
