@@ -872,5 +872,28 @@
    "1872"
   ],
   "answer": 2
+ },
+ {
+  "number": 39,
+  "slug": "39-sahurs-meadows-in-morning-sun",
+  "video_id": "Hw6NkzyXeq8",
+  "uploaded_at": "2026-11-21T13:19:04+00:00",
+  "title": "Sahurs Meadows in Morning Sun",
+  "artist": "Alfred Sisley",
+  "artist_bio": "British, Paris 1839–1899 Moret-sur-Loing",
+  "artist_unknown": false,
+  "date": "1894",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/437683",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-20336-001.jpg",
+  "source": "met",
+  "id": "437683",
+  "choices": [
+   "1894",
+   "1695",
+   "1964"
+  ],
+  "answer": 0
  }
 ]
