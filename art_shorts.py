@@ -1125,6 +1125,7 @@ def main():
                      "artist": art.get("famous_artist") or art.get("artist"),
                      "variant": "hook" if args.hook else "base",
                      "has_face": art.get("has_face"),
+                     "ending": "loop",          # 最後に冒頭の場面へ戻る終わり方(2026-11-21〜。stats.md で比べる)
                      "site": site_fields(art),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
