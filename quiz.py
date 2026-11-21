@@ -282,13 +282,20 @@ def lerp(a, b, t):
 
 
 class Quiz:
-    def __init__(self, art, img, rng, max_year, timeline=None):
+    def __init__(self, art, img, rng, max_year, timeline=None, fashion=None):
+        """fashion: fashion.ITEMS の1件なら「服装から当てる」回(世紀の3択・服だけを映す冒頭・手がかりの一文)。"""
         self.art = art
+        self.fashion = fashion
         self.tl = timeline or Timeline()
         self.answer = quiz_year(art)
         if self.answer is None:
             raise ValueError("この作品には、クイズに使える制作年がありません")
-        self.choices, self.correct = make_choices(self.answer, rng, max_year)
+        if fashion:
+            import fashion as F
+            self.fashion_labels, self.correct = F.choices(self.answer, rng)
+            self.choices = [int(x[:-1]) for x in self.fashion_labels]
+        else:
+            self.choices, self.correct = make_choices(self.answer, rng, max_year)
 
         self.bg = A.make_background(img, (W, H)).convert("RGBA")
         # 上部を暗くして問いを読みやすくする(拡大中は作品の上に重なる)
@@ -314,7 +321,11 @@ class Quiz:
         # 冒頭の拡大:画像の画素が足りる範囲で、作品の幅の 22% 前後を画面いっぱいに
         sw, shh = img.size
         crop_frac = max(0.22, (W / 2.4) / sw)
-        *self.detail, self.detail_kind = pick_detail(img, min(crop_frac, 0.9), rng)
+        if fashion:
+            import fashion as F
+            *self.detail, self.detail_kind = F.detail(fashion, img)
+        else:
+            *self.detail, self.detail_kind = pick_detail(img, min(crop_frac, 0.9), rng)
         # 縮小した画像を何段か用意し、表示の大きさに近いものから切り出す(毎フレームの処理を軽くする)
         self.pyramid = [img]
         while max(self.pyramid[-1].size) > 900:
@@ -322,13 +333,15 @@ class Quiz:
             self.pyramid.append(p.resize((p.width // 2, p.height // 2), Image.LANCZOS))
 
         # 文字
-        self.q_kicker = text_layer(["TODAY'S ART QUIZ"], A.font(A.SANS_BOLD, 30), GOLD, W)
-        self.q_main = text_layer(["When was this painted?"], A.font(A.SANS_BOLD, 66), WHITE, W)
+        self.q_kicker = text_layer(["FASHION CLUE QUIZ" if fashion else "TODAY'S ART QUIZ"], A.font(A.SANS_BOLD, 30),
+                                   GOLD, W)
+        self.q_main = text_layer(["Which century? Check the clothes!" if fashion else "When was this painted?"],
+                                 A.font(A.SANS_BOLD, 56 if fashion else 66), WHITE, W)
         self.q_outro = text_layer(["How did you do?"], A.font(A.SANS_BOLD, 66), WHITE, W)
         credit = f"{art['museum']} · Public Domain (CC0)"
         self.credit = text_layer([credit], A.font(A.SANS, 24), (215, 210, 200, 230), W, shadow=160)
         f_choice = A.font(A.SANS_BOLD, 46)
-        self.labels = choice_labels(self.choices)
+        self.labels = self.fashion_labels if fashion else choice_labels(self.choices)
         self.pills = [pill(lb, f_choice, (20, 20, 24, 215), WHITE, outline=(255, 255, 255, 120))
                       for lb in self.labels]
         self.pill_right = pill(self.labels[self.correct], f_choice, GOLD + (255,), (25, 20, 10))
@@ -346,7 +359,8 @@ class Quiz:
                                         align="left"))
         # 答えの年を、だれでも知っている出来事と比べる一文(timeline_facts.py。画面だけ)
         import timeline_facts
-        fact = timeline_facts.fact(art, quiz_year(art))
+        # 「服装」の回は、出来事との比較の代わりに、服装の手がかりの一文
+        fact = fashion["clue"] if fashion else timeline_facts.fact(art, quiz_year(art))
         if fact:
             f = A.font(A.SANS_BOLD, 30)
             self.info.append(text_layer(A.wrap(fact, f, TEXT_W, 2), f, GOLD + (255,), TEXT_W, align="left"))
