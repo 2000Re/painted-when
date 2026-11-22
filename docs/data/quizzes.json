@@ -895,5 +895,28 @@
    "1964"
   ],
   "answer": 0
+ },
+ {
+  "number": 40,
+  "slug": "40-amedee-david-the-comte-de-pastoret",
+  "video_id": "-JdSTpKtupI",
+  "uploaded_at": "2026-11-22T01:19:00+00:00",
+  "title": "Amédée-David, the Comte de Pastoret",
+  "artist": "Jean-Auguste-Dominique Ingres",
+  "artist_bio": "French, 1780-1867",
+  "artist_unknown": false,
+  "date": "1823–26",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/111317",
+  "image": "https://www.artic.edu/iiif/2/8d119fd0-2f57-f20e-a3f5-a573904001e9/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "111317",
+  "choices": [
+   "1600s",
+   "1700s",
+   "1800s"
+  ],
+  "answer": 2
  }
 ]

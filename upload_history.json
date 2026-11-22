@@ -570,5 +570,23 @@
     "video_id": "Hw6NkzyXeq8",
     "privacy": "public",
     "uploaded_at": "2026-11-21T13:19:04+00:00"
+  },
+  {
+    "number": 40,
+    "key": "aic:111317",
+    "source": "aic",
+    "id": "111317",
+    "date": "2026-11-22",
+    "title": "[40] Fashion detectives: guess the century of this painting 👒",
+    "answer": "1800s",
+    "artist": "Jean-Auguste-Dominique Ingres",
+    "variant": "base",
+    "has_face": null,
+    "title_style": "fashion_detective",
+    "ending": "loop_short",
+    "format": "fashion",
+    "video_id": "-JdSTpKtupI",
+    "privacy": "public",
+    "uploaded_at": "2026-11-22T01:19:00+00:00"
   }
 ]
