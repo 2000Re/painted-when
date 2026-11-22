@@ -918,5 +918,28 @@
    "1800s"
   ],
   "answer": 2
+ },
+ {
+  "number": 41,
+  "slug": "41-pandora",
+  "video_id": "Sy5tFxscHd8",
+  "uploaded_at": "2026-11-22T13:18:49+00:00",
+  "title": "Pandora",
+  "artist": "Odilon Redon",
+  "artist_bio": "French, Bordeaux 1840–1916 Paris",
+  "artist_unknown": false,
+  "date": "ca. 1914",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/437383",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-20339-001.jpg",
+  "source": "met",
+  "id": "437383",
+  "choices": [
+   "1909",
+   "1713",
+   "1791"
+  ],
+  "answer": 0
  }
 ]
