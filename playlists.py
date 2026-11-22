@@ -15,6 +15,7 @@
 import argparse
 import json
 import sys
+import time
 import urllib.error
 import urllib.parse
 from pathlib import Path
@@ -98,9 +99,17 @@ class Playlists:
             pid = self.get(title, desc)
             if video_id in self.videos(pid):
                 continue
-            _call(self.token, f"{ITEMS_URL}?part=snippet", {
-                "snippet": {"playlistId": pid, "resourceId": {"kind": "youtube#video", "videoId": video_id}},
-            }, method="POST")
+            body = {"snippet": {"playlistId": pid, "resourceId": {"kind": "youtube#video", "videoId": video_id}}}
+            # 作ったばかりの再生リストなどで、YouTube が一時的に 409(SERVICE_UNAVAILABLE / ABORTED)や 5xx を返すことが
+            # ある(2026-11-22 のまとめ入れで確認)。間をあけて数回やり直す
+            for attempt in range(5):
+                try:
+                    _call(self.token, f"{ITEMS_URL}?part=snippet", body, method="POST")
+                    break
+                except RuntimeError as e:
+                    if attempt == 4 or not str(e).startswith(("HTTP 409", "HTTP 5")):
+                        raise
+                    time.sleep(2 ** (attempt + 1))
             self.members[pid].add(video_id)
             added.append(title)
         return added
