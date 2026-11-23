@@ -1,5 +1,8 @@
 """Painted When? の再生リストの決め方(playlists.py が使う)。"""
-HISTORIES = ["upload_history.json"]
+HISTORIES = ["upload_history.json", "longform_history.json"]
+
+LONG = ("Art History Timeline Challenge: Full Quizzes",
+        "10 famous paintings in every episode: guess when each was painted, then see them on a timeline.")
 
 ALL = ("Guess the Year: Famous Paintings Art Quiz",
        "When was this painted? A short art history quiz with famous public-domain paintings.")
@@ -8,4 +11,6 @@ FASHION = ("Fashion Clues: Date the Painting by the Clothes",
 
 
 def for_record(rec):
+    if "keys" in rec:                       # longform_history.json(通常動画)
+        return [LONG]
     return [FASHION if rec.get("format") == "fashion" else ALL]
