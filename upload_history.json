@@ -624,5 +624,23 @@
     "video_id": "Lp_u6NBaOws",
     "privacy": "public",
     "uploaded_at": "2026-11-23T01:19:07+00:00"
+  },
+  {
+    "number": 43,
+    "key": "met:436946",
+    "source": "met",
+    "id": "436946",
+    "date": "2026-11-23",
+    "title": "[43] Which year was this painted? Take a guess 🎨",
+    "answer": "1870",
+    "artist": "Édouard Manet",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "which_year",
+    "ending": "loop_short",
+    "format": "year",
+    "video_id": "x8KA4jIt2Ts",
+    "privacy": "public",
+    "uploaded_at": "2026-11-23T04:18:58+00:00"
   }
 ]

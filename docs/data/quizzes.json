@@ -964,5 +964,28 @@
    "1741"
   ],
   "answer": 1
+ },
+ {
+  "number": 43,
+  "slug": "43-the-brioche",
+  "video_id": "x8KA4jIt2Ts",
+  "uploaded_at": "2026-11-23T04:18:58+00:00",
+  "title": "The Brioche",
+  "artist": "Édouard Manet",
+  "artist_bio": "French, Paris 1832–1883 Paris",
+  "artist_unknown": false,
+  "date": "1870",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/436946",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-13655-001.jpg",
+  "source": "met",
+  "id": "436946",
+  "choices": [
+   "1761",
+   "1937",
+   "1870"
+  ],
+  "answer": 2
  }
 ]
