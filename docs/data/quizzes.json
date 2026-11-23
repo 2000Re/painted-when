@@ -941,5 +941,28 @@
    "1791"
   ],
   "answer": 0
+ },
+ {
+  "number": 42,
+  "slug": "42-study-of-two-bedouins",
+  "video_id": "Lp_u6NBaOws",
+  "uploaded_at": "2026-11-23T01:19:07+00:00",
+  "title": "Study of Two Bedouins",
+  "artist": "John Singer Sargent",
+  "artist_bio": "American, 1856–1925",
+  "artist_unknown": false,
+  "date": "1905–6",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/145808",
+  "image": "https://www.artic.edu/iiif/2/8bc3f527-bd34-f951-5618-3500dd2ac665/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "145808",
+  "choices": [
+   "1974",
+   "1905",
+   "1741"
+  ],
+  "answer": 1
  }
 ]
