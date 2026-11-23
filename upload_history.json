@@ -642,5 +642,23 @@
     "video_id": "x8KA4jIt2Ts",
     "privacy": "public",
     "uploaded_at": "2026-11-23T04:18:58+00:00"
+  },
+  {
+    "number": 44,
+    "key": "aic:5848",
+    "source": "aic",
+    "id": "5848",
+    "date": "2026-11-24",
+    "title": "[44] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1640",
+    "artist": "Nicolas Poussin",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "classic",
+    "ending": "loop_short",
+    "format": "year",
+    "video_id": "vIsrBVXk1Pg",
+    "privacy": "public",
+    "uploaded_at": "2026-11-23T16:18:59+00:00"
   }
 ]

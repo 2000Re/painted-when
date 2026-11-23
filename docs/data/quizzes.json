@@ -987,5 +987,28 @@
    "1870"
   ],
   "answer": 2
+ },
+ {
+  "number": 44,
+  "slug": "44-landscape-with-saint-john-on-patmos",
+  "video_id": "vIsrBVXk1Pg",
+  "uploaded_at": "2026-11-23T16:18:59+00:00",
+  "title": "Landscape with Saint John on Patmos",
+  "artist": "Nicolas Poussin",
+  "artist_bio": "French, 1594–1665",
+  "artist_unknown": false,
+  "date": "1640",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/5848",
+  "image": "https://www.artic.edu/iiif/2/aa870b0d-5a1b-660a-6dc6-56c12109cf6e/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "5848",
+  "choices": [
+   "1525",
+   "1640",
+   "1700"
+  ],
+  "answer": 1
  }
 ]
