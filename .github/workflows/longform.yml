@@ -1,0 +1,119 @@
+name: longform
+
+# 通常動画(横長)「Art History Timeline Challenge」を週1本作って投稿する(longform.py)。
+# 時刻がずれても困らないので、GitHub 自身の定期実行(schedule)で動かす。毎週水曜 10:13 UTC(19:13 JST)ごろ。遅れることがある。
+# 定期実行は、リポジトリ変数 LONGFORM_AUTO が true のときだけ動く(最初は手動で試してから true にする)
+on:
+  schedule:
+    - cron: "13 10 * * 3"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "動画の生成だけ行い、投稿しない(Artifacts から動画を確認できる)"
+        type: boolean
+        default: false
+      privacy:
+        description: "公開設定"
+        type: choice
+        options: [public, unlisted, private]
+        default: unlisted
+
+concurrency:
+  group: longform
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  generate:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.LONGFORM_AUTO == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+      - run: pip install -r requirements.txt
+      - name: Generate video
+        env:
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+        run: python longform.py --history longform_history.json --tts google --out out_long
+      - uses: actions/upload-artifact@v4
+        with:
+          name: longform
+          path: out_long/
+          retention-days: 14
+
+  upload:
+    needs: generate
+    if: ${{ !inputs.dry_run }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      token_invalid: ${{ steps.upload.outputs.token_invalid }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: longform
+          path: out_long
+      - name: Upload to YouTube
+        id: upload
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
+          # 定期実行は public、手動実行は選んだ公開設定(既定は unlisted)
+          PRIVACY: ${{ inputs.privacy || 'public' }}
+        run: python longform.py --upload --dir out_long --history longform_history.json --privacy "$PRIVACY"
+      - name: Commit history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add longform_history.json
+          git commit -m "Long video #$(python -c 'import json;print(json.load(open("out_long/meta.json"))["number"])')"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1
+
+  notify-failure:
+    needs: [generate, upload]
+    if: ${{ failure() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Open or update an issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TOKEN_INVALID: ${{ needs.upload.outputs.token_invalid }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ "$TOKEN_INVALID" = "true" ]; then
+            label=token-invalid
+            title="YouTubeのリフレッシュトークンが無効になりました"
+            body="READMEの「リフレッシュトークンの取得」の手順で再取得し、Secretsの YT_REFRESH_TOKEN を更新してください。"
+          else
+            label=longform-failure
+            title="通常動画(Art History Timeline Challenge)の自動投稿が失敗しました"
+            body="ログを確認してください。"
+          fi
+          gh label create "$label" --color d73a4a --force >/dev/null
+          existing=$(gh issue list --label "$label" --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "再発: $RUN_URL"
+          else
+            gh issue create --label "$label" --title "$title" --body "$body"$'\n\n'"$RUN_URL"
+          fi

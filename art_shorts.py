@@ -944,6 +944,16 @@ SISTERS = [
 ]
 
 
+def latest_long():
+    """いちばん新しい公開の通常動画(Art History Timeline Challenge)の (番号, URL)。なければ None。"""
+    try:
+        hist = json.loads((HERE / "longform_history.json").read_text() or "[]")
+    except (OSError, ValueError):
+        return None
+    pub = [h for h in hist if h.get("video_id") and h.get("privacy") == "public"]
+    return (pub[-1]["number"], f"https://youtu.be/{pub[-1]['video_id']}") if pub else None
+
+
 def youtube_meta(art, number, history=()):
     """クイズ動画のタイトル・説明文・タグ。答えは説明文の下の方にだけ書く(タイトルには書かない)。"""
     qz = art["quiz"]
@@ -983,6 +993,8 @@ def youtube_meta(art, number, history=()):
         "",
         f"Image: {art['museum']}, Public Domain (CC0). This channel is not affiliated with the museum.",
         "",
+        *([f"▶️ Try the full 10-painting Art History Timeline Challenge #{latest_long()[0]}: {latest_long()[1]}", ""]
+          if latest_long() else []),
         "More quizzes from the same creator:",
         *[f"{t}: {u}" for t, u in SISTERS],
         "",
@@ -1116,6 +1128,11 @@ def main():
         else:
             used = load_used(used_path) + [{"source": h["source"], "id": h["id"]}
                                            for h in history]
+            # 通常動画(longform.py)で使った作品も選ばない
+            lp = HERE / "longform_history.json"
+            if lp.exists():
+                used += [{"source": k.split(":")[0], "id": k.split(":", 1)[1]}
+                         for h in json.loads(lp.read_text() or "[]") for k in h.get("keys", [])]
             if args.any_artist:
                 art = choose_artwork(src, rng, used, today, accept)
             else:
