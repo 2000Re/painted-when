@@ -118,7 +118,7 @@ def script(art, labels, correct, hook=False):
         "ans": f"It's {ys[correct]}!",
         # 作品名・作者・年代の話は読み上げず、画面に出すだけ(2026-11-21〜。答えのあとに離れる人が多かったので短くした。
         # 以前は「<作品名>, by <作者>. <何歳ごろ>」を読んでいた。age_fact は説明欄で使う)
-        "outro": vary(number, "outro"),
+        "outro": (art.get("teaser") or {}).get("outro") or vary(number, "outro"),
     }
 
 
