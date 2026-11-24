@@ -1010,5 +1010,28 @@
    "1700"
   ],
   "answer": 1
+ },
+ {
+  "number": 45,
+  "slug": "45-portrait-of-a-woman",
+  "video_id": "L4_exBgsavM",
+  "uploaded_at": "2026-11-24T04:59:48+00:00",
+  "title": "Portrait of a Woman",
+  "artist": "John Wollaston",
+  "artist_bio": "American, born England, c. 1710–c. 1775",
+  "artist_unknown": false,
+  "date": "1749–52",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/79765",
+  "image": "https://www.artic.edu/iiif/2/b4d42569-997a-6d5e-0d21-67956efbd56e/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "79765",
+  "choices": [
+   "1700s",
+   "1800s",
+   "1900s"
+  ],
+  "answer": 0
  }
 ]

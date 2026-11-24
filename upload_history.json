@@ -660,5 +660,23 @@
     "video_id": "vIsrBVXk1Pg",
     "privacy": "public",
     "uploaded_at": "2026-11-23T16:18:59+00:00"
+  },
+  {
+    "number": 45,
+    "key": "aic:79765",
+    "source": "aic",
+    "id": "79765",
+    "date": "2026-11-24",
+    "title": "[45] Can you date this painting from the clothes alone? 👗",
+    "answer": "1700s",
+    "artist": "John Wollaston",
+    "variant": "base",
+    "has_face": null,
+    "title_style": "fashion_clothes",
+    "ending": "loop_short",
+    "format": "fashion",
+    "video_id": "L4_exBgsavM",
+    "privacy": "public",
+    "uploaded_at": "2026-11-24T04:59:48+00:00"
   }
 ]
