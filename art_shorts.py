@@ -950,7 +950,9 @@ def latest_long():
         hist = json.loads((HERE / "longform_history.json").read_text() or "[]")
     except (OSError, ValueError):
         return None
-    pub = [h for h in hist if h.get("video_id") and h.get("privacy") == "public"]
+    now = datetime.now().astimezone()
+    pub = [h for h in hist if h.get("video_id") and h.get("privacy") == "public"      # 予約投稿で、まだ公開前の回は出さない
+           and (not h.get("publish_at") or datetime.fromisoformat(h["publish_at"].replace("Z", "+00:00")) <= now)]
     return (pub[-1]["number"], f"https://youtu.be/{pub[-1]['video_id']}") if pub else None
 
 
@@ -973,7 +975,8 @@ def teaser_plan(history, now=None):
     lg = max(hist, key=lambda x: x["number"])
     if any(h.get("teaser") == lg["number"] for h in history):
         return None
-    if (now - datetime.fromisoformat(lg["uploaded_at"])).total_seconds() > TEASER_DAYS * 86400:
+    start = datetime.fromisoformat((lg.get("publish_at") or lg["uploaded_at"]).replace("Z", "+00:00"))     # 予約投稿なら公開の時刻から
+    if now < start or (now - start).total_seconds() > TEASER_DAYS * 86400:
         return None
     used = {h.get("key") for h in history}
     keys = lg["keys"]
