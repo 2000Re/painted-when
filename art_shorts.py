@@ -954,6 +954,56 @@ def latest_long():
     return (pub[-1]["number"], f"https://youtu.be/{pub[-1]['video_id']}") if pub else None
 
 
+TEASER_DAYS = 3         # 通常動画を投稿してからこの日数のうちに、予告編の Short を1本出す
+
+
+def teaser_plan(history, now=None):
+    """(通常動画の番号, URL, 作品の key, 何問目, 問題の数) か None。
+    いちばん新しい通常動画(Art History Timeline Challenge)を投稿してから TEASER_DAYS 日以内で、まだ予告編を
+    出していなければ、その動画の作品から1点(最初の2問と、Shorts に出した作品は避ける)を選ぶ。"""
+    from datetime import timezone
+    now = now or datetime.now(timezone.utc)
+    try:
+        hist = json.loads((HERE / "longform_history.json").read_text() or "[]")
+    except (OSError, ValueError):
+        return None
+    hist = [h for h in hist if h.get("video_id")]
+    if not hist:
+        return None
+    lg = max(hist, key=lambda x: x["number"])
+    if any(h.get("teaser") == lg["number"] for h in history):
+        return None
+    if (now - datetime.fromisoformat(lg["uploaded_at"])).total_seconds() > TEASER_DAYS * 86400:
+        return None
+    used = {h.get("key") for h in history}
+    keys = lg["keys"]
+    for i in sorted(range(len(keys)), key=lambda i: (i < 2, i)):
+        if keys[i] not in used:
+            return lg["number"], f"https://youtu.be/{lg['video_id']}", keys[i], i + 1, len(keys)
+    return None
+
+
+def teaser_overlay(n_long, round_no, total, hide_at):
+    """冒頭の場面へ戻る直前の約2秒、上に「Painting 4 of 10 · Timeline Challenge #1 / Play all 10 paintings!」。"""
+    import quiz as _q
+    l1 = _q.text_layer([f"Painting {round_no} of {total} · Timeline Challenge #{n_long}"], font(SANS_BOLD, 38),
+                       (250, 246, 236, 255), 1080)
+    l2 = _q.text_layer([f"Play all {total} paintings!"], font(SANS_BOLD, 64), _q.GOLD + (255,), 1080)
+    hgt = l1.height + l2.height + 36
+    band = Image.new("RGBA", (1080, hgt), (0, 0, 0, 0))
+    ImageDraw.Draw(band).rounded_rectangle([40, 0, 1040, hgt], radius=28, fill=(20, 16, 24, 235),
+                                           outline=_q.GOLD + (220,), width=4)
+    band.alpha_composite(l1, (0, 12))
+    band.alpha_composite(l2, (0, 12 + l1.height))
+
+    def overlay(img, t):
+        a = ease((t - (hide_at - 2.4)) / 0.4) * (1 - ease((t - hide_at) / 0.3))
+        if a > 0:
+            img.alpha_composite(_q.with_alpha(band, a), (0, 110))
+        return img
+    return overlay
+
+
 def youtube_meta(art, number, history=()):
     """クイズ動画のタイトル・説明文・タグ。答えは説明文の下の方にだけ書く(タイトルには書かない)。"""
     qz = art["quiz"]
@@ -975,7 +1025,10 @@ def youtube_meta(art, number, history=()):
     import quiz as _quiz
     import timeline_facts
     then = timeline_facts.fact(art, _quiz.quiz_year(art))
+    tz = art.get("teaser")
     lines = [
+        *([f"▶️ This is painting {tz['round']} of Art History Timeline Challenge #{tz['long']}. "
+           f"Play all {tz['total']} paintings: {tz['url']}", ""] if tz else []),
         leads[number % len(leads)],
         "",
         "Choices: " + " / ".join(qz["choices"]),
@@ -1089,7 +1142,13 @@ def main():
 
     import fashion as F
     fashion_item = None
-    if style == "quiz" and not args.demo and not args.id:
+    # 通常動画の予告編の回(週1本)。服装の回より先にする(服装の回は次の5の倍数の回に出る)
+    teaser = teaser_plan(history) if style == "quiz" and args.history and not args.demo and not args.id else None
+    if teaser:
+        print(f"予告編: Art History Timeline Challenge #{teaser[0]} の {teaser[3]}問目 → {teaser[2]}")
+        args.source = teaser[2].split(":")[0]
+        args.hook = False
+    if style == "quiz" and not args.demo and not args.id and not teaser:
         if args.fashion and args.fashion != "auto":
             fashion_item = next((it for it in F.ITEMS if it["id"] == args.fashion), None)
             if not fashion_item:
@@ -1107,7 +1166,21 @@ def main():
     else:
         src = SOURCES[args.source]()
         print(f"[{args.source}] 作品を選んでいます(seed={seed})")
-        if fashion_item:
+        if teaser:
+            art = src.fetch(teaser[2].split(":", 1)[1])
+            if not art or not accept(art):
+                sys.exit(f"{teaser[2]} が使えません")
+            import artists
+            name = artists.find(art["artist"], art.get("artist_prefix", ""))
+            if name:
+                art["famous_artist"] = name
+            art["teaser"] = {"long": teaser[0], "url": teaser[1], "round": teaser[3], "total": teaser[4],
+                             "outro": f"That was painting {teaser[3]}. Want {teaser[4] - 1} more? "
+                                      "Tap the link to play the full challenge!"}
+            used = load_used(used_path)
+            record = not args.seed and not args.still and not any(
+                u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
+        elif fashion_item:
             art = src.fetch(fashion_item["id"])
             if not art or not accept(art):
                 sys.exit(f"{F.key(fashion_item)} が使えません(パブリックドメインでない・制作年の幅が広いなど)")
@@ -1172,6 +1245,10 @@ def main():
         size, thumb = (quiz.W, quiz.H), q.thumbnail()
         default_seconds = q.tl.end
         frame_at = lambda t: q.render(t, duration)
+        if art.get("teaser"):                   # 冒頭の場面へ戻る直前に、通常動画への案内を重ねる
+            tz = art["teaser"]
+            ov = teaser_overlay(tz["long"], tz["round"], tz["total"], q.tl.loop[0] if q.tl.loop else q.tl.end - 0.3)
+            frame_at = lambda t: ov(q.render(t, duration).convert("RGBA"), t).convert("RGB")  # noqa: E731
     else:
         L = Layout(art, img, args.format)
         size, thumb = L.size, thumbnail(L)
@@ -1198,7 +1275,8 @@ def main():
                      "variant": "hook" if args.hook else "base",
                      "has_face": art.get("has_face"),
                      "ending": "loop_short",
-                     "format": "fashion" if fashion_item else "year",   # 「服装から当てる」回(fashion.py)と比べる    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
+                     "format": "fashion" if fashion_item else "year",
+                     "teaser": teaser[0] if teaser else None,   # 予告編の回なら通常動画の番号   # 「服装から当てる」回(fashion.py)と比べる    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
                      "site": site_fields(art),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})
         (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))

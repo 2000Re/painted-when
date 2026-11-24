@@ -179,6 +179,7 @@ def main():
         "title_style": meta.get("title_style"),
         "ending": meta.get("ending"),
         "format": meta.get("format"),
+        "teaser": meta.get("teaser"),
         "video_id": video_id,
         "privacy": actual_privacy,
         "uploaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
