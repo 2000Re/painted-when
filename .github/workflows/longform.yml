@@ -1,11 +1,12 @@
 name: longform
 
 # 通常動画(横長)「Art History Timeline Challenge」を週1本作って投稿する(longform.py)。
-# 時刻がずれても困らないので、GitHub 自身の定期実行(schedule)で動かす。毎週水曜 10:13 UTC(19:13 JST)ごろ。遅れることがある。
+# GitHub 自身の定期実行(schedule)で、水曜 1:13 UTC(10:13 JST)ごろに作って非公開で上げ、19:13 JST に YouTube が公開する
+# (予約投稿。定期実行は数時間遅れることがあるので早めに作る。間に合わなければすぐ公開)。
 # 定期実行は、リポジトリ変数 LONGFORM_AUTO が true のときだけ動く(最初は手動で試してから true にする)
 on:
   schedule:
-    - cron: "13 10 * * 3"
+    - cron: "13 1 * * 3"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -76,7 +77,8 @@ jobs:
           YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
           # 定期実行は public、手動実行は選んだ公開設定(既定は unlisted)
           PRIVACY: ${{ inputs.privacy || 'public' }}
-        run: python longform.py --upload --dir out_long --history longform_history.json --privacy "$PRIVACY"
+          SCHEDULE: ${{ github.event_name == 'schedule' && '--schedule' || '' }}
+        run: python longform.py --upload --dir out_long --history longform_history.json --privacy "$PRIVACY" $SCHEDULE
       - name: Commit history
         run: |
           git config user.name "github-actions[bot]"

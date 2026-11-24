@@ -396,3 +396,13 @@ Wait, That Big? と同じ仕組み。
 - 最後の約2秒、上に「Painting 3 of 10 · Timeline Challenge #1 / Play all 10 paintings!」の帯を重ね、最後の一言は「That was painting N. Want M more? Tap the link to play the full challenge!」
 - 説明欄の1行目に通常動画のリンク。投稿記録の `teaser` に通常動画の番号が入る(同じ回の予告編は1本だけ)
 - **YouTube Studio で、その Short の「関連動画」に通常動画を設定する**(API ではできない。画面にタップできるリンクが出る)
+
+## 通常動画の予約投稿(2026-11-24〜、`longform.scheduled_publish`)
+
+GitHub の定期実行は数時間遅れることがあるので、通常動画は水曜 1:13 UTC(10:13 JST)ごろに作って非公開で上げ、
+水曜 19:13 JST に YouTube が公開する(YouTube Data API の `publishAt`)。
+
+- 定期実行が遅れて、公開の時刻の10分前を過ぎていたら、すぐ公開する。日付をまたいで遅れたときも、来週にはせずすぐ公開する
+- 投稿記録(`longform_history.json`)の `publish_at` に公開の時刻が入る。Shorts の説明欄のリンクと予告編の Short は、
+  公開の時刻を過ぎてから(公開前の動画を案内しない)
+- 手動実行は今までどおり、選んだ公開設定ですぐ上げる(予約しない)

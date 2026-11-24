@@ -71,7 +71,7 @@ def check_channel(token, expected):
     print(f"channel ok: {items[0]['snippet']['title']}")
 
 
-def upload(token, video_path, meta, privacy):
+def upload(token, video_path, meta, privacy, publish_at=None):
     body = {
         "snippet": {
             "title": meta["title"],
@@ -82,7 +82,9 @@ def upload(token, video_path, meta, privacy):
             "defaultAudioLanguage": "en",
         },
         "status": {
-            "privacyStatus": privacy,
+            "privacyStatus": "private" if publish_at else privacy,
+            # 予約投稿(通常動画): 非公開で上げて、publishAt の時刻に YouTube が公開する
+            **({"publishAt": publish_at} if publish_at else {}),
             "selfDeclaredMadeForKids": False,
             "embeddable": True,
         },
