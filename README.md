@@ -374,16 +374,18 @@ Shorts は最後まで見られると頭からくり返される。くり返し�
   「Art History Timeline Challenge: Full Quizzes」に入り、Shorts の説明欄にいちばん新しい公開の回のリンクが出る
 - 試す: `python longform.py --tts dummy --rounds 3 --source aic --history /nonexistent --out out_long`
 
-## 投稿時刻(2026-11-23〜)
+## 投稿時刻(2026-11-24〜)
 
 4チャンネルで1日8本を3時間おきに割り振った(各チャンネルの2本は12時間離す。予備は30分後。タイムゾーン Asia/Tokyo):
 
 | チャンネル | 投稿 | cron 式 |
 |---|---|---|
-| Painted When? | 1:17・13:17 | `17,47 1,13 * * *` |
-| Too Close to Tell | 4:08・16:08 | `08,38 4,16 * * *` |
-| Guess From Space | 7:04・19:04 | `04,34 7,19 * * *` |
-| Wait, That Big? | 10:23・22:23 | `23,53 10,22 * * *` |
+| Painted When? | 0:17・12:17 | `17,47 0,12 * * *` |
+| Too Close to Tell | 3:08・15:08 | `08,38 3,15 * * *` |
+| Guess From Space | 6:04・18:04 | `04,34 6,18 * * *` |
+| Wait, That Big? | 9:23・21:23 | `23,53 9,21 * * *` |
+
+(2026-11-24 に、上の表から1時間ずつ早めた。以前は 1:17・4:08・7:04・10:23 からの3時間おき)
 
 上に書かれた以前の時刻は経緯として残している。先の回が成功していれば、予備の回は posted_today.py が止める。
 
