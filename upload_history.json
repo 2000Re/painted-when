@@ -678,5 +678,24 @@
     "video_id": "L4_exBgsavM",
     "privacy": "public",
     "uploaded_at": "2026-11-24T04:59:48+00:00"
+  },
+  {
+    "number": 46,
+    "key": "aic:81572",
+    "source": "aic",
+    "id": "81572",
+    "date": "2026-11-25",
+    "title": "[46] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1865",
+    "artist": "James McNeill Whistler",
+    "variant": "base",
+    "has_face": null,
+    "title_style": "classic",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": 1,
+    "video_id": "YTiKH-bQSWk",
+    "privacy": "public",
+    "uploaded_at": "2026-11-24T15:19:09+00:00"
   }
 ]

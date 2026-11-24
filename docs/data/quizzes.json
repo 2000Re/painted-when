@@ -1033,5 +1033,28 @@
    "1900s"
   ],
   "answer": 0
+ },
+ {
+  "number": 46,
+  "slug": "46-trouville-grey-and-green-the-silver-sea",
+  "video_id": "YTiKH-bQSWk",
+  "uploaded_at": "2026-11-24T15:19:09+00:00",
+  "title": "Trouville (Grey and Green, the Silver Sea)",
+  "artist": "James McNeill Whistler",
+  "artist_bio": "American, 1834–1903",
+  "artist_unknown": false,
+  "date": "1865",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/81572",
+  "image": "https://www.artic.edu/iiif/2/37f802ca-7831-14d6-82c6-060d825baabd/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "81572",
+  "choices": [
+   "1865",
+   "1997",
+   "1667"
+  ],
+  "answer": 0
  }
 ]
