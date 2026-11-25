@@ -191,7 +191,7 @@ def _crop_size(w, h, cw, margin_x, margin_y):
     return max(4.0, cw), max(4.0, ch)
 
 
-def pick_detail(img, crop_frac_w, rng, faces=None):
+def pick_detail(img, crop_frac_w, rng, faces=None, avoid_faces=False):
     """冒頭で拡大する場所を選ぶ。返り値は (中心u, 中心v, 幅の割合, 高さの割合, 種類)。u〜高さは 0〜1。
     範囲は画面と同じ 9:16 で、作品の縁(額や撮影時の余白が写りやすい)を避ける。
     1. 顔があれば、いちばん目立つ顔(大きさ・確からしさ・中央寄り)を、範囲の上寄りに大きく映す
@@ -201,7 +201,7 @@ def pick_detail(img, crop_frac_w, rng, faces=None):
     faces = detect_faces(img) if faces is None else faces
     # 小さすぎる顔(群衆の中の顔など)は使わない
     faces = [f for f in faces if f[2] * W >= 0.05 * min(W, H)]
-    if faces:
+    if faces and not avoid_faces:
         def face_score(f):
             x, y, fw, fh, sc = f
             cx, cy = x + fw / 2 - 0.5, y + fh / 2 - 0.5
@@ -222,10 +222,17 @@ def pick_detail(img, crop_frac_w, rng, faces=None):
     cw, ch = int(round(cw)), int(round(ch))
     mx, my = int(margin_x * k), int(margin_y * k)
     ii = np.pad(sal.cumsum(0).cumsum(1), ((1, 0), (1, 0)))
-    best, best_xy = -1, (sw // 2 - cw // 2, sh // 2 - ch // 2)
+    best, best_xy = -math.inf, (sw // 2 - cw // 2, sh // 2 - ch // 2)
+    # 顔を避けるとき: 顔の枠(少し広げる)に重なる範囲は選ばない(2026-11-26〜。冒頭が顔のアップだと離れる人が多かった)
+    boxes = [((x - fw * 0.15) * sw, (y - fh * 0.2) * sh, (x + fw * 1.15) * sw, (y + fh * 1.3) * sh)
+             for x, y, fw, fh, _ in faces] if avoid_faces else []
     for y0 in range(my, max(my + 1, sh - my - ch + 1), 3):
         for x0 in range(mx, max(mx + 1, sw - mx - cw + 1), 3):
             s = ii[y0 + ch, x0 + cw] - ii[y0, x0 + cw] - ii[y0 + ch, x0] + ii[y0, x0]
+            if boxes:              # 顔に重なる割合だけ大きく減らす(重ならない範囲がなければ、いちばん重ならない所)
+                ov = sum(max(0.0, min(x0 + cw, bx1) - max(x0, bx0)) * max(0.0, min(y0 + ch, by1) - max(y0, by0))
+                         for bx0, by0, bx1, by1 in boxes) / (cw * ch)
+                s = s * max(0.0, 1 - 4 * ov) - ov
             cx, cy = (x0 + cw / 2) / sw - 0.5, (y0 + ch / 2) / sh - 0.5
             s *= 1 - 0.4 * math.hypot(cx, cy)   # 中央寄りを少し優先
             if s > best:
@@ -325,7 +332,8 @@ class Quiz:
             import fashion as F
             *self.detail, self.detail_kind = F.detail(fashion, img)
         else:
-            *self.detail, self.detail_kind = pick_detail(img, min(crop_frac, 0.9), rng)
+            # 冒頭のアップは、顔を避けて服・手・装飾など目立つ部分にする(人物画でも)
+            *self.detail, self.detail_kind = pick_detail(img, min(crop_frac, 0.9), rng, avoid_faces=True)
         # 縮小した画像を何段か用意し、表示の大きさに近いものから切り出す(毎フレームの処理を軽くする)
         self.pyramid = [img]
         while max(self.pyramid[-1].size) > 900:

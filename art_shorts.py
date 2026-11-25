@@ -447,7 +447,7 @@ def has_face(art):
     return bool(faces)
 
 
-def choose_famous(src, rng, used, accept=None, avoid_artists=(), avoid_faces=True):
+def choose_famous(src, rng, used, accept=None, avoid_artists=(), avoid_faces=True, want_face=False):
     """有名な画家(artists.FAMOUS)の本人の作品から、未使用のものを1点選ぶ。
     顔が描かれた作品は見てもらえにくい傾向があった(2026-11-17 の stats.md: 3日目の再生数の平均が
     顔あり 277・顔なし 541)ので、候補を FACE_TRIES 点まで見て、顔のない作品(風景・静物など)を優先する。
@@ -459,13 +459,13 @@ def choose_famous(src, rng, used, accept=None, avoid_artists=(), avoid_faces=Tru
         face = has_face(art)
         art["has_face"] = face
         print(f"  候補: {art['famous_artist']} 「{art['title'][:40]}」 顔{'あり' if face else ('なし' if face is False else '不明')}")
-        if face is False:
+        if (face is True) if want_face else (face is False):
             return art
         first = first or art
         if i + 1 >= FACE_TRIES:
             break
     if first:
-        print("  顔のない作品が見つからなかったので、最初の候補を使います")
+        print(f"  {'顔のある' if want_face else '顔のない'}作品が見つからなかったので、最初の候補を使います")
         return first
     raise RuntimeError(f"{src.name}: 有名な画家の未使用の作品が見つかりません")
 
@@ -1213,13 +1213,15 @@ def main():
                 art = choose_artwork(src, rng, used, today, accept)
             else:
                 recent = [h.get("artist") for h in history[-10:] if h.get("artist")]
+                # 2026-11-26〜 比べる: 偶数番は人物画(顔のある絵)、奇数番は顔のない絵。どちらも冒頭のアップは顔を避ける
+                portrait = (len(history) + 1) % 2 == 0
                 try:
-                    art = choose_famous(src, rng, used, accept, avoid_artists=recent)
+                    art = choose_famous(src, rng, used, accept, avoid_artists=recent, want_face=portrait)
                 except HTTPStatusError as e:
                     other = "aic" if src.name == "met" else "met"
                     print(f"警告: {src.name} の API が失敗し続けたので({e})、この回は {other} から選びます", file=sys.stderr)
                     src = SOURCES[other]()
-                    art = choose_famous(src, rng, used, accept, avoid_artists=recent)
+                    art = choose_famous(src, rng, used, accept, avoid_artists=recent, want_face=portrait)
             record = not args.seed and not args.still and not any(
                 u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
         print(f"  → {art['title']} / {art['artist']} / {art['date']}  {art['url']}")
@@ -1275,7 +1277,8 @@ def main():
         meta = youtube_meta(art, number, history)
         meta.update({"key": f"{art['source']}:{art['id']}", "number": number, "source": art["source"],
                      "artist": art.get("famous_artist") or art.get("artist"),
-                     "variant": "hook" if args.hook else "base",
+                     # variant: base = 顔のない絵 / portrait = 人物画(冒頭は顔以外)。stats.md で比べる(2026-11-26〜)
+                     "variant": "hook" if args.hook else ("portrait" if art.get("has_face") else "base"),
                      "has_face": art.get("has_face"),
                      "ending": "loop_short",
                      "format": "fashion" if fashion_item else "year",
