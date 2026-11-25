@@ -1,12 +1,12 @@
 name: longform
 
 # 通常動画(横長)「Art History Timeline Challenge」を週1本作って投稿する(longform.py)。
-# GitHub 自身の定期実行(schedule)で、水曜 1:13 UTC(10:13 JST)ごろに作って非公開で上げ、19:13 JST に YouTube が公開する
-# (予約投稿。定期実行は数時間遅れることがあるので早めに作る。間に合わなければすぐ公開)。
+# GitHub 自身の定期実行(schedule)で、前日の火曜 10:13 UTC(19:13 JST)ごろに作って非公開で上げ、水曜 19:13 JST に
+# YouTube が公開する(予約投稿。定期実行は8時間以上遅れることもあるので、丸1日早めに作る。間に合わなければすぐ公開)。
 # 定期実行は、リポジトリ変数 LONGFORM_AUTO が true のときだけ動く(最初は手動で試してから true にする)
 on:
   schedule:
-    - cron: "13 1 * * 3"
+    - cron: "13 10 * * 2"
   workflow_dispatch:
     inputs:
       dry_run:
