@@ -697,5 +697,24 @@
     "video_id": "YTiKH-bQSWk",
     "privacy": "public",
     "uploaded_at": "2026-11-24T15:19:09+00:00"
+  },
+  {
+    "number": 47,
+    "key": "met:488903",
+    "source": "met",
+    "id": "488903",
+    "date": "2026-11-25",
+    "title": "[47] Can you guess when this was painted? 🎨",
+    "answer": "1919",
+    "artist": "Amedeo Modigliani",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "guess",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": null,
+    "video_id": "RuBaoHcLhaY",
+    "privacy": "public",
+    "uploaded_at": "2026-11-25T03:19:08+00:00"
   }
 ]

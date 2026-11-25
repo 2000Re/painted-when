@@ -1056,5 +1056,28 @@
    "1667"
   ],
   "answer": 0
+ },
+ {
+  "number": 47,
+  "slug": "47-jeanne-hebuterne",
+  "video_id": "RuBaoHcLhaY",
+  "uploaded_at": "2026-11-25T03:19:08+00:00",
+  "title": "Jeanne Hébuterne",
+  "artist": "Amedeo Modigliani",
+  "artist_bio": "Italian, Livorno 1884–1920 Paris",
+  "artist_unknown": false,
+  "date": "1919",
+  "medium": "Oil on canvas",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/488903",
+  "image": "https://images.metmuseum.org/CRDImages/ma/web-large/DT2180.jpg",
+  "source": "met",
+  "id": "488903",
+  "choices": [
+   "1919",
+   "1842",
+   "1975"
+  ],
+  "answer": 0
  }
 ]
