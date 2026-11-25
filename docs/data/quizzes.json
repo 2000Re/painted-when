@@ -1079,5 +1079,28 @@
    "1975"
   ],
   "answer": 0
+ },
+ {
+  "number": 48,
+  "slug": "48-study-for-the-horse-fair",
+  "video_id": "TbIQLsXIN5g",
+  "uploaded_at": "2026-11-25T15:19:07+00:00",
+  "title": "Study for The Horse Fair",
+  "artist": "Rosa Bonheur",
+  "artist_bio": "French, 1822–1899",
+  "artist_unknown": false,
+  "date": "c. 1850",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/93781",
+  "image": "https://www.artic.edu/iiif/2/f5c621e6-755e-c2e7-e087-d0dae0ed9ea0/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "93781",
+  "choices": [
+   "1630",
+   "1845",
+   "1735"
+  ],
+  "answer": 1
  }
 ]

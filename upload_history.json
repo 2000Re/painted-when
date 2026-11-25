@@ -716,5 +716,24 @@
     "video_id": "RuBaoHcLhaY",
     "privacy": "public",
     "uploaded_at": "2026-11-25T03:19:08+00:00"
+  },
+  {
+    "number": 48,
+    "key": "aic:93781",
+    "source": "aic",
+    "id": "93781",
+    "date": "2026-11-26",
+    "title": "[48] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1845",
+    "artist": "Rosa Bonheur",
+    "variant": "base",
+    "has_face": null,
+    "title_style": "classic",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": 2,
+    "video_id": "TbIQLsXIN5g",
+    "privacy": "public",
+    "uploaded_at": "2026-11-25T15:19:07+00:00"
   }
 ]
