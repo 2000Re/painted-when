@@ -18,6 +18,10 @@ on:
         type: choice
         options: [public, unlisted, private]
         default: unlisted
+      schedule:
+        description: "予約投稿にする(次の公開日 19:13 JST に公開。定期実行が動かなかった週に手動で動かすとき)"
+        type: boolean
+        default: false
 
 concurrency:
   group: longform
@@ -77,7 +81,7 @@ jobs:
           YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
           # 定期実行は public、手動実行は選んだ公開設定(既定は unlisted)
           PRIVACY: ${{ inputs.privacy || 'public' }}
-          SCHEDULE: ${{ github.event_name == 'schedule' && '--schedule' || '' }}
+          SCHEDULE: ${{ (github.event_name == 'schedule' || inputs.schedule) && '--schedule' || '' }}
         run: python longform.py --upload --dir out_long --history longform_history.json --privacy "$PRIVACY" $SCHEDULE
       - name: Commit history
         run: |
