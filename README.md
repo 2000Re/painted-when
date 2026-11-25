@@ -401,6 +401,8 @@ Wait, That Big? と同じ仕組み。
 
 ## 通常動画の予約投稿(2026-11-24〜、`longform.scheduled_publish`)
 
+2026-11-26 から、作るのを前日の火曜 10:13 UTC(19:13 JST)ごろに早めた(11/25 の Painted When? #2 は、定期実行が8時間半遅れて予約の20分前にやっと上がったため)。公開は今までどおり当日 19:13 JST。
+
 GitHub の定期実行は数時間遅れることがあるので、通常動画は水曜 1:13 UTC(10:13 JST)ごろに作って非公開で上げ、
 水曜 19:13 JST に YouTube が公開する(YouTube Data API の `publishAt`)。
 
