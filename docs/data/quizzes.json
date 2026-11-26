@@ -1125,5 +1125,28 @@
    "1714"
   ],
   "answer": 1
+ },
+ {
+  "number": 50,
+  "slug": "50-portrait-of-magdalena-of-saxony-wife-of-elector-joachim-ii-o",
+  "video_id": "MOGN8V7eoVs",
+  "uploaded_at": "2026-11-26T15:18:30+00:00",
+  "title": "Portrait of Magdalena of Saxony, Wife of Elector Joachim II of Brandenburg",
+  "artist": "Lucas Cranach the Elder",
+  "artist_bio": "German, 1472–1553",
+  "artist_unknown": false,
+  "date": "c. 1529",
+  "medium": "Oil on panel",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/87760",
+  "image": "https://www.artic.edu/iiif/2/c210a649-8de9-866e-2a5f-0a506a02b19b/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "87760",
+  "choices": [
+   "1400s",
+   "1500s",
+   "1600s"
+  ],
+  "answer": 1
  }
 ]

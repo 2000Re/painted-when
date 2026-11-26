@@ -754,5 +754,24 @@
     "video_id": "Fkh1S-mOXvM",
     "privacy": "public",
     "uploaded_at": "2026-11-26T03:22:49+00:00"
+  },
+  {
+    "number": 50,
+    "key": "aic:87760",
+    "source": "aic",
+    "id": "87760",
+    "date": "2026-11-27",
+    "title": "[50] Which century? The clothes are the clue 🎨",
+    "answer": "1500s",
+    "artist": "Lucas Cranach the Elder",
+    "variant": "base",
+    "has_face": null,
+    "title_style": "fashion_century",
+    "ending": "loop_short",
+    "format": "fashion",
+    "teaser": null,
+    "video_id": "MOGN8V7eoVs",
+    "privacy": "public",
+    "uploaded_at": "2026-11-26T15:18:30+00:00"
   }
 ]
