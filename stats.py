@@ -117,6 +117,38 @@ def fetch_analytics(token, history, now):
     return per_video, traffic, " / ".join(notes)
 
 
+COUNTRY_TOP = 10          # チャンネル全体で並べる国の数
+COUNTRY_VIDEOS = 8        # 国の内訳を取る動画の数(再生の多い順。API の呼び出しを増やしすぎないため)
+COUNTRY_NAMES = {
+    "US": "アメリカ", "JP": "日本", "IN": "インド", "GB": "イギリス", "CA": "カナダ", "AU": "オーストラリア",
+    "DE": "ドイツ", "FR": "フランス", "BR": "ブラジル", "MX": "メキシコ", "ES": "スペイン", "IT": "イタリア",
+    "PH": "フィリピン", "ID": "インドネシア", "VN": "ベトナム", "PK": "パキスタン", "BD": "バングラデシュ",
+    "NG": "ナイジェリア", "TR": "トルコ", "RU": "ロシア", "PL": "ポーランド", "NL": "オランダ", "AR": "アルゼンチン",
+    "CO": "コロンビア", "PE": "ペルー", "CL": "チリ", "KR": "韓国", "TW": "台湾", "TH": "タイ", "MY": "マレーシア",
+    "SA": "サウジアラビア", "EG": "エジプト", "ZA": "南アフリカ", "NZ": "ニュージーランド", "SE": "スウェーデン",
+    "PT": "ポルトガル", "UA": "ウクライナ", "IE": "アイルランド", "SG": "シンガポール", "KE": "ケニア",
+}
+
+
+def fetch_countries(token, history, stats, now):
+    """視聴者の国の内訳。{"channel": {国: 再生数}, "videos": {回の番号: {国: 再生数}}, "days": 日数}。
+    チャンネル全体は直近 TRAFFIC_DAYS 日。動画ごとは、再生の多い COUNTRY_VIDEOS 本だけ(投稿からの全期間)。"""
+    today = now.astimezone(TZ).date()
+    start = datetime.fromtimestamp(now.timestamp() - TRAFFIC_DAYS * 86400, TZ).date()
+    out = {"channel": {}, "videos": {}, "days": TRAFFIC_DAYS}
+    for r in analytics_query(token, startDate=start.isoformat(), endDate=today.isoformat(), metrics="views",
+                             dimensions="country", sort="-views", maxResults=COUNTRY_TOP):
+        out["channel"][r["country"]] = r["views"]
+    views = lambda h: (stats.get(str(h["number"]), {}).get("latest") or {}).get("views", 0)
+    top = sorted([h for h in history if h.get("video_id")], key=views, reverse=True)[:COUNTRY_VIDEOS]
+    for h in top:
+        first = datetime.fromisoformat(h["uploaded_at"]).astimezone(TZ).date()
+        rows = analytics_query(token, startDate=first.isoformat(), endDate=today.isoformat(), metrics="views",
+                               dimensions="country", filters=f"video=={h['video_id']}", sort="-views", maxResults=5)
+        out["videos"][str(h["number"])] = {r["country"]: r["views"] for r in rows}
+    return out
+
+
 def update(stats, history, current, now):
     for h in history:
         vid = h.get("video_id")
@@ -195,6 +227,25 @@ def report(stats, history, now):
             sf = src.get("SHORTS", 0)
             lines.append(f"| {day} | {total} | {sf} | {sf / total * 100:.0f}% |" if total else f"| {day} | 0 | 0 | |")
         lines.append("")
+    countries = stats.get("_countries") or {}
+    if countries.get("channel"):
+        name = lambda c: f"{COUNTRY_NAMES.get(c, c)}"
+        total = sum(countries["channel"].values())
+        lines.extend([f"## 視聴者の国(直近{countries.get('days', TRAFFIC_DAYS)}日、上位{COUNTRY_TOP}か国。YouTube Analytics)", "",
+                      "| 国 | 再生 | 上位の中の割合 |", "|---|---:|---:|"])
+        for c, v in countries["channel"].items():
+            lines.append(f"| {name(c)} ({c}) | {v} | {v / total * 100:.0f}% |" if total else f"| {name(c)} | {v} | |")
+        lines.append("")
+        if countries.get("videos"):
+            by_num = {str(h["number"]): h for h in history}
+            lines.extend([f"## 再生の多い動画の国(上位5か国、投稿からの全期間)", "",
+                          "| # | 答え | 国の内訳 |", "|---:|---|---|"])
+            for num, cs in sorted(countries["videos"].items(), key=lambda kv: -sum(kv[1].values())):
+                t = sum(cs.values())
+                parts = ", ".join(f"{name(c)} {v / t * 100:.0f}%" for c, v in cs.items()) if t else ""
+                ans = str(by_num.get(num, {}).get("answer", "")).replace("|", "/")[:60]
+                lines.append(f"| {num} | {ans} | {parts} |")
+            lines.append("")
     if stats.get("_analytics_note"):
         lines.extend([f"(Analytics: {stats['_analytics_note']})", ""])
 
@@ -236,6 +287,11 @@ def main():
                                                                         "at": now.isoformat(timespec="seconds")}
         if traffic:
             stats["_traffic"] = traffic
+        if per_video:                          # Analytics が使えるときだけ(国の内訳。失敗しても他は残す)
+            try:
+                stats["_countries"] = fetch_countries(token, history, stats, now)
+            except Exception as e:  # noqa: BLE001
+                note = (note + " / " if note else "") + f"国の内訳を取れなかった ({e})"
         stats["_analytics_note"] = note
         print(f"Analytics: 動画 {len(per_video)} 本、流入元 {len(traffic)} 日分" + (f"({note})" if note else ""))
         STATS.write_text(json.dumps(stats, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
