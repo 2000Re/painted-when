@@ -735,5 +735,24 @@
     "video_id": "TbIQLsXIN5g",
     "privacy": "public",
     "uploaded_at": "2026-11-25T15:19:07+00:00"
+  },
+  {
+    "number": 49,
+    "key": "met:436570",
+    "source": "met",
+    "id": "436570",
+    "date": "2026-11-26",
+    "title": "[49] El Greco painted this... but when? 🎨",
+    "answer": "1605",
+    "artist": "El Greco",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "artist_but_when",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": null,
+    "video_id": "Fkh1S-mOXvM",
+    "privacy": "public",
+    "uploaded_at": "2026-11-26T03:22:49+00:00"
   }
 ]
