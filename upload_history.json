@@ -773,5 +773,24 @@
     "video_id": "MOGN8V7eoVs",
     "privacy": "public",
     "uploaded_at": "2026-11-26T15:18:30+00:00"
+  },
+  {
+    "number": 51,
+    "key": "met:435683",
+    "source": "met",
+    "id": "435683",
+    "date": "2026-11-27",
+    "title": "[51] Art quiz: when was “Island of the Dead” painted? 🎨",
+    "answer": "1880",
+    "artist": "Arnold Böcklin",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "work",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": null,
+    "video_id": "11jPTjaSc34",
+    "privacy": "public",
+    "uploaded_at": "2026-11-27T03:18:38+00:00"
   }
 ]

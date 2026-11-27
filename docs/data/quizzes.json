@@ -1148,5 +1148,28 @@
    "1600s"
   ],
   "answer": 1
+ },
+ {
+  "number": 51,
+  "slug": "51-island-of-the-dead",
+  "video_id": "11jPTjaSc34",
+  "uploaded_at": "2026-11-27T03:18:38+00:00",
+  "title": "Island of the Dead",
+  "artist": "Arnold Böcklin",
+  "artist_bio": "Swiss, Basel 1827–1901 San Domenico, Italy",
+  "artist_unknown": false,
+  "date": "1880",
+  "medium": "Oil on wood",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/435683",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-47457-001.jpg",
+  "source": "met",
+  "id": "435683",
+  "choices": [
+   "1703",
+   "1808",
+   "1880"
+  ],
+  "answer": 2
  }
 ]
