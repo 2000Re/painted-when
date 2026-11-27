@@ -1171,5 +1171,28 @@
    "1880"
   ],
   "answer": 2
+ },
+ {
+  "number": 52,
+  "slug": "52-the-bathers",
+  "video_id": "HFNlDLWNOY8",
+  "uploaded_at": "2026-11-27T15:19:03+00:00",
+  "title": "The Bathers",
+  "artist": "William-Adolphe Bouguereau",
+  "artist_bio": "French, 1825–1905",
+  "artist_unknown": false,
+  "date": "1884",
+  "medium": "Oil on canvas",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/39560",
+  "image": "https://www.artic.edu/iiif/2/31f0a9a3-8a0d-44ed-6de8-66142b75c4c0/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "39560",
+  "choices": [
+   "1884",
+   "1963",
+   "1826"
+  ],
+  "answer": 0
  }
 ]

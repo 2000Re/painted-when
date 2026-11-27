@@ -792,5 +792,24 @@
     "video_id": "11jPTjaSc34",
     "privacy": "public",
     "uploaded_at": "2026-11-27T03:18:38+00:00"
+  },
+  {
+    "number": 52,
+    "key": "aic:39560",
+    "source": "aic",
+    "id": "39560",
+    "date": "2026-11-28",
+    "title": "[52] When was this painted? 🎨 Daily Art Quiz",
+    "answer": "1884",
+    "artist": "William-Adolphe Bouguereau",
+    "variant": "portrait",
+    "has_face": true,
+    "title_style": "classic",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": null,
+    "video_id": "HFNlDLWNOY8",
+    "privacy": "public",
+    "uploaded_at": "2026-11-27T15:19:03+00:00"
   }
 ]
