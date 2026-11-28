@@ -1217,5 +1217,28 @@
    "1554"
   ],
   "answer": 0
+ },
+ {
+  "number": 54,
+  "slug": "54-oystercatchers",
+  "video_id": "_DYDpz5CJgQ",
+  "uploaded_at": "2026-11-28T15:18:52+00:00",
+  "title": "Oystercatchers",
+  "artist": "Utagawa Hiroshige",
+  "artist_bio": "Japanese, 1797-1858",
+  "artist_unknown": false,
+  "date": "c. 1833/34",
+  "medium": "Color woodblock print; koban",
+  "museum": "Art Institute of Chicago",
+  "museum_url": "https://www.artic.edu/artworks/19026",
+  "image": "https://www.artic.edu/iiif/2/2f91372c-a7ba-0081-d11b-c90e282897c1/full/843,/0/default.jpg",
+  "source": "aic",
+  "id": "19026",
+  "choices": [
+   "1787",
+   "1833",
+   "1717"
+  ],
+  "answer": 1
  }
 ]
