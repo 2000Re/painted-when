@@ -281,6 +281,19 @@ def pill(label, fnt, fill, text_fill, outline=None):
     return im
 
 
+HEADER_H = 280                         # header 版の上の帯の高さ(額縁の上端 290 より上)
+
+
+def mini_pill(label, fnt):
+    """header 版の帯の中に出す、小さな年のボタン。"""
+    w, h = max(170, int(fnt.getlength(label)) + 60), 66
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle([1, 1, w - 2, h - 2], radius=h // 2, fill=(30, 27, 24, 255), outline=(255, 255, 255, 150), width=3)
+    d.text((w / 2, h / 2), label, font=fnt, fill=WHITE, anchor="mm")
+    return im
+
+
 def lerp(a, b, t):
     return a + (b - a) * t
 
@@ -289,8 +302,11 @@ def lerp(a, b, t):
 
 
 class Quiz:
-    def __init__(self, art, img, rng, max_year, timeline=None, fashion=None):
-        """fashion: fashion.ITEMS の1件なら「服装から当てる」回(世紀の3択・服だけを映す冒頭・手がかりの一文)。"""
+    def __init__(self, art, img, rng, max_year, timeline=None, fashion=None, header=False):
+        """fashion: fashion.ITEMS の1件なら「服装から当てる」回(世紀の3択・服だけを映す冒頭・手がかりの一文)。
+        header: 上に暗い帯を置き、問いと3つの年を最初のコマから帯の中に出す版(2026-11-28〜。Wait, That Big? の
+        冒頭に合わせた。下の選択肢が読み上げで出始めたら、帯の中の年は消える)。読み上げ・効果音・動きは同じ"""
+        self.header = header
         self.art = art
         self.fashion = fashion
         self.tl = timeline or Timeline()
@@ -359,6 +375,22 @@ class Quiz:
         self.pills = [pill(lb, f_choice, (20, 20, 24, 215), WHITE, outline=(255, 255, 255, 120))
                       for lb in self.labels]
         self.pill_right = pill(self.labels[self.correct], f_choice, GOLD + (255,), (25, 20, 10))
+        if header:
+            f_mini = A.font(A.SANS_BOLD, 38)
+            minis = [mini_pill(lb, f_mini) for lb in self.labels]
+            gap = 24
+            row = Image.new("RGBA", (sum(m.width for m in minis) + gap * (len(minis) - 1), minis[0].height), (0, 0, 0, 0))
+            x = 0
+            for m in minis:
+                row.alpha_composite(m, (x, 0))
+                x += m.width + gap
+            self.mini_row = row
+            band = Image.new("RGBA", (W, HEADER_H + 40), (0, 0, 0, 0))
+            bd = ImageDraw.Draw(band)
+            bd.rectangle([0, 0, W, HEADER_H], fill=(14, 12, 10, 238))
+            for k in range(40):                       # 帯の下端をなじませる
+                bd.line([0, HEADER_H + k, W, HEADER_H + k], fill=(14, 12, 10, int(238 * (1 - k / 40) ** 2)))
+            self.band = band
 
         f_title, title_lines = A.fit_title(art["title"], A.SERIF_IT, TEXT_W, [54, 48, 42], 2)
         self.info = [
@@ -452,11 +484,19 @@ class Quiz:
         tl = self.tl
         lp = self.loop_amount(t)
         oa = (A.ease((t - tl.outro) / 0.4) if tl.outro is not None else 0) * (1 - lp)
-        frame.alpha_composite(self.q_kicker, (0, 130))
+        ky, qy = (130, 178) if not self.header else (34, 80)
+        if self.header:
+            frame.alpha_composite(self.band, (0, 0))
+        frame.alpha_composite(self.q_kicker, (0, ky))
         if oa < 1:
-            frame.alpha_composite(with_alpha(self.q_main, 1 - oa), (0, 178))
+            frame.alpha_composite(with_alpha(self.q_main, 1 - oa), (0, qy))
         if oa > 0:
-            frame.alpha_composite(with_alpha(self.q_outro, oa), (0, 178))
+            frame.alpha_composite(with_alpha(self.q_outro, oa), (0, qy))
+        if self.header:
+            # 帯の中の3つの年: 最初のコマから出し、下の選択肢が出始めたら消す(最後に冒頭へ戻るときはまた出す)
+            ma = max(1 - A.ease((t - tl.choices[0]) / 0.3), lp)
+            if ma > 0:
+                frame.alpha_composite(with_alpha(self.mini_row, ma), ((W - self.mini_row.width) // 2, 186))
         # 出典(引き終わってから額縁の下に)
         ca = A.ease((t - tl.pull[1]) / 0.4) * (1 - lp)
         if ca > 0:

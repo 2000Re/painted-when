@@ -1126,6 +1126,9 @@ def main():
                          "付けなくても、--history があれば番号が fashion.FASHION_EVERY の倍数の回は自動でこの回になる")
     ap.add_argument("--ukiyoe", action="store_true",
                     help="浮世絵の回(ukiyoe.py。試作用)。付けなくても、--history があれば ukiyoe.is_due の回は自動でこの回になる")
+    ap.add_argument("--opening", choices=["auto", "header", "plain"], default="auto",
+                    help="冒頭の見せ方。header: 上の帯に問いと3つの年を最初から出す / plain: 今まで通り。"
+                         "auto: --history があれば番号を4で割った余りが1・2の回は header")
     ap.add_argument("--date", help="日付 YYYY-MM-DD(既定は日本時間の今日)")
     ap.add_argument("--out", default=str(HERE / "out"))
     ap.add_argument("--demo", action="store_true", help="仮画像で作る(通信なし)")
@@ -1276,8 +1279,10 @@ def main():
         ("" if args.format == "shorts" else "_wide")
     if style == "quiz":
         # 選択肢は作品ごとに決める(同じ作品なら何度作っても同じ選択肢)
+        # 冒頭の帯(quiz.Quiz の header)を4本に2本。人物画の比べ方(偶数・奇数)と重ならないよう、番号を4で割った余りで決める
+        header = args.opening == "header" or (args.opening == "auto" and args.history and (len(history) + 1) % 4 in (1, 2))
         q = quiz.Quiz(art, img, random.Random(f"{art['source']}:{art['id']}"), max_year=int(today[:4]),
-                      fashion=fashion_item)
+                      fashion=fashion_item, header=bool(header))
         art["quiz"] = {"question": "Which century? Check the clothes!" if fashion_item else
                        ("When was this print made?" if art.get("ukiyoe") else "When was this painted?"),
                        "choices": q.labels, "answer": q.correct}
@@ -1325,6 +1330,8 @@ def main():
                      "variant": "hook" if args.hook else ("portrait" if art.get("has_face") else "base"),
                      "has_face": art.get("has_face"),
                      "ending": "loop_short",
+                     # 冒頭の帯の版(header)か今まで通り(plain)か。stats.md の category で比べる(2026-11-28〜)
+                     "category": "header" if header else "plain",
                      "format": "fashion" if fashion_item else ("ukiyoe" if art.get("ukiyoe") else "year"),
                      "teaser": teaser[0] if teaser else None,   # 予告編の回なら通常動画の番号   # 「服装から当てる」回(fashion.py)と比べる    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
                      "site": site_fields(art),
