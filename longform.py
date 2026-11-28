@@ -555,7 +555,7 @@ def build(args):
 
 THUMB_URL = "https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId={}"
 PUBLISH_WEEKDAY = 2             # 予約投稿の曜日(月曜が 0)。水曜
-PUBLISH_TIME = (19, 13)            # 予約投稿の時刻(日本時間)
+PUBLISH_TIME = (8, 13)             # 予約投稿の時刻(日本時間)。2026-11-28 に 19:13 から朝へ(アメリカ東部の前日の夜 18:13)
 
 
 def scheduled_publish(now=None):
