@@ -60,6 +60,9 @@ LINES = {
     "outro": ["How did you do? Tell me in the comments.", "Did you get the year right?",
               "Were you close? Let me know below!", "How many years off were you?",
               "Did you guess it? Comment your answer!"],
+    "q_print": ["When was this woodblock print made?", "Can you guess when this print was made?",
+                "What year was this print made?", "Guess the year this print was made!"],
+    "age_print": ["{name} made this print at around age {age}.", "{name} was about {age} when this print was made."],
     "age": ["{name} painted this at around age {age}.", "{name} was about {age} when this was painted.",
             "This was painted when {name} was about {age}."],
 }
@@ -82,7 +85,7 @@ def age_fact(art, number=1):
     age = year - born
     if not 14 <= age <= 95 or year > died + 1:
         return None
-    return vary(number, "age", name=name, age=age)
+    return vary(number, "age_print" if art.get("ukiyoe") else "age", name=name, age=age)
 
 
 FASHION_Q = ["Look at the clothes. Which century is this?", "Can you date this from the clothes alone?",
@@ -110,7 +113,7 @@ def script(art, labels, correct, hook=False):
         by = f"by {artist}"
     ys = [spoken_year(lb) for lb in labels]
     return {
-        "q": "Quick, guess the year!" if hook else vary(number, "q"),
+        "q": "Quick, guess the year!" if hook else vary(number, "q_print" if art.get("ukiyoe") else "q"),
         "c0": f"Was it {ys[0]}?",
         "c1": f"{ys[1]}?",
         "c2": f"Or {ys[2]}?",

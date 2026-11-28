@@ -119,6 +119,39 @@ TITLES.update({
     },
 })
 
+# 浮世絵の回(art_shorts.UKIYOE_TITLES)。版画なので「描いた」ではなく「作られた」
+TITLES.update({
+    "ukiyoe_when": {
+        "ja": "この浮世絵が作られたのはいつ？🎨",
+        "es": "¿Cuándo se hizo esta estampa japonesa? 🎨",
+        "fr": "Quand cette estampe japonaise a-t-elle été faite ? 🎨",
+        "de": "Wann entstand dieser japanische Holzschnitt? 🎨",
+        "pt": "Quando foi feita esta gravura japonesa? 🎨",
+    },
+    "ukiyoe_artist": {
+        "ja": "{artist}のこの浮世絵、作られたのはいつ？🎨",
+        "es": "¿Cuándo hizo {artist} esta estampa? 🎨",
+        "fr": "Quand {artist} a fait cette estampe ? 🎨",
+        "de": "Wann schuf {artist} diesen Holzschnitt? 🎨",
+        "pt": "Quando {artist} fez esta gravura? 🎨",
+    },
+    "ukiyoe_guess": {
+        "ja": "浮世絵クイズ：この版画が作られた年を当てよう 🗾",
+        "es": "Quiz de ukiyo-e: adivina el año de esta estampa 🗾",
+        "fr": "Quiz ukiyo-e : devine l'année de cette estampe 🗾",
+        "de": "Ukiyo-e-Quiz: Errate das Jahr dieses Holzschnitts 🗾",
+        "pt": "Quiz de ukiyo-e: adivinhe o ano desta gravura 🗾",
+    },
+})
+
+UKIYOE_LEAD = {
+    "ja": "浮世絵(木版画)が作られた年を当てるクイズです。答えが出る前に予想してみてね！🎨",
+    "es": "Un quiz para adivinar el año de estampas japonesas (ukiyo-e). ¡Adivina antes de la respuesta! 🎨",
+    "fr": "Un quiz pour dater des estampes japonaises (ukiyo-e). Devine avant la réponse ! 🎨",
+    "de": "Ein Quiz: Wann entstanden japanische Holzschnitte (Ukiyo-e)? Rate vor der Auflösung! 🎨",
+    "pt": "Um quiz para adivinhar o ano de gravuras japonesas (ukiyo-e). Adivinhe antes da resposta! 🎨",
+}
+
 FASHION_LEAD = {
     "ja": "服装を手がかりに、描かれた世紀を当てるクイズです。何が決め手になったか、コメントで教えてね！👗",
     "es": "Un quiz para adivinar el siglo de un cuadro por la ropa. ¡Cuéntanos qué pista te ayudó! 👗",
@@ -140,18 +173,22 @@ def _yt(s):
     return s.replace("<", "‹").replace(">", "›")
 
 
-def build(style, number, vals, description_en, fashion=False):
+def build(style, number, vals, description_en, fashion=False, ukiyoe=False):
     """{言語: {"title", "description"}}。vals は art_shorts.title_vals() の値。埋められない言語・型は入れない。"""
     if style not in TITLES:
         return {}
     out = {}
     for lang in LANGS:
+        v2 = dict(vals)
+        if ukiyoe and lang == "ja" and v2.get("artist"):
+            import ukiyoe as U
+            v2["artist"] = U.JA_NAMES.get(v2["artist"], v2["artist"])       # 日本語では漢字の名前(葛飾北斎など)
         try:
-            t = TITLES[style][lang].format(**{k: v for k, v in vals.items() if v})
+            t = TITLES[style][lang].format(**{k: v for k, v in v2.items() if v})
         except KeyError:
             continue
         title = f"[{number}] {t}"
         if len(title) > 100:
             continue
-        out[lang] = {"title": _yt(title), "description": _yt((FASHION_LEAD if fashion else LEAD)[lang] + "\n\n" + description_en)[:4900]}
+        out[lang] = {"title": _yt(title), "description": _yt((UKIYOE_LEAD if ukiyoe else FASHION_LEAD if fashion else LEAD)[lang] + "\n\n" + description_en)[:4900]}
     return out

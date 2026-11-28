@@ -897,6 +897,14 @@ TITLES = [
 ]
 
 
+# 浮世絵の回(ukiyoe.py)の題名。版画は「描いた」ではなく「作った」(made)
+UKIYOE_TITLES = [
+    ("", "ukiyoe_when", "When was this Japanese woodblock print made? 🎨"),
+    ("artist", "ukiyoe_artist", "When did {artist} make this woodblock print? 🎨"),
+    ("", "ukiyoe_guess", "Ukiyo-e quiz: guess the year this print was made 🗾"),
+]
+
+
 # 「服装から当てる」回の題名(その回の中で順に回す)
 FASHION_TITLES = [
     ("fashion_clothes", "Can you date this painting from the clothes alone? 👗"),
@@ -922,6 +930,11 @@ def video_title(art, number, used=(), last_style=None):
         import fashion as F
         style, t = FASHION_TITLES[number // F.FASHION_EVERY % len(FASHION_TITLES)]
         return t, style
+    if art.get("ukiyoe"):
+        need, style, tpl = UKIYOE_TITLES[number // 6 % len(UKIYOE_TITLES)]
+        if need and not vals.get(need):
+            need, style, tpl = UKIYOE_TITLES[0]
+        return tpl.format(**{k: v for k, v in vals.items() if v}), style
     if number % CLASSIC_EVERY == 0:
         return TITLES[0][2], TITLES[0][1]       # 元の型は毎回同じ題名でよい(番号で区別される)
     used = {re.sub(r"^\[\d+\]\s*", "", t) for t in used}
@@ -1014,7 +1027,7 @@ def youtube_meta(art, number, history=()):
     title, style = video_title(art, number, [h.get("title", "") for h in history],
                                history[-1].get("title_style") if history else None)
     artist = art.get("artist") or "Unknown artist"
-    work = f"\"{art['title']}\" by {artist}" if artist.lower() not in (
+    work = f"\"{art.get('title_full') or art['title']}\" by {artist}" if artist.lower() not in (
         "unknown artist", "unidentified artist", "anonymous") else f"\"{art['title']}\" (artist unknown)"
     import narration
     leads = ["Can you guess the year? Comment your answer before the reveal! 🎨",
@@ -1025,6 +1038,10 @@ def youtube_meta(art, number, history=()):
     clue = (art.get("fashion") or {}).get("clue")
     if clue:
         leads = ["Look at the clothes: which century was this painted in? Comment your guess! 👗"]
+    ukiyoe = bool(art.get("ukiyoe"))
+    if ukiyoe:
+        # 「Edo period」とは書かない(月岡芳年など明治の作品もあるため)
+        leads = ["A Japanese woodblock print (ukiyo-e). Guess the year it was made! 🎨"]
     import quiz as _quiz
     import timeline_facts
     then = timeline_facts.fact(art, _quiz.quiz_year(art))
@@ -1054,9 +1071,13 @@ def youtube_meta(art, number, history=()):
         "More quizzes from the same creator:",
         *[f"{t}: {u}" for t, u in SISTERS],
         "",
-        "#arthistory #artquiz #painting #shorts" + (" #fashionhistory" if clue else ""),
+        ("#arthistory #artquiz #ukiyoe #japaneseart #shorts" if ukiyoe else
+         "#arthistory #artquiz #painting #shorts" + (" #fashionhistory" if clue else "")),
     ]
     tags = ["art quiz", "art history", "painting", "guess the year", "museum", "fine art", "art", "quiz"]
+    if ukiyoe:
+        tags = ["art quiz", "art history", "ukiyo-e", "japanese woodblock print", "japanese art",
+                "guess the year", "museum", "quiz"]
     if clue:
         tags += ["fashion history", "historical fashion", "costume history"]
     if artist.lower() not in ("unknown artist", "unidentified artist", "anonymous"):
@@ -1069,7 +1090,7 @@ def youtube_meta(art, number, history=()):
         "description": _yt_text("\n".join(lines))[:4900],
         # 題名と説明の翻訳(日本語・スペイン語・フランス語・ドイツ語・ポルトガル語)
         "localizations": locales.build(style, number, title_vals(art), _yt_text("\n".join(lines))[:4800],
-                                       fashion=bool(clue)),
+                                       fashion=bool(clue), ukiyoe=ukiyoe),
         "tags": tags,
         "answer": answer,
     }
@@ -1103,6 +1124,8 @@ def main():
     ap.add_argument("--fashion", nargs="?", const="auto",
                     help="「服装から当てる」回(fashion.py)。ID を付けるとその作品(試作用)。"
                          "付けなくても、--history があれば番号が fashion.FASHION_EVERY の倍数の回は自動でこの回になる")
+    ap.add_argument("--ukiyoe", action="store_true",
+                    help="浮世絵の回(ukiyoe.py。試作用)。付けなくても、--history があれば ukiyoe.is_due の回は自動でこの回になる")
     ap.add_argument("--date", help="日付 YYYY-MM-DD(既定は日本時間の今日)")
     ap.add_argument("--out", default=str(HERE / "out"))
     ap.add_argument("--demo", action="store_true", help="仮画像で作る(通信なし)")
@@ -1160,8 +1183,14 @@ def main():
             fashion_item = F.pick(history, rng)
             if not fashion_item:
                 print("「服装」の回の作品を出し終えたので、ふつうの回にします", file=sys.stderr)
+    import ukiyoe as U
+    ukiyoe_due = (style == "quiz" and not args.demo and not args.id and not teaser and not fashion_item
+                  and (args.ukiyoe or (args.history and U.is_due(len(history) + 1))))
     if fashion_item:
         args.source = fashion_item["source"]
+        args.hook = False
+    if ukiyoe_due:
+        args.source = "aic"
         args.hook = False
 
     if args.demo:
@@ -1193,6 +1222,20 @@ def main():
                 art["famous_artist"] = name
             art["fashion"] = {"clue": fashion_item["clue"]}
             used = load_used(used_path)
+            record = not args.seed and not args.still and not any(
+                u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
+        elif ukiyoe_due:
+            used = load_used(used_path) + [{"source": h["source"], "id": h["id"]} for h in history]
+            art = None
+            try:
+                art = U.choose(src, rng, used)
+            except Exception as e:          # 美術館の API が失敗したら、ふつうの回にする(投稿は止めない)
+                print(f"警告: 浮世絵を選べませんでした({e})", file=sys.stderr)
+            if not art:
+                print("浮世絵の回の作品が見つからないので、ふつうの回にします", file=sys.stderr)
+                ukiyoe_due = False
+                recent = [h.get("artist") for h in history[-10:] if h.get("artist")]
+                art = choose_famous(src, rng, used, accept, avoid_artists=recent)
             record = not args.seed and not args.still and not any(
                 u.get("source") == art["source"] and u.get("id") == art["id"] for u in used)
         elif args.id:
@@ -1235,7 +1278,8 @@ def main():
         # 選択肢は作品ごとに決める(同じ作品なら何度作っても同じ選択肢)
         q = quiz.Quiz(art, img, random.Random(f"{art['source']}:{art['id']}"), max_year=int(today[:4]),
                       fashion=fashion_item)
-        art["quiz"] = {"question": "Which century? Check the clothes!" if fashion_item else "When was this painted?",
+        art["quiz"] = {"question": "Which century? Check the clothes!" if fashion_item else
+                       ("When was this print made?" if art.get("ukiyoe") else "When was this painted?"),
                        "choices": q.labels, "answer": q.correct}
         art["number"] = len(history) + 1          # 言い回しを番号で回す(narration.vary)
         if tts != "none":
@@ -1281,7 +1325,7 @@ def main():
                      "variant": "hook" if args.hook else ("portrait" if art.get("has_face") else "base"),
                      "has_face": art.get("has_face"),
                      "ending": "loop_short",
-                     "format": "fashion" if fashion_item else "year",
+                     "format": "fashion" if fashion_item else ("ukiyoe" if art.get("ukiyoe") else "year"),
                      "teaser": teaser[0] if teaser else None,   # 予告編の回なら通常動画の番号   # 「服装から当てる」回(fashion.py)と比べる    # 冒頭の場面へ戻る終わり方+作品名を読み上げない短い版(2026-11-21〜)
                      "site": site_fields(art),
                      "id": art["id"], "date": today, "video": f"{stem}.mp4", "thumbnail": f"{stem}_thumb.png"})

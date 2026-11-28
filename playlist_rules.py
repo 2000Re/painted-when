@@ -9,8 +9,11 @@ ALL = ("Guess the Year: Famous Paintings Art Quiz",
 FASHION = ("Fashion Clues: Date the Painting by the Clothes",
            "Ruffs, wigs, tricorn hats and bustles: guess the century of a painting from the clothes alone.")
 
+UKIYOE = ("Ukiyo-e Quiz: Guess the Year of Japanese Woodblock Prints",
+          "Hokusai, Hiroshige, Utamaro and more: guess when each Japanese woodblock print was made.")
+
 
 def for_record(rec):
     if "keys" in rec:                       # longform_history.json(通常動画)
         return [LONG]
-    return [FASHION if rec.get("format") == "fashion" else ALL]
+    return [{"fashion": FASHION, "ukiyoe": UKIYOE}.get(rec.get("format"), ALL)]
