@@ -30,6 +30,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
 HISTORY = ROOT / "upload_history.json"
+LONG_HISTORY = ROOT / "longform_history.json"      # 通常動画(横長)の投稿記録。なければ通常動画の表は出さない
 STATS = ROOT / "stats.json"
 REPORT = ROOT / "stats.md"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
@@ -149,6 +150,40 @@ def fetch_countries(token, history, stats, now):
     return out
 
 
+SOURCE_NAMES = {
+    "SHORTS": "Shorts", "RELATED_VIDEO": "関連動画", "YT_SEARCH": "検索", "SUBSCRIBER": "登録者",
+    "BROWSE": "ホーム・ブラウジング", "YT_CHANNEL": "チャンネルページ", "PLAYLIST": "再生リスト", "EXT_URL": "外部",
+    "NO_LINK_OTHER": "直接・不明", "END_SCREEN": "終了画面", "NOTIFICATION": "通知", "YT_OTHER_PAGE": "その他の YouTube",
+    "ANNOTATION": "カード", "HASHTAGS": "ハッシュタグ", "SOUND_PAGE": "サウンド", "LIVE_REDIRECT": "ライブ",
+}
+
+
+def fetch_long(token, long_history, per_video, now):
+    """通常動画ごとの数字。{回の番号: {video_id, title, published, views, likes, comments, analytics, sources}}。
+    sources は流入元ごとの再生数(投稿からの全期間)。予告編の Short(関連動画)から来ているかを見るため。"""
+    hist = [h for h in long_history if h.get("video_id")]
+    if not hist:
+        return {}
+    cur = fetch(token, [h["video_id"] for h in hist])
+    today = now.astimezone(TZ).date()
+    out = {}
+    for h in hist:
+        vid = h["video_id"]
+        pub = datetime.fromisoformat((h.get("publish_at") or h["uploaded_at"]).replace("Z", "+00:00"))
+        rec = {"video_id": vid, "title": h.get("title", ""), "published": pub.isoformat(timespec="minutes"),
+               **cur.get(vid, {}), "analytics": per_video.get(vid, {})}
+        if pub <= now:
+            try:
+                rows = analytics_query(token, startDate=pub.astimezone(TZ).date().isoformat(), endDate=today.isoformat(),
+                                       metrics="views", dimensions="insightTrafficSourceType",
+                                       filters=f"video=={vid}", sort="-views")
+                rec["sources"] = {r["insightTrafficSourceType"]: r["views"] for r in rows}
+            except Exception as e:  # noqa: BLE001
+                rec["sources_error"] = str(e)[:120]
+        out[str(h["number"])] = rec
+    return out
+
+
 def update(stats, history, current, now):
     for h in history:
         vid = h.get("video_id")
@@ -227,13 +262,34 @@ def report(stats, history, now):
             sf = src.get("SHORTS", 0)
             lines.append(f"| {day} | {total} | {sf} | {sf / total * 100:.0f}% |" if total else f"| {day} | 0 | 0 | |")
         lines.append("")
+    long = stats.get("_long") or {}
+    if long:
+        lines.extend(["## 通常動画(横長)", "",
+                      "再生数は YouTube の今の数字。平均視聴割合と流入元は YouTube Analytics(2〜3日遅れ)。"
+                      "流入元の「関連動画」には、予告編の Short の関連動画からの再生が入る。", "",
+                      "| # | 公開(JST) | 再生 | 平均視聴割合 | 平均視聴時間 | 登録者+ | 流入元(上位3) |",
+                      "|---:|---|---:|---:|---:|---:|---|"])
+        for num, r in sorted(long.items(), key=lambda kv: -int(kv[0])):
+            an = r.get("analytics", {})
+            avp = f"{an['averageViewPercentage']:.0f}%" if "averageViewPercentage" in an else ""
+            dur = an.get("averageViewDuration")
+            dur = f"{int(dur) // 60}:{int(dur) % 60:02d}" if dur else ""
+            src = r.get("sources") or {}
+            tot = sum(src.values())
+            top = ", ".join(f"{SOURCE_NAMES.get(k, k)} {v / tot * 100:.0f}%" for k, v in
+                            sorted(src.items(), key=lambda kv: -kv[1])[:3]) if tot else ""
+            when = datetime.fromisoformat(r["published"]).astimezone(TZ).strftime("%m-%d %H:%M")
+            url = f"https://youtu.be/{r['video_id']}"
+            lines.append(f"| [{num}]({url}) | {when} | {r.get('views', '')} | {avp} | {dur} | "
+                         f"{an.get('subscribersGained', '')} | {top} |")
+        lines.append("")
     countries = stats.get("_countries") or {}
     if countries.get("channel"):
         name = lambda c: f"{COUNTRY_NAMES.get(c, c)}"
         total = sum(countries["channel"].values())
         lines.extend([f"## 視聴者の国(直近{countries.get('days', TRAFFIC_DAYS)}日、上位{COUNTRY_TOP}か国。YouTube Analytics)", "",
                       "| 国 | 再生 | 上位の中の割合 |", "|---|---:|---:|"])
-        for c, v in countries["channel"].items():
+        for c, v in sorted(countries["channel"].items(), key=lambda kv: -kv[1]):   # 保存すると国の順に並ぶので並べ直す
             lines.append(f"| {name(c)} ({c}) | {v} | {v / total * 100:.0f}% |" if total else f"| {name(c)} | {v} | |")
         lines.append("")
         if countries.get("videos"):
@@ -242,7 +298,7 @@ def report(stats, history, now):
                           "| # | 答え | 国の内訳 |", "|---:|---|---|"])
             for num, cs in sorted(countries["videos"].items(), key=lambda kv: -sum(kv[1].values())):
                 t = sum(cs.values())
-                parts = ", ".join(f"{name(c)} {v / t * 100:.0f}%" for c, v in cs.items()) if t else ""
+                parts = ", ".join(f"{name(c)} {v / t * 100:.0f}%" for c, v in sorted(cs.items(), key=lambda kv: -kv[1])) if t else ""
                 ans = str(by_num.get(num, {}).get("answer", "")).replace("|", "/")[:60]
                 lines.append(f"| {num} | {ans} | {parts} |")
             lines.append("")
@@ -287,6 +343,12 @@ def main():
                                                                         "at": now.isoformat(timespec="seconds")}
         if traffic:
             stats["_traffic"] = traffic
+        if LONG_HISTORY.exists():               # 通常動画の数字(失敗しても他は残す)
+            try:
+                long_hist = json.loads(LONG_HISTORY.read_text() or "[]")
+                stats["_long"] = fetch_long(token, long_hist, per_video, now)
+            except Exception as e:  # noqa: BLE001
+                note = (note + " / " if note else "") + f"通常動画の数字を取れなかった ({e})"
         if per_video:                          # Analytics が使えるときだけ(国の内訳。失敗しても他は残す)
             try:
                 stats["_countries"] = fetch_countries(token, history, stats, now)
