@@ -1194,5 +1194,28 @@
    "1826"
   ],
   "answer": 0
+ },
+ {
+  "number": 53,
+  "slug": "53-the-adoration-of-the-magi",
+  "video_id": "5O4rAtFtzgw",
+  "uploaded_at": "2026-11-28T03:18:47+00:00",
+  "title": "The Adoration of the Magi",
+  "artist": "Hieronymus Bosch",
+  "artist_bio": "Netherlandish, ’s Hertogenbosch ca. 1450–1516 ’s Hertogenbosch",
+  "artist_unknown": false,
+  "date": "ca. 1475",
+  "medium": "Oil and gold on oak",
+  "museum": "The Metropolitan Museum of Art",
+  "museum_url": "https://www.metmuseum.org/art/collection/search/435724",
+  "image": "https://images.metmuseum.org/CRDImages/ep/web-large/DP372687.jpg",
+  "source": "met",
+  "id": "435724",
+  "choices": [
+   "1470",
+   "1251",
+   "1554"
+  ],
+  "answer": 0
  }
 ]

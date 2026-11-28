@@ -811,5 +811,24 @@
     "video_id": "HFNlDLWNOY8",
     "privacy": "public",
     "uploaded_at": "2026-11-27T15:19:03+00:00"
+  },
+  {
+    "number": 53,
+    "key": "met:435724",
+    "source": "met",
+    "id": "435724",
+    "date": "2026-11-28",
+    "title": "[53] Can you guess the year of this Hieronymus Bosch painting? 🎨",
+    "answer": "1470",
+    "artist": "Hieronymus Bosch",
+    "variant": "base",
+    "has_face": false,
+    "title_style": "artist_year",
+    "ending": "loop_short",
+    "format": "year",
+    "teaser": null,
+    "video_id": "5O4rAtFtzgw",
+    "privacy": "public",
+    "uploaded_at": "2026-11-28T03:18:47+00:00"
   }
 ]
