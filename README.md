@@ -428,3 +428,5 @@ GitHub の定期実行は数時間遅れることがあるので、通常動画�
 サイトの作品画像は、週1回 site_images.py(.github/workflows/site-images.yml)が開けるかを確かめ、美術館が画像を差し替えて開けなくなったものは URL を取り直す。開けない間は「Image not available」と出る(site_gen.on_error)。
 
 冒頭の帯の比較(2026-11-28〜): 番号を4で割った余りが1・2の回は、上の暗い帯に問いと3つの年を最初のコマから出す(quiz.Quiz の header)。投稿記録の category が header / plain。stats.md の category で比べる。
+
+裸体の作品は出さない(2026-11-28〜。art_shorts.is_nude)。美術館の主題のタグ(Met の tags、シカゴ美術館の term_titles・subject_titles)に nude などがある作品と、題名に Nude・Bathers・Venus などがある作品を、Shorts・浮世絵の回・通常動画の作品選びで除く。

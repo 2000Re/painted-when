@@ -94,7 +94,7 @@ def from_record(src, r, name):
     if re.search(r"\d0s\b|possibly|probably|century|\?", r.get("date_display") or "", re.I):
         return None
     art = src.from_record({**r, "artwork_type_title": "Painting"})     # 絵画の判定だけを通す(版画として扱う)
-    if not art:
+    if not art or A.is_nude(art):          # 裸体の作品は出さない(art_shorts.is_nude)
         return None
     art["classification"] = "Print"
     art["artist"] = name
