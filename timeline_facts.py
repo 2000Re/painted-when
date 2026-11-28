@@ -35,4 +35,5 @@ def fact(art, year):
     end = art.get("year_end")
     approx = (end is not None and end != art.get("year_start")) or bool(
         re.search(r"\b(ca\.?|c\.|about|circa)\b|[–-]", str(art.get("date") or ""), re.I))
-    return f"Painted {'about ' if approx else ''}{gap} year{'s' if gap != 1 else ''} before {nxt[1]}"
+    verb = "Made" if art.get("ukiyoe") else "Painted"      # 浮世絵(版画)は「作られた」
+    return f"{verb} {'about ' if approx else ''}{gap} year{'s' if gap != 1 else ''} before {nxt[1]}"

@@ -301,6 +301,9 @@ class Quiz:
             import fashion as F
             self.fashion_labels, self.correct = F.choices(self.answer, rng)
             self.choices = [int(x[:-1]) for x in self.fashion_labels]
+        elif art.get("ukiyoe"):
+            import ukiyoe as U
+            self.choices, self.correct = U.choices(self.answer, rng)
         else:
             self.choices, self.correct = make_choices(self.answer, rng, max_year)
 
@@ -341,9 +344,12 @@ class Quiz:
             self.pyramid.append(p.resize((p.width // 2, p.height // 2), Image.LANCZOS))
 
         # 文字
-        self.q_kicker = text_layer(["FASHION CLUE QUIZ" if fashion else "TODAY'S ART QUIZ"], A.font(A.SANS_BOLD, 30),
+        ukiyoe = bool(art.get("ukiyoe"))
+        self.q_kicker = text_layer(["FASHION CLUE QUIZ" if fashion else ("UKIYO-E QUIZ" if ukiyoe else "TODAY'S ART QUIZ")],
+                                   A.font(A.SANS_BOLD, 30),
                                    GOLD, W)
-        self.q_main = text_layer(["Which century? Check the clothes!" if fashion else "When was this painted?"],
+        self.q_main = text_layer(["Which century? Check the clothes!" if fashion else
+                                  ("When was this print made?" if ukiyoe else "When was this painted?")],
                                  A.font(A.SANS_BOLD, 56 if fashion else 66), WHITE, W)
         self.q_outro = text_layer(["How did you do?"], A.font(A.SANS_BOLD, 66), WHITE, W)
         credit = f"{art['museum']} · Public Domain (CC0)"
