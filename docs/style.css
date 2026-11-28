@@ -90,3 +90,8 @@ footer .bar { justify-content: center; text-align: center; }
 .answer-year { font-size: 20px; }
 .artwork { width: 100%; height: auto; border-radius: 6px; border: 6px solid #4a3523; margin: 6px 0 4px; }
 .pager { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px; }
+
+/* 画像が開けないときの代わり(site_gen.on_error) */
+.img-missing { width: 100%; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 12px; box-sizing: border-box; background: #0d0b09; color: #9c8f7d;
+  font-size: 14px; border-radius: 6px; margin-bottom: 6px; }
