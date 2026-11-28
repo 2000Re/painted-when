@@ -1,0 +1,40 @@
+name: site-images
+
+# サイトの作品画像が開けるかを週1回確かめ、美術館が画像を差し替えて開けなくなったものは、
+# 美術館の API から今の画像の URL を取り直してページを作り直す(site_images.py)。
+on:
+  schedule:
+    - cron: "37 3 * * 0"     # 毎週日曜 3:37 UTC(12:37 JST)。数時間遅れても困らない
+  workflow_dispatch:
+
+# 投稿(post.yml)と同時に docs/ を書き換えないよう、投稿と同じ組で直列にする
+concurrency:
+  group: post
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Check and fix artwork images
+        run: python site_images.py
+      - name: Commit fixed pages
+        run: |
+          git diff --quiet -- docs/ && { echo "直したページはありません"; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git commit -m "Fix artwork images on the site"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1

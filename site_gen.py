@@ -92,9 +92,16 @@ def page(title, description, body, depth, canonical, extra_head=""):
 """
 
 
+# 画像が開けないとき(美術館が画像を差し替えたなど)は、崩れた画像の代わりにこの表示を出す。
+# 週1回の site_images.py が URL を直すまでのつなぎ
+def on_error(text):
+    return ("this.onerror=null;var d=document.createElement('div');d.className='img-missing';"
+            f"d.textContent='{text}';this.replaceWith(d)")
+
+
 def card(x, prefix):
     return f"""<a class="card" href="{prefix}{e(x['slug'])}/">
-  <img src="{e(x['image'])}" alt="" loading="lazy">
+  <img src="{e(x['image'])}" alt="" loading="lazy" onerror="{e(on_error('Image not available'))}">
   <span class="card-no">Quiz #{x['number']}</span>
   <span class="card-title">{e(x['title'])}</span>
   <span class="card-artist">{e(x['artist'])}</span>
@@ -139,7 +146,8 @@ def quiz_page(x, prev, nxt):
       <button type="button" class="reveal">Show the answer</button>
       <div class="answer" hidden>
         <p class="answer-year">Answer: <strong>{e(x['choices'][x['answer']])}</strong></p>
-        <img class="artwork" src="{e(x['image'])}" alt="{e(x['title'])} by {e(by)}" loading="lazy">
+        <img class="artwork" src="{e(x['image'])}" alt="{e(x['title'])} by {e(by)}" loading="lazy"
+          onerror="{e(on_error('Image not available here. See it at the museum link below.'))}">
         <h2>{e(x['title'])}</h2>
         <p><strong>{e(x['artist'])}</strong>{(' — ' + e(x['artist_bio'])) if x.get('artist_bio') else ''}</p>
         <p class="muted">{e(details)}</p>
