@@ -179,6 +179,7 @@ class Met:
             "museum": self.museum,
             "credit": "Image: The Metropolitan Museum of Art, Public Domain (CC0)",
             "license": "CC0",
+            "tags": [clean(t.get("term")) for t in (o.get("tags") or []) if isinstance(t, dict)],
         }
 
 
@@ -219,7 +220,8 @@ class AIC:
     BASE = "https://api.artic.edu/api/v1"
     QUERY = "painting"
     FIELDS = ("id,title,artist_display,artist_title,date_display,medium_display,"
-              "is_public_domain,image_id,artwork_type_title,classification_title,date_start,date_end")
+              "is_public_domain,image_id,artwork_type_title,classification_title,date_start,date_end,"
+              "term_titles,subject_titles")
     MAX_PAGES = 10   # 検索APIは先頭1000件(100件×10ページ)までしか返さない
     headers = {"AIC-User-Agent": USER_AGENT}
 
@@ -284,6 +286,7 @@ class AIC:
             "museum": self.museum,
             "credit": "Image: Art Institute of Chicago, CC0",
             "license": "CC0",
+            "tags": [clean(t) for t in (a.get("term_titles") or []) + (a.get("subject_titles") or []) if t],
         }
 
     def fetch(self, artwork_id):
@@ -326,10 +329,26 @@ def to_int(v):
         return None
 
 
+# 裸体の作品は出さない(2026-11-28〜)。#52「The Bathers」(ブグロー)が3回しか再生されず、YouTube が
+# 裸体の映る動画をおすすめに出しにくくしているとみられるため。美術館の主題のタグ(Met の tags、シカゴ美術館の
+# term_titles・subject_titles)に nude などがある作品と、題名に下の語がある作品を除く
+NUDE_TAG = re.compile(r"\bnud(e|es|ity)\b|\bnaked\b|\berotic", re.I)
+NUDE_TITLE = re.compile(r"\bnud(e|es)\b|\bnaked\b|\bbath(er|ers|ing|sheba)\b|\bvenus\b|\bodalisque\b|\bdana[eë]\b|"
+                        r"\bleda\b|\bsusanna\b|\bthree graces\b|\bjudgment of paris\b|\bdiana and\b|\bnymphs?\b|"
+                        r"\badam and eve\b|\bmars and venus\b|\bcupid and psyche\b", re.I)
+
+
+def is_nude(art):
+    """裸体が描かれているとみられる作品なら True(タグか題名で判定)。"""
+    if any(NUDE_TAG.search(t or "") for t in art.get("tags") or []):
+        return True
+    return bool(NUDE_TITLE.search(art.get("title") or ""))
+
+
 def choose_artwork(src, rng, used, today, accept=None):
     """今日の作品を選ぶ。同じ日に同じ source で選んだ作品があれば、それをもう一度使う。
     accept(art) が False を返す作品は選ばない(クイズに使える年がない作品など)。"""
-    ok = lambda a: a is not None and (accept is None or accept(a))
+    ok = lambda a: a is not None and not is_nude(a) and (accept is None or accept(a))
     for u in used:
         if u.get("source") == src.name and u.get("date") == today:
             art = src.fetch(u["id"])
@@ -375,7 +394,7 @@ PER_ARTIST = 2          # 1人の画家から出す候補の数(画家がかた�
 def _famous_candidates(src, rng, used, accept, avoid_artists):
     """有名な画家の本人の作品で、未使用・クイズに使えるものを、画家ごとに順に出す。"""
     import artists
-    ok = lambda a: a is not None and (accept is None or accept(a))
+    ok = lambda a: a is not None and not is_nude(a) and (accept is None or accept(a))
     used_ids = {u["id"] for u in used if u.get("source") == src.name}
     names = [n for n, _ in artists.FAMOUS]
     rng.shuffle(names)
