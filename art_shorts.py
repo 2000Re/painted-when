@@ -988,6 +988,9 @@ def latest_long():
     return (pub[-1]["number"], f"https://youtu.be/{pub[-1]['video_id']}") if pub else None
 
 
+# 予告編の Short は 2026-11-28 にやめた(#46 は3日目で7回、#48 は106回と、ふつうの回の平均 436 を大きく下回り、
+# 通常動画もほとんど見られていないため)。説明欄の通常動画へのリンク(latest_long)はそのまま。True に戻せば再開する
+TEASER_ENABLED = False
 TEASER_DAYS = 3         # 通常動画を投稿してからこの日数のうちに、予告編の Short を1本出す
 
 
@@ -1191,7 +1194,8 @@ def main():
     import fashion as F
     fashion_item = None
     # 通常動画の予告編の回(週1本)。服装の回より先にする(服装の回は次の5の倍数の回に出る)
-    teaser = teaser_plan(history) if style == "quiz" and args.history and not args.demo and not args.id else None
+    teaser = (teaser_plan(history) if TEASER_ENABLED and style == "quiz" and args.history and not args.demo and not args.id
+              else None)
     if teaser:
         print(f"予告編: Art History Timeline Challenge #{teaser[0]} の {teaser[3]}問目 → {teaser[2]}")
         args.source = teaser[2].split(":")[0]
